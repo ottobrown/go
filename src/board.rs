@@ -6,6 +6,7 @@ pub enum Stone {
 }
 
 /// The state of a go game at a single point in time
+#[derive(Clone)]
 pub struct Board {
     w: usize,
     h: usize,
@@ -16,7 +17,7 @@ impl Board {
         Self {
             w: w,
             h: h,
-            stones: vec![Stone::Empty; w*h],
+            stones: vec![Stone::Empty; w * h],
         }
     }
 
@@ -29,7 +30,7 @@ impl Board {
     }
 
     fn index(&self, x: usize, y: usize) -> usize {
-        y*self.h + x
+        y * self.h + x
     }
 
     pub fn get(&self, x: usize, y: usize) -> &Stone {
@@ -41,5 +42,4 @@ impl Board {
         let index = self.index(x, y);
         self.stones[index] = s;
     }
-
 }
