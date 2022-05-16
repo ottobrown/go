@@ -1,5 +1,3 @@
-use array2d::Array2D;
-
 #[derive(Clone, Copy, PartialEq)]
 pub enum Stone {
     Empty = 0,
@@ -9,5 +7,39 @@ pub enum Stone {
 
 /// The state of a go game at a single point in time
 pub struct Board {
-    pub stones: Array2D<Stone>,
+    w: usize,
+    h: usize,
+    stones: Vec<Stone>,
+}
+impl Board {
+    pub fn blank(w: usize, h: usize) -> Self {
+        Self {
+            w: w,
+            h: h,
+            stones: vec![Stone::Empty; w*h],
+        }
+    }
+
+    pub fn width(&self) -> usize {
+        self.w
+    }
+
+    pub fn height(&self) -> usize {
+        self.w
+    }
+
+    fn index(&self, x: usize, y: usize) -> usize {
+        y*self.h + x
+    }
+
+    pub fn get(&self, x: usize, y: usize) -> &Stone {
+        &self.stones[self.index(x, y)]
+    }
+
+    /// Place a stone, regardless of its legality
+    pub fn set(&mut self, s: Stone, x: usize, y: usize) {
+        let index = self.index(x, y);
+        self.stones[index] = s;
+    }
+
 }

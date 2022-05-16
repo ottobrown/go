@@ -5,4 +5,3 @@ edition = "2021"
 
 [dependencies]
 eframe = "0.18.0"
-array2d = "0.2.1"
