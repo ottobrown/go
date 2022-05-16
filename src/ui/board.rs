@@ -1,4 +1,5 @@
 use crate::Board;
+use crate::Stone;
 use eframe::egui;
 use egui::epaint;
 use egui::Ui;
@@ -154,6 +155,23 @@ pub fn render_board(
         );
 
         shapes.push(line)
+    }
+
+    for x in 0..w {
+        for y in 0..h {
+            let stone_color: Option<Color32> = match board.get(x, y) {
+                Stone::Black => Some(Color32::BLACK),
+                Stone::White => Some(Color32::WHITE),
+
+                _ => None,
+            };
+
+            if let Some(color) = stone_color {
+                let center = c.get_pos(x, y);
+                let circle = Shape::circle_filled(center, c.stone_radius, color);
+                shapes.push(circle)
+            }
+        }
     }
 
     painter.extend(shapes);

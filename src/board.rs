@@ -33,8 +33,8 @@ impl Board {
         y * self.h + x
     }
 
-    pub fn get(&self, x: usize, y: usize) -> &Stone {
-        &self.stones[self.index(x, y)]
+    pub fn get(&self, x: usize, y: usize) -> Stone {
+        self.stones[self.index(x, y)]
     }
 
     /// Place a stone, regardless of its legality
