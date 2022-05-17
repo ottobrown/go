@@ -31,6 +31,10 @@ impl Game {
             _ => unimplemented!(),
         };
     }
+
+    pub fn size(&self) -> (usize, usize) {
+        (self.current_board.width(), self.current_board.height())
+    }
 }
 
 /// Used to build a new, blank game
