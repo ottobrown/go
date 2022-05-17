@@ -2,7 +2,7 @@ use eframe::egui;
 use egui::Ui;
 
 use super::board::{render_board, BoardStyle, Computed};
-use crate::{Game, Event, Stone};
+use crate::{Game, Event};
 
 pub struct Editor {
     pub computed: Computed,
@@ -36,7 +36,7 @@ pub fn handle_click(ui: &mut Ui, c: &Computed, game: &mut Game) {
                 return;
             }
 
-            let play = Event::Place(Stone::Black, x, y);
+            let play = Event::Move(x, y);
             game.handle_event(&play);
         }
     }

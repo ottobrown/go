@@ -42,4 +42,14 @@ impl Board {
         let index = self.index(x, y);
         self.stones[index] = s;
     }
+
+    /// Do move only if it is legal
+    pub fn play(&mut self, s: Stone, x: usize, y: usize) {
+        let index = self.index(x, y);
+        if self.stones[index] != Stone::Empty {
+            return
+        }
+
+        self.stones[index] = s
+    }
 }

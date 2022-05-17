@@ -3,15 +3,18 @@ use crate::Stone;
 
 #[derive(Clone)]
 pub enum Event {
-    Pass(Stone),
+    Pass,
     Resign(Stone),
+    Move(usize, usize),
+
     Place(Stone, usize, usize),
-    Edit(Board),
 }
 
 pub struct Game {
     current_board: Board,
     history: Vec<Event>,
+
+    turn: Stone,
 }
 impl Game {
     pub fn builder() -> NewGameBuilder {
@@ -22,11 +25,22 @@ impl Game {
         self.current_board.clone()
     }
 
+    pub fn swap_turn(&mut self) {
+        self.turn = match self.turn {
+            Stone::Black => Stone::White,
+            Stone::White => Stone::Black,
+
+            // this should never happen
+            _ => Stone::Empty,
+        };
+    }
+
     pub fn handle_event(&mut self, e: &Event) {
         self.history.push(e.clone());
 
         match e {
             Event::Place(s, x, y) => self.current_board.set(*s, *x, *y),
+            Event::Move(x, y) => {self.current_board.play(self.turn, *x, *y); self.swap_turn()},
 
             _ => unimplemented!(),
         };
@@ -47,6 +61,7 @@ impl NewGameBuilder {
         Game {
             current_board: Board::blank(self.w, self.h),
             history: Vec::new(),
+            turn: Stone::Black,
         }
     }
 }
