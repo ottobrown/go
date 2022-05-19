@@ -52,14 +52,19 @@ impl Board {
         self.stones[index] = s;
     }
 
-    /// Do move only if it is legal
-    pub fn play(&mut self, s: Stone, x: usize, y: usize) {
+    /// Do move only if it is legal.
+    /// Returns if move is legal
+    pub fn play(&mut self, s: Stone, x: usize, y: usize) -> bool {
         let index = self.index(x, y);
+        if index >= self.stones.len() {
+            return false
+        }
         if self.stones[index] != Stone::Empty {
-            return
+            return false
         }
 
-        self.stones[index] = s
+        self.stones[index] = s;
+        return true
     }
 
     pub fn get_neighbors(&self, x: usize, y: usize) -> Neighbors {
