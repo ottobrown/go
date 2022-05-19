@@ -159,7 +159,7 @@ pub fn render_board(
 
     for x in 0..w {
         for y in 0..h {
-            let stone_color: Option<Color32> = match board.get(x, y) {
+            let stone_color: Option<Color32> = match board.get(x, y).unwrap() {
                 Stone::Black => Some(Color32::BLACK),
                 Stone::White => Some(Color32::WHITE),
 
