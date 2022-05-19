@@ -51,7 +51,17 @@ impl Board {
         let index = self.index(x, y);
         self.stones[index] = s;
     }
-    
+
+    /// Do move only if it is legal
+    pub fn play(&mut self, s: Stone, x: usize, y: usize) {
+        let index = self.index(x, y);
+        if self.stones[index] != Stone::Empty {
+            return
+        }
+
+        self.stones[index] = s
+    }
+
     pub fn get_neighbors(&self, x: usize, y: usize) -> Neighbors {
         let mut neighbors = Neighbors::default();
 
@@ -103,4 +113,5 @@ impl Group {
         self.liberties.contains(&(x, y)) ||
         self.enemy_neighbors.contains(&(x, y))
     }
+    
 }

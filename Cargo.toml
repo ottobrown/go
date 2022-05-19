@@ -1,7 +1,11 @@
 [package]
 name = "go"
-version = "0.1.0"
+description = "sgf client"
+license = "MIT"
+version = "0.0.1"
+readme = "README.md"
 edition = "2021"
 
 [dependencies]
 eframe = "0.18.0"
+
