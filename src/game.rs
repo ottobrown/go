@@ -40,7 +40,11 @@ impl Game {
 
         match e {
             Event::Place(s, x, y) => self.current_board.set(*s, *x, *y),
-            Event::Move(x, y) => {self.current_board.play(self.turn, *x, *y); self.swap_turn()},
+            Event::Move(x, y) => {
+                if self.current_board.play(self.turn, *x, *y) {
+                    self.swap_turn()
+                }
+            },
 
             _ => unimplemented!(),
         };
