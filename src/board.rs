@@ -26,7 +26,7 @@ impl Board {
     }
 
     pub fn height(&self) -> usize {
-        self.w
+        self.h
     }
 
     fn index(&self, x: usize, y: usize) -> usize {
