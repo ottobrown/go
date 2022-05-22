@@ -65,6 +65,17 @@ impl Board {
 
         self.stones[index] = s;
         self.add_group(x, y);
+        self.update_groups();
+
+        // remove dead groups
+        let mut dead = Vec::new();
+        for g in 0..self.groups.len() {
+            if self.groups[g].liberties.is_empty() {
+                dead.push(g);
+            }
+        }
+        dead.reverse();
+        for i in dead { self.kill_group(i) }
 
         return true
     }
@@ -96,7 +107,8 @@ impl Board {
             coords.left = Some((x-1, y));
         }
 
-        if x > self.stones.len() {
+        // ¯\_(ツ)_/¯
+        if x >= self.w-1 {
             coords.right = None;
         } else {
             coords.right = Some((x+1, y));
@@ -108,13 +120,24 @@ impl Board {
             coords.up = Some((x, y-1));
         }
 
-        if y > self.stones.len() {
+        if y >= self.h {
             coords.down = None;
         } else {
             coords.down = Some((x, y+1));
         }
 
         return coords;
+    }
+
+    /// Returns the index on self.groups of the group the point is part of
+    pub fn get_group(&self, x: usize, y: usize) -> Option<usize> {
+        for i in 0..self.groups.len() {
+            if self.groups[i].points.contains(&(x, y)) {
+                return Some(i);
+            }
+        }
+        
+        return None;
     }
 
     pub fn add_group(&mut self, x: usize, y: usize) {
@@ -129,7 +152,7 @@ impl Board {
             enemy_neighbors: HashSet::new(),
         };
 
-        fn add_neighbors(board: &Board, group: &mut Group, x: usize, y: usize) {
+        fn add_neighbors(board: &mut Board, group: &mut Group, x: usize, y: usize) {
             let neighbors = board.get_neighbors(x, y);
             let coords = board.neighbor_coords(x, y);
 
@@ -146,6 +169,13 @@ impl Board {
                         continue;
                     }
 
+                    if let Some(g) = board.get_group(c.0, c.1) {
+                        if &board.groups[g].color == &group.color {
+                            group.eat(&board.groups[g]);
+                            board.groups.remove(g);
+                        }
+                    }
+
                     if s == group.color {
                         add_neighbors(board, group, c.0, c.1);
                     } else if s == Stone::Empty {
@@ -153,14 +183,55 @@ impl Board {
                     } else {
                         group.enemy_neighbors.insert(c);
                     }
-                    // TODO: 'eat' nother group if they border
                 }
             }
         }
 
-        add_neighbors(&self, &mut group, x, y);
+        add_neighbors(self, &mut group, x, y);
 
         self.groups.push(group);
+    }
+
+    /// Updates liberties and enemy_neighbors
+    fn update_groups(&mut self) {
+        for g in 0..self.groups.len() {
+            let mut group = self.groups[g].clone();
+
+            let mut liberties = HashSet::new();
+            let mut enemy_neighbors = HashSet::new();
+
+            for i in &group.points {
+                let neighbors = self.get_neighbors(i.0, i.1);
+                let coords = self.neighbor_coords(i.0, i.1);
+                let stone_array = [neighbors.up, neighbors.down, neighbors.left, neighbors.right];
+                let coord_array = [coords.up, coords.down, coords.left, coords.right];
+
+                for j in 0..4 {
+                    if stone_array[j] == Some(Stone::Empty) {
+                        liberties.insert(coord_array[j].unwrap());
+                    } else if let Some(s) = stone_array[j] {
+                        if s != group.color {
+                            enemy_neighbors.insert(coord_array[j].unwrap());
+                        }
+                    }
+                }
+            }
+
+            group.liberties = liberties;
+            group.enemy_neighbors = enemy_neighbors;
+
+            self.groups[g] = group;
+        }
+    }
+
+    /// Kill the group at the given index on self.groups
+    pub fn kill_group(&mut self, i: usize) {
+        let g = self.groups[i].clone();
+
+        for j in &g.points {
+            self.set(Stone::Empty, j.0, j.1);
+        }
+        self.groups.remove(i);
     }
 }
 
@@ -189,10 +260,10 @@ pub struct Group {
 }
 impl Group {
     /// Merge this group with another
-    pub fn eat(&mut self, other: Group) {
-        self.points.extend(other.points);
-        self.liberties.extend(other.liberties);
-        self.enemy_neighbors.extend(other.enemy_neighbors);
+    pub fn eat(&mut self, other: &Group) {
+        self.points.extend(other.points.clone());
+        self.liberties.extend(other.liberties.clone());
+        self.enemy_neighbors.extend(other.enemy_neighbors.clone());
     }
 
     pub fn categorized(&self, x: usize, y: usize) -> bool {
