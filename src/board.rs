@@ -57,10 +57,10 @@ impl Board {
     pub fn play(&mut self, s: Stone, x: usize, y: usize) -> bool {
         let index = self.index(x, y);
         if index >= self.stones.len() {
-            return false
+            return false;
         }
         if self.stones[index] != Stone::Empty {
-            return false
+            return false;
         }
 
         self.stones[index] = s;
@@ -75,9 +75,11 @@ impl Board {
             }
         }
         dead.reverse();
-        for i in dead { self.kill_group(i) }
+        for i in dead {
+            self.kill_group(i)
+        }
 
-        return true
+        return true;
     }
 
     pub fn get_neighbors(&self, x: usize, y: usize) -> Neighbors {
@@ -85,9 +87,9 @@ impl Board {
 
         fn get(b: &Board, c: Option<(usize, usize)>) -> Option<Stone> {
             if let Some(p) = c {
-                return b.get(p.0, p.1)
+                return b.get(p.0, p.1);
             } else {
-                return None
+                return None;
             }
         }
 
@@ -104,26 +106,26 @@ impl Board {
         if x == 0 {
             coords.left = None;
         } else {
-            coords.left = Some((x-1, y));
+            coords.left = Some((x - 1, y));
         }
 
         // ¯\_(ツ)_/¯
-        if x >= self.w-1 {
+        if x >= self.w - 1 {
             coords.right = None;
         } else {
-            coords.right = Some((x+1, y));
+            coords.right = Some((x + 1, y));
         }
 
         if y == 0 {
             coords.up = None;
         } else {
-            coords.up = Some((x, y-1));
+            coords.up = Some((x, y - 1));
         }
 
         if y >= self.h {
             coords.down = None;
         } else {
-            coords.down = Some((x, y+1));
+            coords.down = Some((x, y + 1));
         }
 
         return coords;
@@ -136,14 +138,14 @@ impl Board {
                 return Some(i);
             }
         }
-        
+
         return None;
     }
 
     pub fn add_group(&mut self, x: usize, y: usize) {
         let color = match self.get(x, y) {
             Some(c) => c,
-            None => {return},
+            None => return,
         };
         let mut group = Group {
             color: color,
@@ -156,9 +158,14 @@ impl Board {
             let neighbors = board.get_neighbors(x, y);
             let coords = board.neighbor_coords(x, y);
 
-            let stone_array = [neighbors.up, neighbors.down, neighbors.left, neighbors.right];
+            let stone_array = [
+                neighbors.up,
+                neighbors.down,
+                neighbors.left,
+                neighbors.right,
+            ];
             let coord_array = [coords.up, coords.down, coords.left, coords.right];
-            
+
             group.points.insert((x, y));
             for i in 0..4 {
                 // If stone_array[i] is Some, coord_array[i] is Some
@@ -203,7 +210,12 @@ impl Board {
             for i in &group.points {
                 let neighbors = self.get_neighbors(i.0, i.1);
                 let coords = self.neighbor_coords(i.0, i.1);
-                let stone_array = [neighbors.up, neighbors.down, neighbors.left, neighbors.right];
+                let stone_array = [
+                    neighbors.up,
+                    neighbors.down,
+                    neighbors.left,
+                    neighbors.right,
+                ];
                 let coord_array = [coords.up, coords.down, coords.left, coords.right];
 
                 for j in 0..4 {
@@ -267,9 +279,8 @@ impl Group {
     }
 
     pub fn categorized(&self, x: usize, y: usize) -> bool {
-        self.points.contains(&(x, y)) ||
-        self.liberties.contains(&(x, y)) ||
-        self.enemy_neighbors.contains(&(x, y))
+        self.points.contains(&(x, y))
+            || self.liberties.contains(&(x, y))
+            || self.enemy_neighbors.contains(&(x, y))
     }
-    
 }

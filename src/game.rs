@@ -44,7 +44,7 @@ impl Game {
                 if self.current_board.play(self.turn, *x, *y) {
                     self.swap_turn()
                 }
-            },
+            }
 
             _ => unimplemented!(),
         };

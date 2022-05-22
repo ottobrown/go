@@ -7,8 +7,8 @@ mod ui;
 
 pub use board::Board;
 pub use board::Stone;
-pub use game::Game;
 pub use game::Event;
+pub use game::Game;
 pub use state::State;
 
 fn main() {

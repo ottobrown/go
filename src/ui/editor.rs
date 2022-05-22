@@ -2,7 +2,7 @@ use eframe::egui;
 use egui::Ui;
 
 use super::board::{render_board, BoardStyle, Computed};
-use crate::{Game, Event};
+use crate::{Event, Game};
 
 pub struct Editor {
     pub computed: Computed,
@@ -24,7 +24,7 @@ pub fn edit_game(ui: &mut Ui, game: &mut Game, style: &BoardStyle, editor: &mut 
 }
 
 pub fn handle_click(ui: &mut Ui, c: &Computed, game: &mut Game) {
-     if ui.input().pointer.primary_down() {
+    if ui.input().pointer.primary_down() {
         if let Some(p) = ui.input().pointer.interact_pos() {
             let (x, y) = (
                 ((p.x - c.inner_rect.min.x) / c.spacing.x).round() as usize,
@@ -32,7 +32,7 @@ pub fn handle_click(ui: &mut Ui, c: &Computed, game: &mut Game) {
             );
 
             let s = game.size();
-            if (x as usize)*s.0 + (y as usize) >= s.0*s.1 {
+            if (x as usize) * s.0 + (y as usize) >= s.0 * s.1 {
                 return;
             }
 
