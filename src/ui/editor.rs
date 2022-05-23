@@ -36,10 +36,10 @@ pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
             ui.selectable_value(&mut builder.size, (9, 9), "9x9");
 
             ui.label("custom size:");
-            ui.vertical(|ui| {
-                ui.add(egui::Slider::new(&mut builder.size.0, 5..=50).text("Board Width"));
-                ui.add(egui::Slider::new(&mut builder.size.1, 5..=50).text("Board Height"));
-            });
+            ui.add(egui::Slider::new(&mut builder.size.0, 5..=50).text("Board Width"));
+
+            // require square board
+            builder.size.1 = builder.size.0;
         });
     
     if ui.button("build").clicked() {
