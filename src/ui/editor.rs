@@ -23,7 +23,7 @@ pub fn edit_game(ui: &mut Ui, game: &mut Game, style: &BoardStyle, editor: &mut 
     handle_click(ui, &editor.computed, game);
 }
 
-pub fn handle_click(ui: &mut Ui, c: &Computed, game: &mut Game) {
+fn handle_click(ui: &mut Ui, c: &Computed, game: &mut Game) {
     if ui.input().pointer.primary_down() {
         if let Some(p) = ui.input().pointer.interact_pos() {
             let (x, y) = (

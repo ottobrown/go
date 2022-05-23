@@ -25,7 +25,7 @@ impl Game {
         self.current_board.clone()
     }
 
-    pub fn swap_turn(&mut self) {
+    fn swap_turn(&mut self) {
         self.turn = match self.turn {
             Stone::Black => Stone::White,
             Stone::White => Stone::Black,
