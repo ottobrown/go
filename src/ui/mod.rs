@@ -19,7 +19,7 @@ pub fn render(state: &mut State, ctx: &Context, _frame: &Frame) {
     });
 }
 
-pub fn default_style() -> egui::Style {
+fn default_style() -> egui::Style {
     Style {
         visuals: egui::Visuals {
             dark_mode: true,

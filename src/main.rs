@@ -5,11 +5,11 @@ mod game;
 mod state;
 mod ui;
 
-pub use board::Board;
-pub use board::Stone;
-pub use game::Event;
-pub use game::Game;
-pub use state::State;
+use board::Board;
+use board::Stone;
+use game::Event;
+use game::Game;
+use state::State;
 
 fn main() {
     let ops = NativeOptions::default();
