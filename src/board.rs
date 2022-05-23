@@ -82,7 +82,7 @@ impl Board {
         return true;
     }
 
-    pub fn get_neighbors(&self, x: usize, y: usize) -> Neighbors {
+    fn get_neighbors(&self, x: usize, y: usize) -> Neighbors {
         let c = self.neighbor_coords(x, y);
 
         fn get(b: &Board, c: Option<(usize, usize)>) -> Option<Stone> {
@@ -101,7 +101,7 @@ impl Board {
         }
     }
 
-    pub fn neighbor_coords(&self, x: usize, y: usize) -> NeighborCoords {
+    fn neighbor_coords(&self, x: usize, y: usize) -> NeighborCoords {
         let mut coords = NeighborCoords::default();
         if x == 0 {
             coords.left = None;
@@ -132,7 +132,7 @@ impl Board {
     }
 
     /// Returns the index on self.groups of the group the point is part of
-    pub fn get_group(&self, x: usize, y: usize) -> Option<usize> {
+    fn get_group(&self, x: usize, y: usize) -> Option<usize> {
         for i in 0..self.groups.len() {
             if self.groups[i].points.contains(&(x, y)) {
                 return Some(i);
@@ -142,7 +142,7 @@ impl Board {
         return None;
     }
 
-    pub fn add_group(&mut self, x: usize, y: usize) {
+    fn add_group(&mut self, x: usize, y: usize) {
         let color = match self.get(x, y) {
             Some(c) => c,
             None => return,
@@ -237,7 +237,7 @@ impl Board {
     }
 
     /// Kill the group at the given index on self.groups
-    pub fn kill_group(&mut self, i: usize) {
+    fn kill_group(&mut self, i: usize) {
         let g = self.groups[i].clone();
 
         for j in &g.points {
@@ -248,7 +248,7 @@ impl Board {
 }
 
 #[derive(Clone, Copy, Default)]
-pub struct NeighborCoords {
+struct NeighborCoords {
     pub up: Option<(usize, usize)>,
     pub down: Option<(usize, usize)>,
     pub left: Option<(usize, usize)>,
@@ -256,7 +256,7 @@ pub struct NeighborCoords {
 }
 
 #[derive(Clone, Copy, Default)]
-pub struct Neighbors {
+struct Neighbors {
     pub up: Option<Stone>,
     pub down: Option<Stone>,
     pub left: Option<Stone>,
@@ -264,7 +264,7 @@ pub struct Neighbors {
 }
 
 #[derive(Clone, Debug)]
-pub struct Group {
+struct Group {
     pub color: Stone,
     pub points: HashSet<(usize, usize)>,
     pub liberties: HashSet<(usize, usize)>,
