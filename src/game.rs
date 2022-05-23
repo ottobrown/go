@@ -1,4 +1,5 @@
 use crate::Board;
+use crate::Rules;
 use crate::Stone;
 
 #[derive(Clone)]
@@ -15,6 +16,7 @@ pub struct Game {
     history: Vec<Event>,
 
     turn: Stone,
+    rules: Rules,
 }
 impl Game {
     pub fn builder() -> NewGameBuilder {
@@ -41,7 +43,7 @@ impl Game {
         match e {
             Event::Place(s, x, y) => self.current_board.set(*s, *x, *y),
             Event::Move(x, y) => {
-                if self.current_board.play(self.turn, *x, *y) {
+                if self.current_board.play(self.turn, *x, *y, &self.rules) {
                     self.swap_turn()
                 }
             }
@@ -59,6 +61,7 @@ impl Game {
 pub struct NewGameBuilder {
     pub w: usize,
     pub h: usize,
+    pub rules: Rules,
 }
 impl NewGameBuilder {
     pub fn build(&self) -> Game {
@@ -66,12 +69,17 @@ impl NewGameBuilder {
             current_board: Board::blank(self.w, self.h),
             history: Vec::new(),
             turn: Stone::Black,
+            rules: self.rules,
         }
     }
 }
 
 impl Default for NewGameBuilder {
     fn default() -> Self {
-        Self { w: 19, h: 19 }
+        Self {
+            w: 19,
+            h: 19,
+            rules: Rules::CHINESE,
+        }
     }
 }

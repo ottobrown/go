@@ -1,3 +1,4 @@
+use crate::Rules;
 use std::collections::HashSet;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -54,7 +55,7 @@ impl Board {
 
     /// Do move only if it is legal.
     /// Returns if move is legal
-    pub fn play(&mut self, s: Stone, x: usize, y: usize) -> bool {
+    pub fn play(&mut self, s: Stone, x: usize, y: usize, rules: &Rules) -> bool {
         let index = self.index(x, y);
         if index >= self.stones.len() {
             return false;
