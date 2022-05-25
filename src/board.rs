@@ -75,6 +75,7 @@ impl Board {
         if index >= self.stones.len() {
             return false;
         }
+
         // If point is already filled
         if self.stones[index] != Stone::Empty {
             return false;
@@ -88,15 +89,42 @@ impl Board {
         self.groups.push(group.clone());
         self.update_groups();
 
+        // Kill enemy groups
+        let mut dead: Vec<usize> = Vec::new();
         for i in (0..self.groups.len()).rev() {
             let g = &self.groups[i];
 
             if g.liberties.is_empty() && g.color == group.color.swap() {
-                self.kill_group(i);
+                dead.push(i);
             }
         }
 
+        for g in &dead {
+            self.kill_group(*g);
+        }
+
+        self.update_groups();
+        let last_group = self.groups.last().unwrap();
+
+        // Undo last move if no groups are captured
+        if last_group.liberties.is_empty() && dead.is_empty() {
+            self.stones[index] = Stone::Empty;
+            self.remove_stone_from_group((x, y));
+            
+            return false;
+        }
+
         return true;
+    }
+
+    fn remove_stone_from_group(&mut self, p: (usize, usize)) {
+        for i in 0..self.groups.len() {
+            if self.groups[i].points.remove(&p) {
+                self.update_groups();
+
+                return;
+            }
+        }
     }
 
     /// returns the indices of dead groups of a specific color on self.groups
