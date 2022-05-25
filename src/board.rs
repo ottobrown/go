@@ -7,6 +7,15 @@ pub enum Stone {
     Black = 1,
     White = 2,
 }
+impl Stone {
+    pub fn swap(&self) -> Self {
+        match self {
+            Self::Black => Self::White,
+            Self::White => Self::Black,
+            Self::Empty => Self::Empty,
+        }
+    }
+}
 
 /// The state of a go game at a single point in time
 #[derive(Clone)]
@@ -56,31 +65,51 @@ impl Board {
     /// Do move only if it is legal.
     /// Returns if move is legal
     pub fn play(&mut self, s: Stone, x: usize, y: usize, rules: &Rules) -> bool {
+        // If coordinate is off the board
+        if x > self.w || y > self.h {
+            return false
+        }
+
         let index = self.index(x, y);
+
         if index >= self.stones.len() {
             return false;
         }
+        // If point is already filled
         if self.stones[index] != Stone::Empty {
             return false;
         }
 
+        // Place stone
         self.stones[index] = s;
-        self.add_group(x, y);
+        // Find group of newly-placed stone
+        let group = self.find_group(x, y).unwrap();
+
+        self.groups.push(group.clone());
         self.update_groups();
 
-        // remove dead groups
-        let mut dead = Vec::new();
-        for g in 0..self.groups.len() {
-            if self.groups[g].liberties.is_empty() {
-                dead.push(g);
+        for i in (0..self.groups.len()).rev() {
+            let g = &self.groups[i];
+
+            if g.liberties.is_empty() && g.color == group.color.swap() {
+                self.kill_group(i);
             }
-        }
-        dead.reverse();
-        for i in dead {
-            self.kill_group(i)
         }
 
         return true;
+    }
+
+    /// returns the indices of dead groups of a specific color on self.groups
+    fn find_dead(&self, color: Stone) -> Vec<usize> {
+        let mut dead = Vec::new();
+        for i in 0..self.groups.len() {
+            let g = &self.groups[i];
+            if g.color == color && g.liberties.is_empty() {
+                dead.push(i);
+            }
+        }
+
+        return dead;
     }
 
     fn get_neighbors(&self, x: usize, y: usize) -> Neighbors {
@@ -143,10 +172,10 @@ impl Board {
         return None;
     }
 
-    fn add_group(&mut self, x: usize, y: usize) {
+    fn find_group(&mut self, x: usize, y: usize) -> Option<Group> {
         let color = match self.get(x, y) {
             Some(c) => c,
-            None => return,
+            None => return None,
         };
         let mut group = Group {
             color: color,
@@ -197,7 +226,7 @@ impl Board {
 
         add_neighbors(self, &mut group, x, y);
 
-        self.groups.push(group);
+        return Some(group);
     }
 
     /// Updates liberties and enemy_neighbors

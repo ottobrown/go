@@ -27,16 +27,6 @@ impl Game {
         self.current_board.clone()
     }
 
-    fn swap_turn(&mut self) {
-        self.turn = match self.turn {
-            Stone::Black => Stone::White,
-            Stone::White => Stone::Black,
-
-            // this should never happen
-            _ => Stone::Empty,
-        };
-    }
-
     pub fn handle_event(&mut self, e: &Event) {
         self.history.push(e.clone());
 
@@ -44,7 +34,7 @@ impl Game {
             Event::Place(s, x, y) => self.current_board.set(*s, *x, *y),
             Event::Move(x, y) => {
                 if self.current_board.play(self.turn, *x, *y, &self.rules) {
-                    self.swap_turn()
+                    self.turn = self.turn.swap();
                 }
             }
 
