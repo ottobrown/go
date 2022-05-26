@@ -1,3 +1,5 @@
+use crate::Stone;
+
 #[derive(Clone, Copy)]
 pub struct Rules {
     /// In half-points
@@ -25,4 +27,13 @@ impl Rules {
         komi: 14,
         suicide_allowed: true,
     };
+}
+
+/// The winner and method of winning
+pub enum EndGame {
+    // Score in half points
+    Score(Stone, u32),
+    Resign(Stone),
+    Time(Stone),
+    Forfiet(Stone),
 }
