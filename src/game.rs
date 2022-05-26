@@ -69,7 +69,7 @@ impl Default for NewGameBuilder {
         Self {
             w: 19,
             h: 19,
-            rules: Rules::CHINESE,
+            rules: Rules::NEW_ZEALAND,
         }
     }
 }

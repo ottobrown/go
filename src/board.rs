@@ -108,6 +108,10 @@ impl Board {
 
         // Undo last move if no groups are captured
         if last_group.liberties.is_empty() && dead.is_empty() {
+            if rules.suicide_allowed {
+                self.kill_group(self.groups.len()-1);
+            }
+
             self.stones[index] = Stone::Empty;
             self.remove_stone_from_group((x, y));
             
