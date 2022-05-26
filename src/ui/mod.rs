@@ -15,11 +15,7 @@ pub fn render(state: &mut State, ctx: &Context, _frame: &Frame) {
     ctx.set_style(default_style());
 
     egui::CentralPanel::default().show(ctx, |ui| {
-        if let &Some(_) = &state.game {
-            state.game = Some(editor::edit_game(ui, state.game.as_ref().unwrap(), &state.style, &mut state.editor));
-        } else {
-            state.game = editor::build_game(ui, &mut state.builder);
-        }
+        editor::edit_game(ui, &mut state.game, &state.style, &mut state.editor);
     });
 }
 

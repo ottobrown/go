@@ -4,20 +4,16 @@ use egui::Context;
 
 use crate::ui;
 use crate::Game;
-use crate::game::NewGameBuilder;
 
 pub struct State {
-    pub game: Option<Game>,
-    pub builder: NewGameBuilder,
-
+    pub game: Game,
     pub editor: ui::Editor,
     pub style: ui::BoardStyle,
 }
 impl State {
     pub fn new(_cc: &CreationContext) -> Self {
         State {
-            game: None,
-            builder: Game::builder(),
+            game: Game::builder().build(),
             editor: ui::Editor::default(),
             style: ui::BoardStyle::default(),
         }
