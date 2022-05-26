@@ -11,6 +11,7 @@ pub enum Event {
     Place(Stone, usize, usize),
 }
 
+#[derive(Clone)]
 pub struct Game {
     current_board: Board,
     history: Vec<Event>,
@@ -56,7 +57,7 @@ pub struct NewGameBuilder {
 impl NewGameBuilder {
     pub fn build(&self) -> Game {
         Game {
-            current_board: Board::blank(self.w, self.h),
+            current_board: Board::blank(self.size.0, self.size.1),
             history: Vec::new(),
             turn: Stone::Black,
             rules: self.rules,
