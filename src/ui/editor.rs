@@ -55,8 +55,8 @@ fn handle_click(ui: &mut Ui, c: &Computed, game: &mut Game) {
                 ((p.y - c.inner_rect.min.y) / c.spacing.y).round() as usize,
             );
 
-            let s = game.size();
-            if (x as usize) * s.0 + (y as usize) >= s.0 * s.1 {
+            let (w, h) = game.size();
+            if (x as usize) * h + (y as usize) >= w * h {
                 return;
             }
 
