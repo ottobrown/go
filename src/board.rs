@@ -131,19 +131,6 @@ impl Board {
         }
     }
 
-    /// returns the indices of dead groups of a specific color on self.groups
-    fn find_dead(&self, color: Stone) -> Vec<usize> {
-        let mut dead = Vec::new();
-        for i in 0..self.groups.len() {
-            let g = &self.groups[i];
-            if g.color == color && g.liberties.is_empty() {
-                dead.push(i);
-            }
-        }
-
-        return dead;
-    }
-
     fn get_neighbors(&self, x: usize, y: usize) -> Neighbors {
         let c = self.neighbor_coords(x, y);
 

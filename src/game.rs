@@ -4,6 +4,7 @@ use crate::Stone;
 use crate::rules::EndGame;
 
 #[derive(Clone)]
+#[allow(unused)]
 pub enum Event {
     Pass,
     Resign(Stone),
@@ -43,8 +44,6 @@ impl Game {
             Event::Pass => { self.turn = self.turn.swap() },
 
             Event::Resign(s) => { self.end_game = Some(EndGame::Resign(*s)) },
-
-            _ => unimplemented!(),
         };
     }
 
