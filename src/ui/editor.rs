@@ -2,8 +2,8 @@ use eframe::egui;
 use egui::Ui;
 
 use super::board::{render_board, BoardStyle, Computed};
-use crate::{Event, Game};
 use crate::game::NewGameBuilder;
+use crate::{Event, Game};
 
 pub struct Editor {
     pub computed: Computed,
@@ -39,7 +39,7 @@ pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
             ui.add(egui::Slider::new(&mut builder.size.0, 5..=50).text("Board Width"));
             ui.add(egui::Slider::new(&mut builder.size.1, 5..=50).text("Board Height"));
         });
-    
+
     if ui.button("build").clicked() {
         return Some(builder.build());
     }

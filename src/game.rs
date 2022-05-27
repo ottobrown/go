@@ -1,7 +1,7 @@
+use crate::rules::EndGame;
 use crate::Board;
 use crate::Rules;
 use crate::Stone;
-use crate::rules::EndGame;
 
 #[derive(Clone)]
 #[allow(unused)]
@@ -40,10 +40,10 @@ impl Game {
                 if self.current_board.play(self.turn, *x, *y, &self.rules) {
                     self.turn = self.turn.swap();
                 }
-            },
-            Event::Pass => { self.turn = self.turn.swap() },
+            }
+            Event::Pass => self.turn = self.turn.swap(),
 
-            Event::Resign(s) => { self.end_game = Some(EndGame::Resign(*s)) },
+            Event::Resign(s) => self.end_game = Some(EndGame::Resign(*s)),
         };
     }
 
