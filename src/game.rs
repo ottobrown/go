@@ -1,6 +1,7 @@
 use crate::Board;
 use crate::Rules;
 use crate::Stone;
+use crate::rules::EndGame;
 
 #[derive(Clone)]
 pub enum Event {
@@ -17,6 +18,7 @@ pub struct Game {
 
     turn: Stone,
     rules: Rules,
+    end_game: Option<EndGame>,
 }
 impl Game {
     pub fn builder() -> NewGameBuilder {
@@ -36,7 +38,10 @@ impl Game {
                 if self.current_board.play(self.turn, *x, *y, &self.rules) {
                     self.turn = self.turn.swap();
                 }
-            }
+            },
+            Event::Pass => { self.turn = self.turn.swap() },
+
+            Event::Resign(s) => { self.end_game = Some(EndGame::Resign(*s)) },
 
             _ => unimplemented!(),
         };
@@ -60,6 +65,8 @@ impl NewGameBuilder {
             history: Vec::new(),
             turn: Stone::Black,
             rules: self.rules,
+
+            end_game: None,
         }
     }
 }
