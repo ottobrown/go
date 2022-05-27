@@ -21,8 +21,8 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
 
     let size = egui::vec2(800.0, 800.0);
 
-    render_board(ui, &game.current_board(), style, size, &mut editor.computed);
-    handle_click(ui, &editor.computed, &mut game);
+    let response = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
+    handle_click(ui, &response, &editor.computed, &mut game);
 
     return game;
 }
@@ -47,8 +47,8 @@ pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
     None
 }
 
-fn handle_click(ui: &mut Ui, c: &Computed, game: &mut Game) {
-    if ui.input().pointer.primary_down() {
+fn handle_click(ui: &mut Ui, response: &egui::Response, c: &Computed, game: &mut Game) {
+    if response.clicked() {
         if let Some(p) = ui.input().pointer.interact_pos() {
             let (x, y) = (
                 ((p.x - c.inner_rect.min.x) / c.spacing.x).round() as usize,
