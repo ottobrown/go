@@ -1,9 +1,10 @@
 use eframe::egui;
 use egui::Ui;
+use egui::Align;
 
 use super::board::{render_board, BoardStyle, Computed};
 use crate::{Event, Game};
-use crate::game::NewGameBuilder;
+use crate::game::{NewGameBuilder, display_rank};
 
 pub struct Editor {
     pub computed: Computed,
@@ -21,7 +22,30 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
 
     let size = egui::vec2(800.0, 800.0);
 
-    render_board(ui, &game.current_board(), style, size, &mut editor.computed);
+    // Editor frame
+    egui::Frame::group(&ui.style()).show(ui, |ui| {
+        // render player info
+        egui::Grid::new("player info")
+            .min_col_width(size.x / 2.0)
+            .show(ui, |ui| {
+                ui.with_layout(egui::Layout::top_down(Align::Min), |ui| {
+                    ui.label(&game.black_player);
+                    ui.label(display_rank(game.black_rank));
+                });
+
+                ui.with_layout(egui::Layout::top_down(Align::Max), |ui| {
+                    ui.label(&game.white_player);
+                    ui.label(display_rank(game.white_rank));
+                });
+            });
+
+        // Board Frame
+        egui::Frame::canvas(&ui.style()).show(ui, |ui| {
+            render_board(ui, &game.current_board(), style, size, &mut editor.computed);
+        });
+
+    });
+
     handle_click(ui, &editor.computed, &mut game);
 
     return game;
@@ -36,15 +60,33 @@ pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
             ui.selectable_value(&mut builder.size, (9, 9), "9x9");
 
             ui.label("custom size:");
-            ui.add(egui::Slider::new(&mut builder.size.0, 5..=50).text("Board Width"));
-            ui.add(egui::Slider::new(&mut builder.size.1, 5..=50).text("Board Height"));
+            ui.add(egui::Slider::new(&mut builder.size.0, 5..=50));
+            ui.add(egui::Slider::new(&mut builder.size.1, 5..=50));
         });
-    
+
+    ui.horizontal(|ui| {
+        ui.label("Black player:");
+        ui.text_edit_singleline(&mut builder.black_player);
+    });
+ 
+    ui.horizontal(|ui| {
+        ui.label("White player:");
+        ui.text_edit_singleline(&mut builder.white_player);
+    });
+   
+    ui.label("Black rank:");
+    ui.label(display_rank(builder.black_rank));
+    ui.add(egui::Slider::new(&mut builder.black_rank, -30..=9).show_value(false));
+
+    ui.label("White rank:");
+    ui.label(display_rank(builder.white_rank));
+    ui.add(egui::Slider::new(&mut builder.white_rank, -30..=9).show_value(false));
+
     if ui.button("build").clicked() {
         return Some(builder.build());
     }
 
-    None
+    return None;
 }
 
 fn handle_click(ui: &mut Ui, c: &Computed, game: &mut Game) {

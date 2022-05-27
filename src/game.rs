@@ -13,10 +13,21 @@ pub enum Event {
     Place(Stone, usize, usize),
 }
 
-#[derive(Clone, Copy)]
-pub enum Rank {
-    Kyu(u8),
-    Dan(u8),
+/// <0 is kyu,
+/// >0 is dan,
+/// 0 is none
+type Rank = i8;
+ 
+pub fn display_rank(rank: Rank) -> String {
+    if rank < 0 {
+        return format!("{}k", rank.abs())
+    }
+    else if rank > 0 {
+        return format!("{}d", rank)
+    }
+    else {
+        return String::new()
+    }
 }
 
 #[derive(Clone)]
@@ -30,8 +41,8 @@ pub struct Game {
 
     pub black_player: String,
     pub white_player: String,
-    pub black_rank: Option<Rank>,
-    pub white_rank: Option<Rank>,
+    pub black_rank: Rank,
+    pub white_rank: Rank,
 }
 impl Game {
     pub fn builder() -> NewGameBuilder {
@@ -70,8 +81,8 @@ pub struct NewGameBuilder {
 
     pub black_player: String,
     pub white_player: String,
-    pub black_rank: Option<Rank>,
-    pub white_rank: Option<Rank>,
+    pub black_rank: Rank,
+    pub white_rank: Rank,
 }
 impl NewGameBuilder {
     pub fn build(&self) -> Game {
@@ -99,8 +110,8 @@ impl Default for NewGameBuilder {
 
             black_player: String::from("Black"),
             white_player: String::from("White"),
-            black_rank: None,
-            white_rank: None,
+            black_rank: 0,
+            white_rank: 0,
         }
     }
 }
