@@ -1,5 +1,7 @@
 use crate::Board;
+use crate::Rules;
 use crate::Stone;
+use crate::rules::EndGame;
 
 #[derive(Clone)]
 pub enum Event {
@@ -16,6 +18,8 @@ pub struct Game {
     history: Vec<Event>,
 
     turn: Stone,
+    rules: Rules,
+    end_game: Option<EndGame>,
 }
 impl Game {
     pub fn builder() -> NewGameBuilder {
@@ -26,26 +30,19 @@ impl Game {
         self.current_board.clone()
     }
 
-    fn swap_turn(&mut self) {
-        self.turn = match self.turn {
-            Stone::Black => Stone::White,
-            Stone::White => Stone::Black,
-
-            // this should never happen
-            _ => Stone::Empty,
-        };
-    }
-
     pub fn handle_event(&mut self, e: &Event) {
         self.history.push(e.clone());
 
         match e {
             Event::Place(s, x, y) => self.current_board.set(*s, *x, *y),
             Event::Move(x, y) => {
-                if self.current_board.play(self.turn, *x, *y) {
-                    self.swap_turn()
+                if self.current_board.play(self.turn, *x, *y, &self.rules) {
+                    self.turn = self.turn.swap();
                 }
-            }
+            },
+            Event::Pass => { self.turn = self.turn.swap() },
+
+            Event::Resign(s) => { self.end_game = Some(EndGame::Resign(*s)) },
 
             _ => unimplemented!(),
         };
@@ -59,6 +56,7 @@ impl Game {
 /// Used to build a new, blank game
 pub struct NewGameBuilder {
     pub size: (usize, usize),
+    pub rules: Rules,
 }
 impl NewGameBuilder {
     pub fn build(&self) -> Game {
@@ -66,12 +64,18 @@ impl NewGameBuilder {
             current_board: Board::blank(self.size.0, self.size.1),
             history: Vec::new(),
             turn: Stone::Black,
+            rules: self.rules,
+
+            end_game: None,
         }
     }
 }
 
 impl Default for NewGameBuilder {
     fn default() -> Self {
-        Self { size: (19, 19) }
+        Self {
+            size: (19, 19),
+            rules: Rules::CHINESE,
+        }
     }
 }

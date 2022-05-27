@@ -44,7 +44,7 @@ pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
         return Some(builder.build());
     }
 
-    return None
+    None
 }
 
 fn handle_click(ui: &mut Ui, c: &Computed, game: &mut Game) {

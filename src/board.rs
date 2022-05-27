@@ -1,3 +1,4 @@
+use crate::Rules;
 use std::collections::HashSet;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -5,6 +6,15 @@ pub enum Stone {
     Empty = 0,
     Black = 1,
     White = 2,
+}
+impl Stone {
+    pub fn swap(&self) -> Self {
+        match self {
+            Self::Black => Self::White,
+            Self::White => Self::Black,
+            Self::Empty => Self::Empty,
+        }
+    }
 }
 
 /// The state of a go game at a single point in time
@@ -54,32 +64,84 @@ impl Board {
 
     /// Do move only if it is legal.
     /// Returns if move is legal
-    pub fn play(&mut self, s: Stone, x: usize, y: usize) -> bool {
+    pub fn play(&mut self, s: Stone, x: usize, y: usize, rules: &Rules) -> bool {
+        // If coordinate is off the board
+        if x > self.w || y > self.h {
+            return false
+        }
+
         let index = self.index(x, y);
+
         if index >= self.stones.len() {
             return false;
         }
+
+        // If point is already filled
         if self.stones[index] != Stone::Empty {
             return false;
         }
 
+        // Place stone
         self.stones[index] = s;
-        self.add_group(x, y);
+        // Find group of newly-placed stone
+        let group = self.find_group(x, y).unwrap();
+
+        self.groups.push(group.clone());
         self.update_groups();
 
-        // remove dead groups
-        let mut dead = Vec::new();
-        for g in 0..self.groups.len() {
-            if self.groups[g].liberties.is_empty() {
-                dead.push(g);
+        // Kill enemy groups
+        let mut dead: Vec<usize> = Vec::new();
+        for i in (0..self.groups.len()).rev() {
+            let g = &self.groups[i];
+
+            if g.liberties.is_empty() && g.color == group.color.swap() {
+                dead.push(i);
             }
         }
-        dead.reverse();
-        for i in dead {
-            self.kill_group(i)
+
+        for g in &dead {
+            self.kill_group(*g);
+        }
+
+        self.update_groups();
+        let last_group = self.groups.last().unwrap();
+
+        // Undo last move if no groups are captured
+        if last_group.liberties.is_empty() && dead.is_empty() {
+            if rules.suicide_allowed {
+                self.kill_group(self.groups.len()-1);
+            }
+
+            self.stones[index] = Stone::Empty;
+            self.remove_stone_from_group((x, y));
+            
+            return false;
         }
 
         return true;
+    }
+
+    fn remove_stone_from_group(&mut self, p: (usize, usize)) {
+        for i in 0..self.groups.len() {
+            if self.groups[i].points.remove(&p) {
+                self.update_groups();
+
+                return;
+            }
+        }
+    }
+
+    /// returns the indices of dead groups of a specific color on self.groups
+    fn find_dead(&self, color: Stone) -> Vec<usize> {
+        let mut dead = Vec::new();
+        for i in 0..self.groups.len() {
+            let g = &self.groups[i];
+            if g.color == color && g.liberties.is_empty() {
+                dead.push(i);
+            }
+        }
+
+        return dead;
     }
 
     fn get_neighbors(&self, x: usize, y: usize) -> Neighbors {
@@ -142,10 +204,10 @@ impl Board {
         return None;
     }
 
-    fn add_group(&mut self, x: usize, y: usize) {
+    fn find_group(&mut self, x: usize, y: usize) -> Option<Group> {
         let color = match self.get(x, y) {
             Some(c) => c,
-            None => return,
+            None => return None,
         };
         let mut group = Group {
             color: color,
@@ -196,7 +258,7 @@ impl Board {
 
         add_neighbors(self, &mut group, x, y);
 
-        self.groups.push(group);
+        return Some(group);
     }
 
     /// Updates liberties and enemy_neighbors
