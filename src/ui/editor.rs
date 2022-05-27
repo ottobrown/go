@@ -70,16 +70,20 @@ pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
     });
  
     ui.horizontal(|ui| {
+        ui.label("Black rank:");
+        ui.label(display_rank(builder.black_rank));
+    });
+    ui.add(egui::Slider::new(&mut builder.black_rank, -30..=9).show_value(false));
+
+    ui.horizontal(|ui| {
         ui.label("White player:");
         ui.text_edit_singleline(&mut builder.white_player);
     });
-   
-    ui.label("Black rank:");
-    ui.label(display_rank(builder.black_rank));
-    ui.add(egui::Slider::new(&mut builder.black_rank, -30..=9).show_value(false));
 
-    ui.label("White rank:");
-    ui.label(display_rank(builder.white_rank));
+    ui.horizontal( |ui| {
+        ui.label("White rank:");
+        ui.label(display_rank(builder.white_rank));
+    });
     ui.add(egui::Slider::new(&mut builder.white_rank, -30..=9).show_value(false));
 
     if ui.button("build").clicked() {
