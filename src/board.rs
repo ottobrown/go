@@ -45,7 +45,7 @@ impl Board {
     }
 
     fn index(&self, x: usize, y: usize) -> usize {
-        y * self.h + x
+        y * self.w + x
     }
 
     pub fn get(&self, x: usize, y: usize) -> Option<Stone> {

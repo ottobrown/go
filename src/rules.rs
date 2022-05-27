@@ -30,6 +30,7 @@ impl Rules {
 }
 
 /// The winner and method of winning
+#[derive(Clone)]
 pub enum EndGame {
     // Score in half points
     Score(Stone, u32),
