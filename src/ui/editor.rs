@@ -2,6 +2,7 @@ use eframe::egui;
 use egui::Ui;
 
 use super::board::{render_board, BoardStyle, Computed};
+use crate::game::NewGameBuilder;
 use crate::{Event, Game};
 
 pub struct Editor {
@@ -15,24 +16,47 @@ impl Default for Editor {
     }
 }
 
-pub fn edit_game(ui: &mut Ui, game: &mut Game, style: &BoardStyle, editor: &mut Editor) {
+pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor) -> Game {
+    let mut game: Game = g.clone();
+
     let size = egui::vec2(800.0, 800.0);
 
-    render_board(ui, &game.current_board(), style, size, &mut editor.computed);
+    let response = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
+    handle_click(ui, &response, &editor.computed, &mut game);
 
-    handle_click(ui, &editor.computed, game);
+    return game;
 }
 
-fn handle_click(ui: &mut Ui, c: &Computed, game: &mut Game) {
-    if ui.input().pointer.primary_down() {
+pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
+    egui::ComboBox::from_label("Board Size")
+        .selected_text(format!("{}x{}", builder.size.0, builder.size.1))
+        .show_ui(ui, |ui| {
+            ui.selectable_value(&mut builder.size, (19, 19), "19x19");
+            ui.selectable_value(&mut builder.size, (13, 13), "13x13");
+            ui.selectable_value(&mut builder.size, (9, 9), "9x9");
+
+            ui.label("custom size:");
+            ui.add(egui::Slider::new(&mut builder.size.0, 5..=50).text("Board Width"));
+            ui.add(egui::Slider::new(&mut builder.size.1, 5..=50).text("Board Height"));
+        });
+
+    if ui.button("build").clicked() {
+        return Some(builder.build());
+    }
+
+    None
+}
+
+fn handle_click(ui: &mut Ui, response: &egui::Response, c: &Computed, game: &mut Game) {
+    if response.clicked() {
         if let Some(p) = ui.input().pointer.interact_pos() {
             let (x, y) = (
                 ((p.x - c.inner_rect.min.x) / c.spacing.x).round() as usize,
                 ((p.y - c.inner_rect.min.y) / c.spacing.y).round() as usize,
             );
 
-            let s = game.size();
-            if (x as usize) * s.0 + (y as usize) >= s.0 * s.1 {
+            let (w, h) = game.size();
+            if (x as usize) * h + (y as usize) >= w * h {
                 return;
             }
 

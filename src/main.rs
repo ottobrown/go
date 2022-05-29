@@ -2,6 +2,7 @@ use eframe::{run_native, NativeOptions};
 
 mod board;
 mod game;
+mod rules;
 mod state;
 mod ui;
 
@@ -9,6 +10,7 @@ use board::Board;
 use board::Stone;
 use game::Event;
 use game::Game;
+use rules::Rules;
 use state::State;
 
 fn main() {
