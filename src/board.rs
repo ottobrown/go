@@ -67,7 +67,7 @@ impl Board {
     pub fn play(&mut self, s: Stone, x: usize, y: usize, rules: &Rules) -> bool {
         // If coordinate is off the board
         if x > self.w || y > self.h {
-            return false
+            return false;
         }
 
         let index = self.index(x, y);
@@ -109,12 +109,12 @@ impl Board {
         // Undo last move if no groups are captured
         if last_group.liberties.is_empty() && dead.is_empty() {
             if rules.suicide_allowed {
-                self.kill_group(self.groups.len()-1);
+                self.kill_group(self.groups.len() - 1);
             }
 
             self.stones[index] = Stone::Empty;
             self.remove_stone_from_group((x, y));
-            
+
             return false;
         }
 

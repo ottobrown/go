@@ -1,7 +1,7 @@
+use crate::rules::EndGame;
 use crate::Board;
 use crate::Rules;
 use crate::Stone;
-use crate::rules::EndGame;
 
 #[derive(Clone)]
 #[allow(unused)]
@@ -16,17 +16,29 @@ pub enum Event {
 /// <0 is kyu,
 /// >0 is dan,
 /// 0 is none
-type Rank = i8;
- 
-pub fn display_rank(rank: Rank) -> String {
-    if rank < 0 {
-        return format!("{}k", rank.abs())
+#[derive(Clone, Copy)]
+pub struct Rank(pub i8);
+impl Rank {
+    pub fn none() -> Self {
+        Self(0)
     }
-    else if rank > 0 {
-        return format!("{}d", rank)
+
+    pub fn kyu(k: u8) -> Self {
+        Self(-(k as i8))
     }
-    else {
-        return String::new()
+
+    pub fn dan(d: u8) -> Self {
+        Self(d as i8)
+    }
+
+    pub fn display(&self) -> String {
+        if self.0 < 0 {
+            return format!("{}k", self.0.abs());
+        } else if self.0 > 0 {
+            return format!("{}d", self.0);
+        } else {
+            return String::new();
+        }
     }
 }
 
@@ -62,10 +74,10 @@ impl Game {
                 if self.current_board.play(self.turn, *x, *y, &self.rules) {
                     self.turn = self.turn.swap();
                 }
-            },
-            Event::Pass => { self.turn = self.turn.swap() },
+            }
+            Event::Pass => self.turn = self.turn.swap(),
 
-            Event::Resign(s) => { self.end_game = Some(EndGame::Resign(*s)) },
+            Event::Resign(s) => self.end_game = Some(EndGame::Resign(*s)),
         };
     }
 
@@ -110,8 +122,8 @@ impl Default for NewGameBuilder {
 
             black_player: String::from("Black"),
             white_player: String::from("White"),
-            black_rank: 0,
-            white_rank: 0,
+            black_rank: Rank::none(),
+            white_rank: Rank::none(),
         }
     }
 }
