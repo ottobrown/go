@@ -74,7 +74,7 @@ impl Default for NewGameBuilder {
     fn default() -> Self {
         Self {
             size: (19, 19),
-            rules: Rules::CHINESE,
+            rules: Rules::JAPANESE,
         }
     }
 }
