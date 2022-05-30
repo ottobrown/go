@@ -1,7 +1,8 @@
 use crate::Rules;
 use std::collections::HashSet;
+use fxhash::hash64;
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug, Hash)]
 pub enum Stone {
     Empty = 0,
     Black = 1,
@@ -25,6 +26,9 @@ pub struct Board {
     stones: Vec<Stone>,
 
     groups: Vec<Group>,
+
+    /// hash64(self.stones) after every move
+    past_hashes: Vec<u64>,
 }
 impl Board {
     pub fn blank(w: usize, h: usize) -> Self {
@@ -33,6 +37,7 @@ impl Board {
             h: h,
             stones: vec![Stone::Empty; w * h],
             groups: Vec::new(),
+            past_hashes: Vec::new(),
         }
     }
 
@@ -81,6 +86,8 @@ impl Board {
             return false;
         }
 
+        let before_groups = self.groups.clone();
+
         // Place stone
         self.stones[index] = s;
         // Find group of newly-placed stone
@@ -117,6 +124,24 @@ impl Board {
 
             return false;
         }
+
+        let hash = hash64(&self.stones);
+        if self.past_hashes.contains(&hash) {
+            self.stones[index] = Stone::Empty;
+            self.remove_stone_from_group((x, y));
+
+            self.groups = before_groups;
+
+            for i in dead {
+                let group = &self.groups[i].clone();
+
+                self.place_group(group);
+            }
+
+            return false;
+        }
+
+        self.past_hashes.push(hash);
 
         return true;
     }
@@ -293,6 +318,14 @@ impl Board {
             self.set(Stone::Empty, j.0, j.1);
         }
         self.groups.remove(i);
+    }
+
+    /// place all the stones in a group
+    fn place_group(&mut self, g: &Group) {
+        for i in &g.points {
+            let j = self.index(i.0, i.1);
+            self.stones[j] = g.color;
+        }
     }
 }
 
