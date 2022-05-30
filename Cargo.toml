@@ -1,6 +1,8 @@
 [package]
 name = "go"
-description = "sgf client"
+description = "Go/Basuk/Weiqi client"
+keywords = ["Go", "Baduk", "Weiqi", "Board Game"]
+repository = "https://github.com/ottobrown/go"
 license = "MIT"
 version = "0.0.1"
 readme = "README.md"
