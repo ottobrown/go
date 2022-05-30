@@ -126,7 +126,24 @@ impl Board {
         }
 
         let hash = hash64(&self.stones);
-        if self.past_hashes.contains(&hash) {
+        if let Some(h) = self.past_hashes.iter().rev().nth(1) {
+            if h == &hash {
+                self.stones[index] = Stone::Empty;
+                self.remove_stone_from_group((x, y));
+
+                self.groups = before_groups;
+
+                for i in dead {
+                    let group = &self.groups[i].clone();
+
+                    self.place_group(group);
+                }
+
+                return false;
+            }
+        }
+
+        if rules.superko && self.past_hashes.contains(&hash) {
             self.stones[index] = Stone::Empty;
             self.remove_stone_from_group((x, y));
 
