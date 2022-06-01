@@ -18,9 +18,9 @@ pub struct Game {
     current_board: Board,
     history: Vec<Event>,
 
-    turn: Stone,
+    pub turn: Stone,
     rules: Rules,
-    end_game: Option<EndGame>,
+    pub end_game: Option<EndGame>,
 }
 impl Game {
     pub fn builder() -> NewGameBuilder {

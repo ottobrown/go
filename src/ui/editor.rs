@@ -21,6 +21,13 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
 
     let size = egui::vec2(800.0, 800.0);
 
+    if ui.button("Pass").clicked() {
+        game.handle_event(&Event::Pass);
+    }
+    if ui.button("Resign").clicked() {
+        game.handle_event(&Event::Resign(game.turn))
+    }
+
     let response = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
     handle_click(ui, &response, &editor.computed, &mut game);
 
