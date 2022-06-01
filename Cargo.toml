@@ -1,6 +1,6 @@
 [package]
 name = "go"
-description = "Go/Basuk/Weiqi client"
+description = "Go/Baduk/Weiqi client"
 keywords = ["Go", "Baduk", "Weiqi", "Board Game"]
 repository = "https://github.com/ottobrown/go"
 license = "MIT"
