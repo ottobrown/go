@@ -51,6 +51,14 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
 }
 
 pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
+    ui.label("name:");
+    ui.text_edit_singleline(&mut builder.name);
+
+    ui.label("event");
+    ui.text_edit_singleline(&mut builder.event);
+
+    ui.label("comment");
+    ui.text_edit_singleline(&mut builder.comment);
     egui::ComboBox::from_label("Board Size")
         .selected_text(format!("{}x{}", builder.size.0, builder.size.1))
         .show_ui(ui, |ui| {

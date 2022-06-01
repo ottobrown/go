@@ -51,6 +51,10 @@ pub struct Game {
     rules: Rules,
     end_game: Option<EndGame>,
 
+    pub name: String,
+    pub event: String,
+    pub comment: String,
+
     pub black_player: String,
     pub white_player: String,
     pub black_rank: Rank,
@@ -91,6 +95,10 @@ pub struct NewGameBuilder {
     pub size: (usize, usize),
     pub rules: Rules,
 
+    pub name: String,
+    pub event: String,
+    pub comment: String,
+
     pub black_player: String,
     pub white_player: String,
     pub black_rank: Rank,
@@ -105,6 +113,10 @@ impl NewGameBuilder {
             turn: Stone::Black,
             rules: self.rules,
             end_game: None,
+
+            name: self.name.clone(),
+            event: self.event.clone(),
+            comment: self.comment.clone(),
 
             black_player: self.black_player.clone(),
             white_player: self.white_player.clone(),
@@ -122,6 +134,11 @@ impl Default for NewGameBuilder {
 
             black_player: String::from("Black"),
             white_player: String::from("White"),
+
+            name: String::new(),
+            event: String::new(),
+            comment: String::new(),
+
             black_rank: Rank::none(),
             white_rank: Rank::none(),
         }
