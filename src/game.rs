@@ -3,9 +3,13 @@ use crate::Board;
 use crate::Rules;
 use crate::Stone;
 
-#[derive(Clone)]
+use crate::tree::{EventTree, EventNode};
+
+#[derive(Clone, Copy)]
 #[allow(unused)]
 pub enum Event {
+    /// the beginnning of the game; the root of the game tree
+    Start,
     Pass,
     Resign(Stone),
     Move(usize, usize),
@@ -16,7 +20,7 @@ pub enum Event {
 #[derive(Clone)]
 pub struct Game {
     current_board: Board,
-    history: Vec<Event>,
+    history: EventTree,
 
     turn: Stone,
     rules: Rules,
@@ -32,9 +36,8 @@ impl Game {
     }
 
     pub fn handle_event(&mut self, e: &Event) {
-        self.history.push(e.clone());
-
         match e {
+            Event::Start => {},
             Event::Place(s, x, y) => self.current_board.set(*s, *x, *y),
             Event::Move(x, y) => {
                 if self.current_board.play(self.turn, *x, *y, &self.rules) {
@@ -59,9 +62,11 @@ pub struct NewGameBuilder {
 }
 impl NewGameBuilder {
     pub fn build(&self) -> Game {
+        let tree = EventTree::new();
+
         Game {
             current_board: Board::blank(self.size.0, self.size.1),
-            history: Vec::new(),
+            history: tree,
             turn: Stone::Black,
             rules: self.rules,
 
