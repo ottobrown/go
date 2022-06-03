@@ -35,7 +35,9 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
     if ui.button("Resign").clicked() {
         game.handle_event(&Event::Resign(game.turn))
     }
-    // TODO: add undo button
+    if ui.button("Undo").clicked() {
+        game.undo();
+    }
 
     egui::ComboBox::from_label("Select tool")
         .selected_text(format!("{:?}", editor.tool))
