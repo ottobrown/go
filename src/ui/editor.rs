@@ -98,7 +98,7 @@ fn handle_click(ui: &mut Ui, tool: Tool, response: &egui::Response, c: &Computed
                     }
 
                     Event::Place(color, x as usize, y as usize)
-                },
+                }
             };
 
             game.handle_event(&play);

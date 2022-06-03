@@ -1,6 +1,6 @@
 use crate::Rules;
-use std::collections::HashSet;
 use fxhash::hash64;
+use std::collections::HashSet;
 
 #[derive(Clone, Copy, PartialEq, Debug, Hash)]
 pub enum Stone {

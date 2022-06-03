@@ -44,7 +44,7 @@ impl Game {
                     if board.play(turn, *x, *y, &self.rules) {
                         turn = turn.swap();
                     }
-                },
+                }
                 Event::Pass => turn = turn.swap(),
 
                 _ => {}
@@ -53,7 +53,6 @@ impl Game {
 
         self.current_board = board;
         self.turn = turn;
-
     }
 
     pub fn undo(&mut self) {
@@ -74,7 +73,7 @@ impl Game {
                 if self.current_board.play(self.turn, *x, *y, &self.rules) {
                     self.turn = self.turn.swap();
                 }
-            },
+            }
             Event::Pass => self.turn = self.turn.swap(),
 
             Event::Resign(s) => self.end_game = Some(EndGame::Resign(*s)),
