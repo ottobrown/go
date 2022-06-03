@@ -3,15 +3,23 @@ use egui::Ui;
 
 use super::board::{render_board, BoardStyle, Computed};
 use crate::game::NewGameBuilder;
-use crate::{Event, Game};
+use crate::{Event, Game, Stone};
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum Tool {
+    Move,
+    Place,
+}
 
 pub struct Editor {
     pub computed: Computed,
+    tool: Tool,
 }
 impl Default for Editor {
     fn default() -> Self {
         Self {
             computed: Computed::blank(),
+            tool: Tool::Move,
         }
     }
 }
@@ -27,9 +35,17 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
     if ui.button("Resign").clicked() {
         game.handle_event(&Event::Resign(game.turn))
     }
+    // TODO: add undo button
+
+    egui::ComboBox::from_label("Select tool")
+        .selected_text(format!("{:?}", editor.tool))
+        .show_ui(ui, |ui| {
+            ui.selectable_value(&mut editor.tool, Tool::Move, "Move");
+            ui.selectable_value(&mut editor.tool, Tool::Place, "Place");
+        });
 
     let response = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
-    handle_click(ui, &response, &editor.computed, &mut game);
+    handle_click(ui, editor.tool, &response, &editor.computed, &mut game);
 
     return game;
 }
@@ -54,8 +70,8 @@ pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
     None
 }
 
-fn handle_click(ui: &mut Ui, response: &egui::Response, c: &Computed, game: &mut Game) {
-    if response.clicked() {
+fn handle_click(ui: &mut Ui, tool: Tool, response: &egui::Response, c: &Computed, game: &mut Game) {
+    if response.clicked() || response.secondary_clicked() {
         if let Some(p) = ui.input().pointer.interact_pos() {
             let (x, y) = (
                 ((p.x - c.inner_rect.min.x) / c.spacing.x).round() as usize,
@@ -67,7 +83,22 @@ fn handle_click(ui: &mut Ui, response: &egui::Response, c: &Computed, game: &mut
                 return;
             }
 
-            let play = Event::Move(x, y);
+            let play = match tool {
+                Tool::Move => Event::Move(x as usize, y as usize),
+                Tool::Place => {
+                    let mut color = Stone::Black;
+
+                    if ui.input().modifiers.shift {
+                        color = Stone::White;
+                    }
+                    if response.secondary_clicked() {
+                        color = Stone::Empty;
+                    }
+
+                    Event::Place(color, x as usize, y as usize)
+                },
+            };
+
             game.handle_event(&play);
         }
     }
