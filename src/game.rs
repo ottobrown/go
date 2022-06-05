@@ -3,9 +3,9 @@ use crate::Board;
 use crate::Rules;
 use crate::Stone;
 
-use crate::tree::{EventTree, EventNode};
+use crate::tree::EventTree;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 #[allow(unused)]
 pub enum Event {
     /// the beginnning of the game; the root of the game tree
@@ -36,6 +36,10 @@ impl Game {
     }
 
     pub fn handle_event(&mut self, e: &Event) {
+        self.history.append_to_current_node(e.clone());
+
+        println!("{:?}", self.history);
+
         match e {
             Event::Start => {},
             Event::Place(s, x, y) => self.current_board.set(*s, *x, *y),

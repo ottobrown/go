@@ -1,7 +1,7 @@
 use crate::game::Event;
 
-#[derive(Clone)]
-pub struct EventNode {
+#[derive(Clone, Debug)]
+struct EventNode {
     event: Event,
     children: Vec<Self>,
 }
@@ -20,9 +20,17 @@ impl EventNode {
     pub fn get_child_mut(&mut self, i: usize) -> Option<&mut Self> {
         self.children.get_mut(i)
     }
+
+    /// returns the last index of self.children
+    pub fn append(&mut self, e: Event) -> usize {
+        let new = Self::new(e);
+        self.children.push(new);
+
+        return self.children.len() - 1;
+    }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct EventTree {
     root: EventNode,
     current_path: Vec<usize>,
@@ -36,12 +44,14 @@ impl EventTree {
     }
 
     /// pops the last element on self.current_path
-    fn parent(&mut self) {
+    fn move_to_parent(&mut self) {
         self.current_path.pop();
     }
 
-    pub fn append_to_current_node(&mut self) {
+    pub fn append_to_current_node(&mut self, e: Event) {
+        let i = self.get_current_node_mut().append(e);
 
+        self.current_path.push(i);
     }
 
     fn get_current_node(&self) -> &EventNode {
@@ -61,5 +71,4 @@ impl EventTree {
 
         return node;
     }
-
 }
