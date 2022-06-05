@@ -18,6 +18,7 @@ pub enum Event {
 /// 0 is none
 #[derive(Clone, Copy)]
 pub struct Rank(pub i8);
+#[allow(dead_code)]
 impl Rank {
     pub fn none() -> Self {
         Self(0)
@@ -43,14 +44,7 @@ impl Rank {
 }
 
 #[derive(Clone)]
-pub struct Game {
-    current_board: Board,
-    history: Vec<Event>,
-
-    turn: Stone,
-    rules: Rules,
-    end_game: Option<EndGame>,
-
+pub struct GameInfo {
     pub name: String,
     pub event: String,
     pub comment: String,
@@ -59,6 +53,32 @@ pub struct Game {
     pub white_player: String,
     pub black_rank: Rank,
     pub white_rank: Rank,
+}
+impl Default for GameInfo {
+    fn default() -> Self {
+        Self {
+            name: String::new(),
+            event: String::new(),
+            comment: String::new(),
+
+            black_player: String::from("Black"),
+            white_player: String::from("White"),
+            black_rank: Rank::none(),
+            white_rank: Rank::none(),
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct Game {
+    current_board: Board,
+    history: Vec<Event>,
+
+    turn: Stone,
+    rules: Rules,
+    end_game: Option<EndGame>,
+
+    pub info: GameInfo,
 }
 impl Game {
     pub fn builder() -> NewGameBuilder {
@@ -95,14 +115,7 @@ pub struct NewGameBuilder {
     pub size: (usize, usize),
     pub rules: Rules,
 
-    pub name: String,
-    pub event: String,
-    pub comment: String,
-
-    pub black_player: String,
-    pub white_player: String,
-    pub black_rank: Rank,
-    pub white_rank: Rank,
+    pub info: GameInfo,
 }
 impl NewGameBuilder {
     pub fn build(&self) -> Game {
@@ -114,14 +127,7 @@ impl NewGameBuilder {
             rules: self.rules,
             end_game: None,
 
-            name: self.name.clone(),
-            event: self.event.clone(),
-            comment: self.comment.clone(),
-
-            black_player: self.black_player.clone(),
-            white_player: self.white_player.clone(),
-            black_rank: self.black_rank,
-            white_rank: self.white_rank,
+            info: self.info.clone(),
         }
     }
 }
@@ -132,15 +138,7 @@ impl Default for NewGameBuilder {
             size: (19, 19),
             rules: Rules::CHINESE,
 
-            black_player: String::from("Black"),
-            white_player: String::from("White"),
-
-            name: String::new(),
-            event: String::new(),
-            comment: String::new(),
-
-            black_rank: Rank::none(),
-            white_rank: Rank::none(),
+            info: GameInfo::default(),
         }
     }
 }
