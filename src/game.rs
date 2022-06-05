@@ -13,6 +13,62 @@ pub enum Event {
     Place(Stone, usize, usize),
 }
 
+/// <0 is kyu,
+/// >0 is dan,
+/// 0 is none
+#[derive(Clone, Copy)]
+pub struct Rank(pub i8);
+#[allow(dead_code)]
+impl Rank {
+    pub fn none() -> Self {
+        Self(0)
+    }
+
+    pub fn kyu(k: u8) -> Self {
+        Self(-(k as i8))
+    }
+
+    pub fn dan(d: u8) -> Self {
+        Self(d as i8)
+    }
+
+    pub fn display(&self) -> String {
+        if self.0 < 0 {
+            return format!("{}k", self.0.abs());
+        } else if self.0 > 0 {
+            return format!("{}d", self.0);
+        } else {
+            return String::new();
+        }
+    }
+}
+
+#[derive(Clone)]
+pub struct GameInfo {
+    pub name: String,
+    pub event: String,
+    pub comment: String,
+
+    pub black_player: String,
+    pub white_player: String,
+    pub black_rank: Rank,
+    pub white_rank: Rank,
+}
+impl Default for GameInfo {
+    fn default() -> Self {
+        Self {
+            name: String::new(),
+            event: String::new(),
+            comment: String::new(),
+
+            black_player: String::from("Black"),
+            white_player: String::from("White"),
+            black_rank: Rank::none(),
+            white_rank: Rank::none(),
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct Game {
     current_board: Board,
@@ -20,6 +76,8 @@ pub struct Game {
 
     pub turn: Stone,
     rules: Rules,
+
+    pub info: GameInfo,
     pub end_game: Option<EndGame>,
 }
 impl Game {
@@ -56,16 +114,20 @@ impl Game {
 pub struct NewGameBuilder {
     pub size: (usize, usize),
     pub rules: Rules,
+
+    pub info: GameInfo,
 }
 impl NewGameBuilder {
     pub fn build(&self) -> Game {
         Game {
             current_board: Board::blank(self.size.0, self.size.1),
             history: Vec::new(),
+
             turn: Stone::Black,
             rules: self.rules,
-
             end_game: None,
+
+            info: self.info.clone(),
         }
     }
 }
@@ -74,7 +136,9 @@ impl Default for NewGameBuilder {
     fn default() -> Self {
         Self {
             size: (19, 19),
-            rules: Rules::JAPANESE,
+            rules: Rules::CHINESE,
+
+            info: GameInfo::default(),
         }
     }
 }
