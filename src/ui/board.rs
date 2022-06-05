@@ -52,7 +52,7 @@ impl Computed {
         }
     }
 
-    pub fn compute(w: usize, h: usize, response: egui::Response, style: &BoardStyle) -> Self {
+    pub fn compute(w: usize, h: usize, response: &egui::Response, style: &BoardStyle) -> Self {
         let pos = response.rect.min;
 
         let padding = egui::Vec2 {
@@ -106,11 +106,11 @@ pub fn render_board(
     style: &BoardStyle,
     size: egui::Vec2,
     c: &mut Computed,
-) {
+) -> egui::Response {
     let (response, painter) = ui.allocate_painter(vec2(size.x, size.y), egui::Sense::drag());
     let (w, h) = (board.width(), board.height());
 
-    *c = Computed::compute(w, h, response, style);
+    *c = Computed::compute(w, h, &response, style);
 
     let mut shapes = Vec::new();
 
@@ -175,4 +175,6 @@ pub fn render_board(
     }
 
     painter.extend(shapes);
+
+    return response;
 }

@@ -39,19 +39,27 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
                 });
             });
 
-        egui::ComboBox::from_label("")
-            .selected_text("Game Info")
-            .show_ui(ui, |ui| {
-                edit_game_info(ui, &mut game.info);
-            });
+        ui.horizontal(|ui| {
+            if ui.button("Pass").clicked() {
+                game.handle_event(&Event::Pass);
+            }
+            if ui.button("Resign").clicked() {
+                game.handle_event(&Event::Resign(game.turn))
+            }
+
+            egui::ComboBox::from_label("")
+                .selected_text("Game Info")
+                .show_ui(ui, |ui| {
+                    edit_game_info(ui, &mut game.info);
+                });
+        });
 
         // Board Frame
         egui::Frame::canvas(&ui.style()).show(ui, |ui| {
-            render_board(ui, &game.current_board(), style, size, &mut editor.computed);
+            let response = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
+            handle_click(ui, &response, &editor.computed, &mut game);
         });
     });
-
-    handle_click(ui, &editor.computed, &mut game);
 
     return game;
 }
@@ -111,8 +119,8 @@ fn edit_game_info(ui: &mut Ui, info: &mut GameInfo) {
     ui.add(egui::Slider::new(&mut info.white_rank.0, -30..=9).show_value(false));
 }
 
-fn handle_click(ui: &mut Ui, c: &Computed, game: &mut Game) {
-    if ui.input().pointer.primary_down() {
+fn handle_click(ui: &mut Ui, response: &egui::Response, c: &Computed, game: &mut Game) {
+    if response.clicked() {
         if let Some(p) = ui.input().pointer.interact_pos() {
             let (x, y) = (
                 ((p.x - c.inner_rect.min.x) / c.spacing.x).round() as usize,
