@@ -81,7 +81,7 @@ pub fn edit_game(
             egui::Window::new("Game info").show(ctx, |ui| {
                 edit_game_info(ui, &mut game.info);
 
-                if ui.button("Clone").clicked() {
+                if ui.button("Close").clicked() {
                     editor.game_info_open = false;
                 }
             });
