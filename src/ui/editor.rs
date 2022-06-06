@@ -48,7 +48,8 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
             });
 
     
-        egui::ComboBox::from_label("Select tool")
+        ui.label("select tool:");
+        egui::ComboBox::from_id_source("Tool Selector")
             .selected_text(format!("{:?}", editor.tool))
             .show_ui(ui, |ui| {
                 ui.selectable_value(&mut editor.tool, Tool::Move, "Move");
@@ -66,8 +67,9 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
                 game.undo();
             }
 
-            egui::ComboBox::from_label("")
+            egui::ComboBox::from_id_source("Game Info Editor")
                 .selected_text("Game Info")
+                .width(size.x / 5.0)
                 .show_ui(ui, |ui| {
                     edit_game_info(ui, &mut game.info);
                 });
