@@ -4,15 +4,23 @@ use egui::Ui;
 
 use super::board::{render_board, BoardStyle, Computed};
 use crate::game::{NewGameBuilder, GameInfo};
-use crate::{Event, Game};
+use crate::{Event, Game, Stone};
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum Tool {
+    Move,
+    Place,
+}
 
 pub struct Editor {
     pub computed: Computed,
+    tool: Tool,
 }
 impl Default for Editor {
     fn default() -> Self {
         Self {
             computed: Computed::blank(),
+            tool: Tool::Move,
         }
     }
 }
@@ -39,12 +47,23 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
                 });
             });
 
+    
+        egui::ComboBox::from_label("Select tool")
+            .selected_text(format!("{:?}", editor.tool))
+            .show_ui(ui, |ui| {
+                ui.selectable_value(&mut editor.tool, Tool::Move, "Move");
+                ui.selectable_value(&mut editor.tool, Tool::Place, "Place");
+            });
+
         ui.horizontal(|ui| {
             if ui.button("Pass").clicked() {
                 game.handle_event(&Event::Pass);
             }
             if ui.button("Resign").clicked() {
                 game.handle_event(&Event::Resign(game.turn))
+            }
+            if ui.button("Undo").clicked() {
+                game.undo();
             }
 
             egui::ComboBox::from_label("")
@@ -57,7 +76,7 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
         // Board Frame
         egui::Frame::canvas(&ui.style()).show(ui, |ui| {
             let response = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
-            handle_click(ui, &response, &editor.computed, &mut game);
+            handle_click(ui, editor.tool, &response, &editor.computed, &mut game);
         });
     });
 
@@ -119,8 +138,8 @@ fn edit_game_info(ui: &mut Ui, info: &mut GameInfo) {
     ui.add(egui::Slider::new(&mut info.white_rank.0, -30..=9).show_value(false));
 }
 
-fn handle_click(ui: &mut Ui, response: &egui::Response, c: &Computed, game: &mut Game) {
-    if response.clicked() {
+fn handle_click(ui: &mut Ui, tool: Tool, response: &egui::Response, c: &Computed, game: &mut Game) {
+    if response.clicked() || response.secondary_clicked() {
         if let Some(p) = ui.input().pointer.interact_pos() {
             let (x, y) = (
                 ((p.x - c.inner_rect.min.x) / c.spacing.x).round() as usize,
@@ -132,7 +151,22 @@ fn handle_click(ui: &mut Ui, response: &egui::Response, c: &Computed, game: &mut
                 return;
             }
 
-            let play = Event::Move(x, y);
+            let play = match tool {
+                Tool::Move => Event::Move(x as usize, y as usize),
+                Tool::Place => {
+                    let mut color = Stone::Black;
+
+                    if ui.input().modifiers.shift {
+                        color = Stone::White;
+                    }
+                    if response.secondary_clicked() {
+                        color = Stone::Empty;
+                    }
+
+                    Event::Place(color, x as usize, y as usize)
+                }
+            };
+
             game.handle_event(&play);
         }
     }
