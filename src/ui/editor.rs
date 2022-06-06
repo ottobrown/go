@@ -3,7 +3,7 @@ use egui::Align;
 use egui::Ui;
 
 use super::board::{render_board, BoardStyle, Computed};
-use crate::game::{NewGameBuilder, GameInfo};
+use crate::game::{GameInfo, NewGameBuilder};
 use crate::{Event, Game, Stone};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -47,7 +47,6 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
                 });
             });
 
-    
         ui.label("select tool:");
         egui::ComboBox::from_id_source("Tool Selector")
             .selected_text(format!("{:?}", editor.tool))
@@ -77,7 +76,8 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
 
         // Board Frame
         egui::Frame::canvas(&ui.style()).show(ui, |ui| {
-            let response = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
+            let response =
+                render_board(ui, &game.current_board(), style, size, &mut editor.computed);
             handle_click(ui, editor.tool, &response, &editor.computed, &mut game);
         });
     });
