@@ -3,7 +3,7 @@ use egui::Align;
 use egui::Ui;
 
 use super::board::{render_board, BoardStyle, Computed};
-use crate::game::{NewGameBuilder, GameInfo};
+use crate::game::{GameInfo, NewGameBuilder};
 use crate::{Event, Game, Stone};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -13,19 +13,27 @@ enum Tool {
 }
 
 pub struct Editor {
-    pub computed: Computed,
+    computed: Computed,
     tool: Tool,
+    game_info_open: bool,
 }
 impl Default for Editor {
     fn default() -> Self {
         Self {
             computed: Computed::blank(),
             tool: Tool::Move,
+            game_info_open: false,
         }
     }
 }
 
-pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor) -> Game {
+pub fn edit_game(
+    ui: &mut Ui,
+    ctx: &egui::Context,
+    g: &Game,
+    style: &BoardStyle,
+    editor: &mut Editor,
+) -> Game {
     let mut game: Game = g.clone();
 
     let size = egui::vec2(800.0, 800.0);
@@ -47,7 +55,6 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
                 });
             });
 
-    
         ui.label("Select tool:");
         egui::ComboBox::from_id_source("Tool selector")
             .selected_text(format!("{:?}", editor.tool))
@@ -66,18 +73,24 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
             if ui.button("Undo").clicked() {
                 game.undo();
             }
-
-            egui::ComboBox::from_id_source("Game info editor")
-                .selected_text("Game info")
-                .width(size.x / 5.0)
-                .show_ui(ui, |ui| {
-                    edit_game_info(ui, &mut game.info);
-                });
+            if ui.button("Game info").clicked() {
+                editor.game_info_open = true;
+            }
         });
+        if editor.game_info_open {
+            egui::Window::new("Game info").show(ctx, |ui| {
+                edit_game_info(ui, &mut game.info);
+
+                if ui.button("Clone").clicked() {
+                    editor.game_info_open = false;
+                }
+            });
+        }
 
         // Board Frame
         egui::Frame::canvas(&ui.style()).show(ui, |ui| {
-            let response = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
+            let response =
+                render_board(ui, &game.current_board(), style, size, &mut editor.computed);
             handle_click(ui, editor.tool, &response, &editor.computed, &mut game);
         });
     });

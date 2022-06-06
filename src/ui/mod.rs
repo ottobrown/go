@@ -18,6 +18,7 @@ pub fn render(state: &mut State, ctx: &Context, _frame: &Frame) {
         if let &Some(_) = &state.game {
             state.game = Some(editor::edit_game(
                 ui,
+                ctx,
                 state.game.as_ref().unwrap(),
                 &state.style,
                 &mut state.editor,
