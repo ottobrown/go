@@ -29,7 +29,6 @@ impl Default for Editor {
 
 pub fn edit_game(
     ui: &mut Ui,
-    ctx: &egui::Context,
     g: &Game,
     style: &BoardStyle,
     editor: &mut Editor,
@@ -78,7 +77,7 @@ pub fn edit_game(
             }
         });
         if editor.game_info_open {
-            egui::Window::new("Game info").show(ctx, |ui| {
+            egui::Window::new("Game info").show(ui.ctx(), |ui| {
                 edit_game_info(ui, &mut game.info);
 
                 if ui.button("Close").clicked() {
