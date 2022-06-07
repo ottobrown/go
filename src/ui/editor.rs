@@ -4,6 +4,7 @@ use egui::Ui;
 use super::board::{render_board, BoardStyle, Computed};
 use crate::game::NewGameBuilder;
 use crate::{Event, Game};
+use crate::sgf;
 
 pub struct Editor {
     pub computed: Computed,
@@ -29,7 +30,7 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
 
 pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
     if ui.button("Open sgf").clicked() {
-        super::open_sgf(&mut builder.sgf_path)
+        sgf::open_sgf(&mut builder.sgf_path)
     }
 
     if builder.sgf_path.is_some() {

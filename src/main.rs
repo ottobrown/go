@@ -6,6 +6,7 @@ mod rules;
 mod state;
 mod ui;
 mod tree;
+mod sgf;
 
 use board::Board;
 use board::Stone;
