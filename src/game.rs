@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::rules::EndGame;
 use crate::Board;
 use crate::Rules;
@@ -25,6 +27,7 @@ pub struct Game {
     turn: Stone,
     rules: Rules,
     end_game: Option<EndGame>,
+    sgf_path: Option<PathBuf>,
 }
 impl Game {
     pub fn builder() -> NewGameBuilder {
@@ -63,6 +66,7 @@ impl Game {
 pub struct NewGameBuilder {
     pub size: (usize, usize),
     pub rules: Rules,
+    pub sgf_path: Option<PathBuf>,
 }
 impl NewGameBuilder {
     pub fn build(&self) -> Game {
@@ -73,6 +77,7 @@ impl NewGameBuilder {
             history: tree,
             turn: Stone::Black,
             rules: self.rules,
+            sgf_path: self.sgf_path.clone(),
 
             end_game: None,
         }
@@ -84,6 +89,7 @@ impl Default for NewGameBuilder {
         Self {
             size: (19, 19),
             rules: Rules::CHINESE,
+            sgf_path: None,
         }
     }
 }

@@ -7,7 +7,9 @@ use crate::State;
 
 mod board;
 mod editor;
+mod file;
 
+pub use file::open_sgf;
 pub use board::BoardStyle;
 pub use editor::Editor;
 

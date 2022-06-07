@@ -9,3 +9,4 @@ edition = "2021"
 [dependencies]
 eframe = "0.18.0"
 sgf-parser = "2.6.0"
+rfd = "0.8.4"

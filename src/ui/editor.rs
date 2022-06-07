@@ -28,6 +28,16 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
 }
 
 pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
+    if ui.button("Open sgf").clicked() {
+        super::open_sgf(&mut builder.sgf_path)
+    }
+
+    if builder.sgf_path.is_some() {
+        let content = std::fs::read_to_string(builder.sgf_path.as_ref().unwrap()).unwrap();
+
+        ui.label(content);
+    }
+    
     egui::ComboBox::from_label("Board Size")
         .selected_text(format!("{}x{}", builder.size.0, builder.size.1))
         .show_ui(ui, |ui| {
