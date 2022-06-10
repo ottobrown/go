@@ -17,6 +17,8 @@ pub struct BoardStyle {
     pub line_thickness: f32,
     /// As a proportion of the width/height of a board square (whichever is smaller)
     pub stone_radius: f32,
+    /// In egui screen units
+    pub star_point_radius: f32,
 }
 
 impl Default for BoardStyle {
@@ -27,6 +29,7 @@ impl Default for BoardStyle {
             padding: 0.05,
             line_thickness: 3.0,
             stone_radius: 0.4,
+            star_point_radius: 5.0,
         }
     }
 }
@@ -38,6 +41,7 @@ pub struct Computed {
     pub padding: egui::Vec2,
     pub spacing: egui::Vec2,
     pub stone_radius: f32,
+    pub star_points: Vec<(usize, usize)>,
 }
 impl Computed {
     /// Initialize Self when no values are known
@@ -49,6 +53,7 @@ impl Computed {
             padding: egui::Vec2::ZERO,
             spacing: egui::Vec2::ZERO,
             stone_radius: 0.0,
+            star_points: Vec::new(),
         }
     }
 
@@ -82,12 +87,15 @@ impl Computed {
         };
         let stone_radius = min * style.stone_radius;
 
+        let star_points = get_star_points(w, h);
+
         return Self {
             outer_rect: response.rect,
             inner_rect: inner_rect,
             padding: padding,
             spacing: spacing,
             stone_radius: stone_radius,
+            star_points: star_points,
         };
     }
 
@@ -97,6 +105,62 @@ impl Computed {
         let y_pos = self.inner_rect.min.y + self.spacing.y * (y as f32);
 
         return pos2(x_pos, y_pos);
+    }
+}
+
+pub fn get_star_points(w: usize, h: usize) -> Vec<(usize, usize)> {
+    match (w, h) {
+        (9, 9) => vec![(2, 2), (2, 6), (6, 2), (6, 6), (4, 4)],
+        (13, 13) => vec![(3, 3), (9, 3), (3, 9), (9, 9), (6, 6)],
+        (19, 19) => vec![
+            (3, 3),
+            (9, 3),
+            (3, 9),
+            (9, 9),
+            (3, 15),
+            (15, 3),
+            (15, 15),
+            (15, 9),
+            (9, 15),
+        ],
+
+        _ => {
+            let mut points = Vec::new();
+
+            // if the board has an exact center
+            if w % 2 == 1 && h % 2 == 1 {
+                // add a center star point
+                points.push((w / 2, h / 2));
+            }
+
+            if w < 9 || h < 9 {
+                return points;
+            }
+
+            // 3-3 points
+            if w < 13 || h < 13 {
+                points.push((2, 2));
+                points.push((2, h - 3));
+                points.push((w - 3, 2));
+                points.push((w - 3, h - 3));
+
+                return points;
+            }
+
+            // 4-4 points
+            points.push((3, 3));
+            points.push((3, h - 4));
+            points.push((w - 4, 3));
+            points.push((w - 4, h - 4));
+
+            // sides
+            points.push((3, h / 2));
+            points.push((w / 2, 3));
+            points.push((w / 2, h - 4));
+            points.push((w - 4, h / 2));
+
+            return points;
+        }
     }
 }
 
@@ -157,8 +221,16 @@ pub fn render_board(
         shapes.push(line)
     }
 
+    // draw stones
     for x in 0..w {
         for y in 0..h {
+            let center = c.get_pos(x, y);
+
+            if c.star_points.contains(&(x, y)) {
+                let star = Shape::circle_filled(center, style.star_point_radius, Color32::BLACK);
+                shapes.push(star);
+            }
+
             let stone_color: Option<Color32> = match board.get(x, y).unwrap() {
                 Stone::Black => Some(Color32::BLACK),
                 Stone::White => Some(Color32::WHITE),
@@ -167,7 +239,6 @@ pub fn render_board(
             };
 
             if let Some(color) = stone_color {
-                let center = c.get_pos(x, y);
                 let circle = Shape::circle_filled(center, c.stone_radius, color);
                 shapes.push(circle)
             }
