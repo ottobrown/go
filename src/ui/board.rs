@@ -87,23 +87,7 @@ impl Computed {
         };
         let stone_radius = min * style.stone_radius;
 
-        let star_points = match (w, h) {
-            (19, 19) => vec![
-                (3, 3),
-                (9, 3),
-                (3, 9),
-                (9, 9),
-                (3, 15),
-                (15, 3),
-                (15, 15),
-                (15, 9),
-                (9, 15),
-            ],
-            (13, 13) => vec![(3, 3), (9, 3), (3, 9), (9, 9), (6, 6)],
-            (9, 9) => vec![(2, 2), (2, 6), (6, 2), (6, 6), (4, 4)],
-
-            _ => Vec::new(),
-        };
+        let star_points = get_star_points(w, h);
 
         return Self {
             outer_rect: response.rect,
@@ -121,6 +105,62 @@ impl Computed {
         let y_pos = self.inner_rect.min.y + self.spacing.y * (y as f32);
 
         return pos2(x_pos, y_pos);
+    }
+}
+
+pub fn get_star_points(w: usize, h: usize) -> Vec<(usize, usize)> {
+    match (w, h) {
+        (9, 9) => vec![(2, 2), (2, 6), (6, 2), (6, 6), (4, 4)],
+        (13, 13) => vec![(3, 3), (9, 3), (3, 9), (9, 9), (6, 6)],
+        (19, 19) => vec![
+            (3, 3),
+            (9, 3),
+            (3, 9),
+            (9, 9),
+            (3, 15),
+            (15, 3),
+            (15, 15),
+            (15, 9),
+            (9, 15),
+        ],
+        
+        _ => {
+            let mut points = Vec::new();
+
+            // if the board has an exact center
+            if w % 2 == 1 && h % 2 == 1 {
+                // add a center star point
+                points.push((w/2, h/2));
+            }
+
+            if w < 9 || h < 9 {
+                return points;
+            }
+
+            // 3-3 points
+            if w < 13 || h < 13 {
+                points.push((2, 2));
+                points.push((2, h-3));
+                points.push((w-3, 2));
+                points.push((w-3, h-3));
+
+                return points;
+            }
+
+            // 4-4 points
+            points.push((3, 3));
+            points.push((3, h-4));
+            points.push((w-4, 3));
+            points.push((w-4, h-4));
+
+            // sides
+            points.push((3, h/2));
+            points.push((w/2, 3));
+            points.push((w/2, h-4));
+            points.push((w-4, h/2));
+
+            return points
+        }
     }
 }
 
