@@ -36,7 +36,7 @@ pub fn edit_game(
 ) -> Game {
     let mut game: Game = g.clone();
 
-    let size = egui::vec2(800.0, 800.0);
+    let size = egui::Vec2::splat(ui.style().spacing.item_spacing.x * 100.0);
 
     // Editor frame
     egui::Frame::group(&ui.style()).show(ui, |ui| {
