@@ -28,73 +28,68 @@ impl Default for Editor {
     }
 }
 
-pub fn edit_game(
-    ui: &mut Ui,
-    g: &Game,
-    style: &BoardStyle,
-    editor: &mut Editor,
-) -> Game {
+pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor) -> Game {
     let mut game: Game = g.clone();
 
     let size = egui::Vec2::splat(ui.style().spacing.item_spacing.x * 100.0);
 
     // Editor frame
     egui::Frame::group(&ui.style()).show(ui, |ui| {
-    egui::ScrollArea::both().show(ui, |ui| {
-        // render player info
-        egui::Grid::new("Player info")
-            .min_col_width(size.x / 2.0)
-            .show(ui, |ui| {
-                ui.with_layout(egui::Layout::top_down(Align::Min), |ui| {
-                    ui.label(&game.info.black_player);
-                    ui.label(game.info.black_rank.display());
+        egui::ScrollArea::both().show(ui, |ui| {
+            // render player info
+            egui::Grid::new("Player info")
+                .min_col_width(size.x / 2.0)
+                .show(ui, |ui| {
+                    ui.with_layout(egui::Layout::top_down(Align::Min), |ui| {
+                        ui.label(&game.info.black_player);
+                        ui.label(game.info.black_rank.display());
+                    });
+
+                    ui.with_layout(egui::Layout::top_down(Align::Max), |ui| {
+                        ui.label(&game.info.white_player);
+                        ui.label(game.info.white_rank.display());
+                    });
                 });
 
-                ui.with_layout(egui::Layout::top_down(Align::Max), |ui| {
-                    ui.label(&game.info.white_player);
-                    ui.label(game.info.white_rank.display());
+            ui.label("Select tool:");
+            egui::ComboBox::from_id_source("Tool selector")
+                .selected_text(format!("{:?}", editor.tool))
+                .show_ui(ui, |ui| {
+                    ui.selectable_value(&mut editor.tool, Tool::Move, "Move");
+                    ui.selectable_value(&mut editor.tool, Tool::Place, "Place");
                 });
-            });
 
-        ui.label("Select tool:");
-        egui::ComboBox::from_id_source("Tool selector")
-            .selected_text(format!("{:?}", editor.tool))
-            .show_ui(ui, |ui| {
-                ui.selectable_value(&mut editor.tool, Tool::Move, "Move");
-                ui.selectable_value(&mut editor.tool, Tool::Place, "Place");
-            });
-
-        ui.horizontal(|ui| {
-            if ui.button("Pass").clicked() {
-                game.handle_event(&Event::Pass);
-            }
-            if ui.button("Resign").clicked() {
-                game.handle_event(&Event::Resign(game.turn))
-            }
-            if ui.button("Undo").clicked() {
-                game.undo();
-            }
-            if ui.button("Game info").clicked() {
-                editor.game_info_open = true;
-            }
-        });
-        if editor.game_info_open {
-            egui::Window::new("Game info").show(ui.ctx(), |ui| {
-                edit_game_info(ui, &mut game.info);
-
-                if ui.button("Close").clicked() {
-                    editor.game_info_open = false;
+            ui.horizontal(|ui| {
+                if ui.button("Pass").clicked() {
+                    game.handle_event(&Event::Pass);
+                }
+                if ui.button("Resign").clicked() {
+                    game.handle_event(&Event::Resign(game.turn))
+                }
+                if ui.button("Undo").clicked() {
+                    game.undo();
+                }
+                if ui.button("Game info").clicked() {
+                    editor.game_info_open = true;
                 }
             });
-        }
+            if editor.game_info_open {
+                egui::Window::new("Game info").show(ui.ctx(), |ui| {
+                    edit_game_info(ui, &mut game.info);
 
-        // Board Frame
-        egui::Frame::canvas(&ui.style()).show(ui, |ui| {
-            let response =
-                render_board(ui, &game.current_board(), style, size, &mut editor.computed);
-            handle_click(ui, editor.tool, &response, &editor.computed, &mut game);
+                    if ui.button("Close").clicked() {
+                        editor.game_info_open = false;
+                    }
+                });
+            }
+
+            // Board Frame
+            egui::Frame::canvas(&ui.style()).show(ui, |ui| {
+                let response =
+                    render_board(ui, &game.current_board(), style, size, &mut editor.computed);
+                handle_click(ui, editor.tool, &response, &editor.computed, &mut game);
+            });
         });
-    });
     });
 
     return game;
