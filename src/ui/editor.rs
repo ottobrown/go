@@ -40,6 +40,7 @@ pub fn edit_game(
 
     // Editor frame
     egui::Frame::group(&ui.style()).show(ui, |ui| {
+    egui::ScrollArea::both().show(ui, |ui| {
         // render player info
         egui::Grid::new("Player info")
             .min_col_width(size.x / 2.0)
@@ -93,6 +94,7 @@ pub fn edit_game(
                 render_board(ui, &game.current_board(), style, size, &mut editor.computed);
             handle_click(ui, editor.tool, &response, &editor.computed, &mut game);
         });
+    });
     });
 
     return game;
