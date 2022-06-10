@@ -103,6 +103,7 @@ pub fn edit_game(
 pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
     egui::Grid::new("Builder grid layout")
         .spacing(ui.style().spacing.item_spacing * 2.0)
+        .num_columns(2)
         .show(ui, |ui| {
             egui::ComboBox::from_label("Board size")
                 .selected_text(format!("{}x{}", builder.size.0, builder.size.1))
