@@ -99,21 +99,31 @@ pub fn edit_game(
 }
 
 pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
-    egui::ComboBox::from_label("Board size")
-        .selected_text(format!("{}x{}", builder.size.0, builder.size.1))
-        .show_ui(ui, |ui| {
-            ui.selectable_value(&mut builder.size, (19, 19), "19x19");
-            ui.selectable_value(&mut builder.size, (13, 13), "13x13");
-            ui.selectable_value(&mut builder.size, (9, 9), "9x9");
+    egui::Grid::new("Builder grid layout")
+        .spacing(ui.style().spacing.item_spacing * 2.0)
+        .show(ui, |ui| {
+            egui::ComboBox::from_label("Board size")
+                .selected_text(format!("{}x{}", builder.size.0, builder.size.1))
+                .show_ui(ui, |ui| {
+                    ui.selectable_value(&mut builder.size, (19, 19), "19x19");
+                    ui.selectable_value(&mut builder.size, (13, 13), "13x13");
+                    ui.selectable_value(&mut builder.size, (9, 9), "9x9");
 
-            ui.label("Custom size:");
-            ui.add(egui::Slider::new(&mut builder.size.0, 5..=50));
-            ui.add(egui::Slider::new(&mut builder.size.1, 5..=50));
+                    ui.label("Custom size:");
+                    ui.add(egui::Slider::new(&mut builder.size.0, 5..=50));
+                    ui.add(egui::Slider::new(&mut builder.size.1, 5..=50));
+                });
+
+            ui.end_row();
+
+            ui.vertical(|ui| {
+                edit_rules(ui, &mut builder.rules);
+            });
+
+            ui.vertical(|ui| {
+                edit_game_info(ui, &mut builder.info);
+            });
         });
-
-    edit_rules(ui, &mut builder.rules);
-
-    edit_game_info(ui, &mut builder.info);
 
     if ui.button("Build").clicked() {
         return Some(builder.build());
