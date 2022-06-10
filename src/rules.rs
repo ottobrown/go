@@ -1,6 +1,6 @@
 use crate::Stone;
 
-#[derive(Clone, Copy)]
+#[derive(Copy, Clone, PartialEq)]
 pub struct Rules {
     /// In half-points
     pub komi: u32,

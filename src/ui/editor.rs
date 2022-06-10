@@ -4,6 +4,7 @@ use egui::Ui;
 
 use super::board::{render_board, BoardStyle, Computed};
 use crate::game::{GameInfo, NewGameBuilder};
+use crate::rules::Rules;
 use crate::{Event, Game, Stone};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -110,6 +111,8 @@ pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
             ui.add(egui::Slider::new(&mut builder.size.1, 5..=50));
         });
 
+    edit_rules(ui, &mut builder.rules);
+
     edit_game_info(ui, &mut builder.info);
 
     if ui.button("Build").clicked() {
@@ -150,6 +153,19 @@ fn edit_game_info(ui: &mut Ui, info: &mut GameInfo) {
         ui.label(info.white_rank.display());
     });
     ui.add(egui::Slider::new(&mut info.white_rank.0, -30..=9).show_value(false));
+}
+
+fn edit_rules(ui: &mut Ui, rules: &mut Rules) {
+    ui.heading("Game Rules");
+
+    ui.selectable_value(rules, Rules::CHINESE, "Chinese Rules");
+    ui.selectable_value(rules, Rules::JAPANESE, "Japanese Rules");
+    ui.selectable_value(rules, Rules::NEW_ZEALAND, "New Zealand Rules");
+
+    ui.checkbox(&mut rules.suicide_allowed, "Suicidal moves allowed");
+    ui.checkbox(&mut rules.superko, "Superko");
+    ui.label(format!("Komi: {}", rules.komi as f32 * 0.5));
+    ui.add(egui::Slider::new(&mut rules.komi, 0..=50).show_value(false));
 }
 
 fn handle_click(ui: &mut Ui, tool: Tool, response: &egui::Response, c: &Computed, game: &mut Game) {
