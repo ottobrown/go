@@ -1,3 +1,7 @@
+# 0.2.1
+- Fix star points
+- Fix bug that prevented stones from being captured when using the Move tool
+
 # 0.2.0
 
 ## UI changes
