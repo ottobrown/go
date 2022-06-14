@@ -1,5 +1,6 @@
 use crate::Board;
 use crate::Stone;
+use crate::game::Marker;
 use eframe::egui;
 use egui::epaint;
 use egui::Ui;
@@ -221,7 +222,7 @@ pub fn render_board(
         shapes.push(line)
     }
 
-    // draw stones
+    // draw stones and markers
     for x in 0..w {
         for y in 0..h {
             let center = c.get_pos(x, y);
@@ -241,6 +242,20 @@ pub fn render_board(
             if let Some(color) = stone_color {
                 let circle = Shape::circle_filled(center, c.stone_radius, color);
                 shapes.push(circle)
+            }
+
+            if let Some(m) = board.get_marker(x, y) {
+                match m {
+                    Marker::Empty => {},
+                    Marker::Triangle => {todo!()},
+                    Marker::Circle => {
+                        let r = 0.75 * c.stone_radius;
+                        let circle = Shape::circle_stroke(center, r, egui::Stroke::new(2.0, Color32::RED));
+
+                        shapes.push(circle);
+                    },
+                    Marker::Square => {todo!()},
+                }
             }
         }
     }

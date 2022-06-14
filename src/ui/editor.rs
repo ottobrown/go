@@ -3,6 +3,7 @@ use egui::Align;
 use egui::Ui;
 
 use super::board::{render_board, BoardStyle, Computed};
+use crate::game::Marker;
 use crate::game::{GameInfo, NewGameBuilder};
 use crate::rules::Rules;
 use crate::{Event, Game, Stone};
@@ -11,6 +12,9 @@ use crate::{Event, Game, Stone};
 enum Tool {
     Move,
     Place,
+    Triangle,
+    Circle,
+    Square,
 }
 
 pub struct Editor {
@@ -57,6 +61,9 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
                 .show_ui(ui, |ui| {
                     ui.selectable_value(&mut editor.tool, Tool::Move, "Move");
                     ui.selectable_value(&mut editor.tool, Tool::Place, "Place");
+                    ui.selectable_value(&mut editor.tool, Tool::Triangle, "Triangle");
+                    ui.selectable_value(&mut editor.tool, Tool::Circle, "Circle");
+                    ui.selectable_value(&mut editor.tool, Tool::Square, "Place");
                 });
 
             ui.horizontal(|ui| {
@@ -179,18 +186,20 @@ fn edit_rules(ui: &mut Ui, rules: &mut Rules) {
 fn handle_click(ui: &mut Ui, tool: Tool, response: &egui::Response, c: &Computed, game: &mut Game) {
     if response.clicked() || response.secondary_clicked() {
         if let Some(p) = ui.input().pointer.interact_pos() {
-            let (x, y) = (
+            let (x_f, y_f) = (
                 ((p.x - c.inner_rect.min.x) / c.spacing.x).round() as usize,
                 ((p.y - c.inner_rect.min.y) / c.spacing.y).round() as usize,
             );
 
+            let (x, y) = (x_f as usize, y_f as usize);
+
             let (w, h) = game.size();
-            if (x as usize) * h + (y as usize) >= w * h {
+            if x * h + y >= w * h {
                 return;
             }
 
             let play = match tool {
-                Tool::Move => Event::Move(x as usize, y as usize),
+                Tool::Move => Event::Move(x, y),
                 Tool::Place => {
                     let mut color = Stone::Black;
 
@@ -201,8 +210,12 @@ fn handle_click(ui: &mut Ui, tool: Tool, response: &egui::Response, c: &Computed
                         color = Stone::Empty;
                     }
 
-                    Event::Place(color, x as usize, y as usize)
-                }
+                    Event::Place(color, x, y)
+                },
+
+                Tool::Triangle => Event::Mark(Marker::Triangle, x, y),
+                Tool::Circle => Event::Mark(Marker::Circle, x, y),
+                Tool::Square => Event::Mark(Marker::Square, x, y),
             };
 
             game.handle_event(&play);

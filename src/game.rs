@@ -4,6 +4,14 @@ use crate::Rules;
 use crate::Stone;
 
 #[derive(Clone, Copy, Debug)]
+pub enum Marker {
+    Empty,
+    Triangle,
+    Circle,
+    Square,
+}
+
+#[derive(Clone, Copy, Debug)]
 #[allow(unused)]
 pub enum Event {
     Pass,
@@ -11,6 +19,8 @@ pub enum Event {
     Move(usize, usize),
 
     Place(Stone, usize, usize),
+
+    Mark(Marker, usize, usize),
 }
 
 /// <0 is kyu,
@@ -104,6 +114,7 @@ impl Game {
                     }
                 }
                 Event::Pass => turn = turn.swap(),
+                Event::Mark(m, x, y) => board.set_marker(*m, *x, *y),
 
                 _ => {}
             }
@@ -135,6 +146,8 @@ impl Game {
             Event::Pass => self.turn = self.turn.swap(),
 
             Event::Resign(s) => self.end_game = Some(EndGame::Resign(*s)),
+
+            Event::Mark(m, x, y) => self.current_board.set_marker(*m, *x, *y),
         };
     }
 

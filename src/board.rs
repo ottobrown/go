@@ -1,4 +1,6 @@
 use crate::Rules;
+use crate::game::Marker;
+
 use fxhash::hash64;
 use std::collections::HashSet;
 
@@ -24,6 +26,7 @@ pub struct Board {
     w: usize,
     h: usize,
     stones: Vec<Stone>,
+    marks: Vec<Marker>,
 
     groups: Vec<Group>,
 
@@ -36,6 +39,7 @@ impl Board {
             w: w,
             h: h,
             stones: vec![Stone::Empty; w * h],
+            marks: vec![Marker::Empty; w * h],
             groups: Vec::new(),
             past_hashes: Vec::new(),
         }
@@ -54,17 +58,28 @@ impl Board {
     }
 
     pub fn get(&self, x: usize, y: usize) -> Option<Stone> {
-        if self.index(x, y) >= self.stones.len() {
-            return None;
+        match self.stones.get(self.index(x, y)) {
+            Some(s) => Some(*s),
+            None => None,
         }
+    }
 
-        Some(self.stones[self.index(x, y)])
+    pub fn get_marker(&self, x: usize, y: usize) -> Option<Marker> {
+        match self.marks.get(self.index(x, y)) {
+            Some(m) => Some(*m),
+            None => None,
+        }
     }
 
     /// Place a stone, regardless of its legality
     pub fn set(&mut self, s: Stone, x: usize, y: usize) {
         let index = self.index(x, y);
         self.stones[index] = s;
+    }
+
+    pub fn set_marker(&mut self, m: Marker, x: usize, y: usize) {
+        let index = self.index(x, y);
+        self.marks[index] = m;
     }
 
     /// Do move only if it is legal.
