@@ -7,6 +7,7 @@ use crate::State;
 
 mod board;
 mod editor;
+mod shapes;
 
 pub use board::BoardStyle;
 pub use editor::Editor;

@@ -1,6 +1,7 @@
+use super::shapes::{find_square, find_triangle};
+use crate::game::Marker;
 use crate::Board;
 use crate::Stone;
-use crate::game::Marker;
 use eframe::egui;
 use egui::epaint;
 use egui::Ui;
@@ -20,6 +21,8 @@ pub struct BoardStyle {
     pub stone_radius: f32,
     /// In egui screen units
     pub star_point_radius: f32,
+    /// Stroke thickness of Circle, Square, and Triangle markers
+    pub marker_stroke: f32,
 }
 
 impl Default for BoardStyle {
@@ -31,6 +34,7 @@ impl Default for BoardStyle {
             line_thickness: 3.0,
             stone_radius: 0.4,
             star_point_radius: 5.0,
+            marker_stroke: 2.0,
         }
     }
 }
@@ -246,15 +250,23 @@ pub fn render_board(
 
             if let Some(m) = board.get_marker(x, y) {
                 match m {
-                    Marker::Empty => {},
-                    Marker::Triangle => {todo!()},
+                    Marker::Empty => {}
+                    Marker::Triangle => {
+                        shapes.push(find_triangle(center, c.stone_radius, &style));
+                    }
                     Marker::Circle => {
                         let r = 0.75 * c.stone_radius;
-                        let circle = Shape::circle_stroke(center, r, egui::Stroke::new(2.0, Color32::RED));
+                        let circle = Shape::circle_stroke(
+                            center,
+                            r,
+                            egui::Stroke::new(style.marker_stroke, Color32::RED),
+                        );
 
                         shapes.push(circle);
-                    },
-                    Marker::Square => {todo!()},
+                    }
+                    Marker::Square => {
+                        shapes.push(find_square(center, c.stone_radius, &style));
+                    }
                 }
             }
         }

@@ -1,5 +1,5 @@
-use crate::Rules;
 use crate::game::Marker;
+use crate::Rules;
 
 use fxhash::hash64;
 use std::collections::HashSet;
