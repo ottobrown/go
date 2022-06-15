@@ -110,8 +110,9 @@ impl Board {
         if new.groups.last().unwrap().liberties.is_empty() {
             if rules.suicide_allowed {
                 new.kill_group(new.groups.len() - 1);
+            } else {
+                return false;
             }
-            else {return false}
         }
 
         // If board position is immediately repeated
