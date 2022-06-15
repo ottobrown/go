@@ -77,19 +77,17 @@ impl Board {
             return false;
         }
 
-        let index = new.index(x, y);
-
-        if index >= new.stones.len() {
+        if new.index(x, y) >= new.stones.len() {
             return false;
         }
 
         // If point is already filled
-        if new.stones[index] != Stone::Empty {
+        if self.get(x, y).unwrap() != Stone::Empty {
             return false;
         }
 
         // Place stone
-        new.stones[index] = s;
+        new.set(s, x, y);
 
         // Find group of newly-placed stone
         let group = new.find_group(x, y).unwrap();
