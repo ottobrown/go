@@ -70,107 +70,67 @@ impl Board {
     /// Do move only if it is legal.
     /// Returns if move is legal
     pub fn play(&mut self, s: Stone, x: usize, y: usize, rules: &Rules) -> bool {
+        let mut new = self.clone();
+
         // If coordinate is off the board
-        if x > self.w || y > self.h {
+        if x > new.w || y > new.h {
             return false;
         }
 
-        let index = self.index(x, y);
+        let index = new.index(x, y);
 
-        if index >= self.stones.len() {
+        if index >= new.stones.len() {
             return false;
         }
 
         // If point is already filled
-        if self.stones[index] != Stone::Empty {
+        if new.stones[index] != Stone::Empty {
             return false;
         }
-
-        let before_groups = self.groups.clone();
 
         // Place stone
-        self.stones[index] = s;
-        // Find group of newly-placed stone
-        let group = self.find_group(x, y).unwrap();
+        new.stones[index] = s;
 
-        self.groups.push(group.clone());
-        self.update_groups();
+        // Find group of newly-placed stone
+        let group = new.find_group(x, y).unwrap();
+        new.groups.push(group.clone());
+
+        new.update_groups();
 
         // Kill enemy groups
-        let mut dead: Vec<usize> = Vec::new();
-        for i in (0..self.groups.len()).rev() {
-            let g = &self.groups[i];
+        for i in (0..new.groups.len()).rev() {
+            let g = &new.groups[i];
 
             if g.liberties.is_empty() && g.color == group.color.swap() {
-                dead.push(i);
+                new.kill_group(i);
             }
         }
 
-        for g in &dead {
-            self.kill_group(*g);
-        }
+        new.update_groups();
 
-        self.update_groups();
-        let last_group = self.groups.last().unwrap();
-
-        // Undo last move if no groups are captured
-        if last_group.liberties.is_empty() && dead.is_empty() {
+        // If group of last placed stone still has no liberties
+        if new.groups.last().unwrap().liberties.is_empty() {
             if rules.suicide_allowed {
-                self.kill_group(self.groups.len() - 1);
+                new.kill_group(new.groups.len() - 1);
             }
+            else {return false}
+        }
 
-            self.stones[index] = Stone::Empty;
-            self.remove_stone_from_group((x, y));
-
+        // If board position is immediately repeated
+        let hash = hash64(&new.stones);
+        if Some(&hash) == new.past_hashes.iter().rev().nth(1) {
             return false;
         }
 
-        let hash = hash64(&self.stones);
-        if let Some(h) = self.past_hashes.iter().rev().nth(1) {
-            if h == &hash {
-                self.stones[index] = Stone::Empty;
-                self.remove_stone_from_group((x, y));
-
-                self.groups = before_groups;
-
-                for i in dead {
-                    let group = &self.groups[i].clone();
-
-                    self.place_group(group);
-                }
-
-                return false;
-            }
-        }
-
-        if rules.superko && self.past_hashes.contains(&hash) {
-            self.stones[index] = Stone::Empty;
-            self.remove_stone_from_group((x, y));
-
-            self.groups = before_groups;
-
-            for i in dead {
-                let group = &self.groups[i].clone();
-
-                self.place_group(group);
-            }
-
+        // If superko rules are enabled and board position is repeated ever
+        if rules.superko && new.past_hashes.contains(&hash) {
             return false;
         }
 
-        self.past_hashes.push(hash);
+        new.past_hashes.push(hash);
 
+        *self = new;
         return true;
-    }
-
-    fn remove_stone_from_group(&mut self, p: (usize, usize)) {
-        for i in 0..self.groups.len() {
-            if self.groups[i].points.remove(&p) {
-                self.update_groups();
-
-                return;
-            }
-        }
     }
 
     fn get_neighbors(&self, x: usize, y: usize) -> Neighbors {
@@ -335,14 +295,6 @@ impl Board {
             self.set(Stone::Empty, j.0, j.1);
         }
         self.groups.remove(i);
-    }
-
-    /// place all the stones in a group
-    fn place_group(&mut self, g: &Group) {
-        for i in &g.points {
-            let j = self.index(i.0, i.1);
-            self.stones[j] = g.color;
-        }
     }
 }
 
