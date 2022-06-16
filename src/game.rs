@@ -9,6 +9,7 @@ pub enum Marker {
     Triangle,
     Circle,
     Square,
+    Cross,
 }
 
 #[derive(Clone, Copy, Debug)]

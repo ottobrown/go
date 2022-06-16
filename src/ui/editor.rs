@@ -12,9 +12,11 @@ use crate::{Event, Game, Stone};
 enum Tool {
     Move,
     Place,
+
     Triangle,
     Circle,
     Square,
+    Cross,
 }
 
 pub struct Editor {
@@ -64,6 +66,7 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
                     ui.selectable_value(&mut editor.tool, Tool::Triangle, "Triangle");
                     ui.selectable_value(&mut editor.tool, Tool::Circle, "Circle");
                     ui.selectable_value(&mut editor.tool, Tool::Square, "Square");
+                    ui.selectable_value(&mut editor.tool, Tool::Cross, "Cross");
                 });
 
             ui.horizontal(|ui| {
@@ -216,6 +219,7 @@ fn handle_click(ui: &mut Ui, tool: Tool, response: &egui::Response, c: &Computed
                 Tool::Triangle => Event::Mark(Marker::Triangle, x, y),
                 Tool::Circle => Event::Mark(Marker::Circle, x, y),
                 Tool::Square => Event::Mark(Marker::Square, x, y),
+                Tool::Cross => Event::Mark(Marker::Cross, x, y),
             };
 
             game.handle_event(&play);

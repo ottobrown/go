@@ -1,4 +1,4 @@
-use super::shapes::{find_square, find_triangle};
+use super::shapes::*;
 use crate::game::Marker;
 use crate::Board;
 use crate::Stone;
@@ -266,7 +266,10 @@ pub fn render_board(
                     }
                     Marker::Square => {
                         shapes.push(find_square(center, c.stone_radius, &style));
-                    }
+                    },
+                    Marker::Cross => {
+                        shapes.push(find_cross(center, c.stone_radius, &style));
+                    },
                 }
             }
         }

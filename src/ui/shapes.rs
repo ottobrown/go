@@ -27,7 +27,7 @@ pub fn find_square(center: Pos2, r: f32, style: &BoardStyle) -> Shape {
     );
 }
 
-/// Stroke a triangle withing a circle
+/// Stroke a triangle within a circle
 pub fn find_triangle(center: Pos2, r: f32, style: &BoardStyle) -> Shape {
     let top = pos2(center.x, center.y - r);
     let left = pos2(center.x - r*0.5*SQRT_3, center.y + r*0.5);
@@ -38,4 +38,17 @@ pub fn find_triangle(center: Pos2, r: f32, style: &BoardStyle) -> Shape {
         Color32::TRANSPARENT,
         egui::Stroke::new(style.marker_stroke, Color32::RED),
     );
+}
+
+/// Stroke a cross or 'x' shape within a circle
+pub fn find_cross(center: Pos2, r: f32, style: &BoardStyle) -> Shape {
+    let top_left = pos2(center.x - 0.5 * r * SQRT_2, center.y - 0.5 * r * SQRT_2);
+    let top_right = pos2(center.x + 0.5 * r * SQRT_2, center.y - 0.5 * r * SQRT_2);
+    let bottom_right = pos2(center.x + 0.5 * r * SQRT_2, center.y + 0.5 * r * SQRT_2);
+    let bottom_left = pos2(center.x - 0.5 * r * SQRT_2, center.y + 0.5 * r * SQRT_2);
+
+    return Shape::Vec(vec![
+        Shape::line_segment([top_left, bottom_right], egui::Stroke::new(style.marker_stroke, Color32::RED)),
+        Shape::line_segment([top_right, bottom_left], egui::Stroke::new(style.marker_stroke, Color32::RED)),
+    ]);
 }
