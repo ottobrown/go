@@ -102,13 +102,16 @@ impl Game {
         self.current_board.clone()
     }
 
+    // TODO: don't repeat stuff from Self::handle_event
     fn build_board_from_history(&mut self) {
         let mut board = self.initial_board.clone();
         let mut turn = self.initial_turn;
 
         for e in &self.history {
             match e {
-                Event::Place(s, x, y) => board.set(*s, *x, *y),
+                Event::Place(s, x, y) => {
+                    board.play(*s, *x, *y, &self.rules);
+                }
                 Event::Move(x, y) => {
                     if board.play(turn, *x, *y, &self.rules) {
                         turn = turn.swap();
@@ -138,7 +141,9 @@ impl Game {
         self.history.push(e.clone());
 
         match e {
-            Event::Place(s, x, y) => self.current_board.set(*s, *x, *y),
+            Event::Place(s, x, y) => {
+                self.current_board.play(*s, *x, *y, &self.rules);
+            }
             Event::Move(x, y) => {
                 if self.current_board.play(self.turn, *x, *y, &self.rules) {
                     self.turn = self.turn.swap();
