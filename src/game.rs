@@ -98,7 +98,9 @@ impl Game {
 
         for e in &self.history {
             match e {
-                Event::Place(s, x, y) => {board.play(*s, *x, *y, &self.rules);},
+                Event::Place(s, x, y) => {
+                    board.play(*s, *x, *y, &self.rules);
+                }
                 Event::Move(x, y) => {
                     if board.play(turn, *x, *y, &self.rules) {
                         turn = turn.swap();
@@ -127,7 +129,9 @@ impl Game {
         self.history.push(e.clone());
 
         match e {
-            Event::Place(s, x, y) => {self.current_board.play(*s, *x, *y, &self.rules);},
+            Event::Place(s, x, y) => {
+                self.current_board.play(*s, *x, *y, &self.rules);
+            }
             Event::Move(x, y) => {
                 if self.current_board.play(self.turn, *x, *y, &self.rules) {
                     self.turn = self.turn.swap();
