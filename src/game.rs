@@ -126,15 +126,16 @@ impl Game {
     }
 
     pub fn handle_event(&mut self, e: &Event) {
-        self.history.push(e.clone());
-
         match e {
             Event::Place(s, x, y) => {
-                self.current_board.play(*s, *x, *y, &self.rules);
+                if self.current_board.play(*s, *x, *y, &self.rules) {
+                    self.history.push(e.clone());
+                }
             }
             Event::Move(x, y) => {
                 if self.current_board.play(self.turn, *x, *y, &self.rules) {
                     self.turn = self.turn.swap();
+                    self.history.push(e.clone());
                 }
             }
             Event::Pass => self.turn = self.turn.swap(),
