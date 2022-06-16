@@ -1,4 +1,5 @@
 use std::f32::consts::SQRT_2;
+const SQRT_3: f32 = 1.73205078;
 
 use super::BoardStyle;
 
@@ -28,5 +29,13 @@ pub fn find_square(center: Pos2, r: f32, style: &BoardStyle) -> Shape {
 
 /// Stroke a triangle withing a circle
 pub fn find_triangle(center: Pos2, r: f32, style: &BoardStyle) -> Shape {
-    todo!()
+    let top = pos2(center.x, center.y - r);
+    let left = pos2(center.x - r*0.5*SQRT_3, center.y + r*0.5);
+    let right = pos2(center.x + r*0.5*SQRT_3, center.y + r*0.5);
+
+    return Shape::convex_polygon(
+        vec![top, left, right],
+        Color32::TRANSPARENT,
+        egui::Stroke::new(style.marker_stroke, Color32::RED),
+    );
 }
