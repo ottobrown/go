@@ -110,11 +110,14 @@ impl Game {
         for e in &self.history {
             match e {
                 Event::Place(s, x, y) => {
-                    board.play(*s, *x, *y, &self.rules);
+                    if board.play(*s, *x, *y, &self.rules) {
+                        self.current_board.clear_markers();
+                    }
                 }
                 Event::Move(x, y) => {
                     if board.play(turn, *x, *y, &self.rules) {
                         turn = turn.swap();
+                        self.current_board.clear_markers();
                     }
                 }
                 Event::Pass => turn = turn.swap(),
@@ -143,10 +146,12 @@ impl Game {
         match e {
             Event::Place(s, x, y) => {
                 self.current_board.play(*s, *x, *y, &self.rules);
+                self.current_board.clear_markers();
             }
             Event::Move(x, y) => {
                 if self.current_board.play(self.turn, *x, *y, &self.rules) {
                     self.turn = self.turn.swap();
+                    self.current_board.clear_markers();
                 }
             }
             Event::Pass => self.turn = self.turn.swap(),

@@ -64,6 +64,12 @@ impl Board {
         }
     }
 
+    /// Place a stone, regardless of its legality
+    pub fn set(&mut self, s: Stone, x: usize, y: usize) {
+        let index = self.index(x, y);
+        self.stones[index] = s;
+    }
+
     pub fn get_marker(&self, x: usize, y: usize) -> Option<Marker> {
         match self.marks.get(self.index(x, y)) {
             Some(m) => Some(*m),
@@ -71,10 +77,11 @@ impl Board {
         }
     }
 
-    /// Place a stone, regardless of its legality
-    pub fn set(&mut self, s: Stone, x: usize, y: usize) {
-        let index = self.index(x, y);
-        self.stones[index] = s;
+    /// Remove all markers
+    pub fn clear_markers(&mut self) {
+        for i in &mut self.marks {
+            *i = Marker::Empty;
+        }
     }
 
     pub fn set_marker(&mut self, m: Marker, x: usize, y: usize) {
