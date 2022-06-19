@@ -227,7 +227,7 @@ impl Board {
                     }
 
                     if let Some(g) = board.get_group(c.0, c.1) {
-                        if &board.groups[g].color == &group.color {
+                        if board.groups[g].color == group.color {
                             group.eat(&board.groups[g]);
                             board.groups.remove(g);
                         }

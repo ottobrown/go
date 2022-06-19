@@ -34,7 +34,7 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
     let size = egui::Vec2::splat(ui.style().spacing.item_spacing.x * 100.0);
 
     // Editor frame
-    egui::Frame::group(&ui.style()).show(ui, |ui| {
+    egui::Frame::group(ui.style()).show(ui, |ui| {
         egui::ScrollArea::both().show(ui, |ui| {
             // render player info
             egui::Grid::new("Player info")
@@ -84,7 +84,7 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
             }
 
             // Board Frame
-            egui::Frame::canvas(&ui.style()).show(ui, |ui| {
+            egui::Frame::canvas(ui.style()).show(ui, |ui| {
                 let response =
                     render_board(ui, &game.current_board(), style, size, &mut editor.computed);
                 handle_click(ui, editor.tool, &response, &editor.computed, &mut game);

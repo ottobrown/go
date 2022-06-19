@@ -35,11 +35,13 @@ impl Rank {
     pub fn display(&self) -> String {
         if self.0 < 0 {
             return format!("{}k", self.0.abs());
-        } else if self.0 > 0 {
-            return format!("{}d", self.0);
-        } else {
-            return String::new();
         }
+
+        if self.0 > 0 {
+            return format!("{}d", self.0);
+        }
+
+        return String::new();
     }
 }
 
@@ -126,7 +128,7 @@ impl Game {
     }
 
     pub fn handle_event(&mut self, e: &Event) {
-        self.history.push(e.clone());
+        self.history.push(*e);
 
         match e {
             Event::Place(s, x, y) => {
