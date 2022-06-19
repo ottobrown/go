@@ -1,3 +1,4 @@
+use crate::tree::EventTree;
 use crate::rules::EndGame;
 use crate::Board;
 use crate::Rules;
@@ -6,6 +7,7 @@ use crate::Stone;
 #[derive(Clone, Copy, Debug)]
 #[allow(unused)]
 pub enum Event {
+    Start,
     Pass,
     Resign(Stone),
     Move(usize, usize),
@@ -74,7 +76,7 @@ pub struct Game {
     current_board: Board,
     initial_board: Board,
     initial_turn: Stone,
-    history: Vec<Event>,
+    history: EventTree,
 
     pub turn: Stone,
     rules: Rules,
@@ -91,11 +93,11 @@ impl Game {
         self.current_board.clone()
     }
 
-    fn build_board_from_history(&mut self) {
+    fn build_board_from_history(&mut self, history: &Vec<Event>) {
         let mut board = self.initial_board.clone();
         let mut turn = self.initial_turn;
 
-        for e in &self.history {
+        for e in history {
             match e {
                 Event::Place(s, x, y) => board.set(*s, *x, *y),
                 Event::Move(x, y) => {
@@ -115,7 +117,7 @@ impl Game {
 
     pub fn undo(&mut self) {
         self.pop_history();
-        self.build_board_from_history();
+        self.build_board_from_history(&self.history.get_path())
     }
 
     pub fn pop_history(&mut self) -> Option<Event> {
@@ -135,6 +137,8 @@ impl Game {
             Event::Pass => self.turn = self.turn.swap(),
 
             Event::Resign(s) => self.end_game = Some(EndGame::Resign(*s)),
+
+            _ => {}
         };
     }
 
@@ -156,7 +160,7 @@ impl NewGameBuilder {
             initial_board: Board::blank(self.size.0, self.size.1),
             initial_turn: Stone::Black,
             current_board: Board::blank(self.size.0, self.size.1),
-            history: Vec::new(),
+            history: EventTree::blank(),
 
             turn: Stone::Black,
             rules: self.rules,
