@@ -82,7 +82,45 @@ impl EventTree {
         self.path.push(last_idx);
     }
 
-    /// Remove the current event and move to the parent
+    pub fn move_to_parent(&mut self) {
+        self.path.pop();
+    }
+
+    pub fn move_to_first_child(&mut self) {
+        if !self.get_current_node().children.is_empty() {
+            self.path.push(0);
+        }
+    }
+
+    pub fn move_to_last_sibling(&mut self) {
+        let last = match self.path.last_mut() {
+            Some(n) => n,
+            None => return,
+        };
+        if *last == 0 {
+            return
+        }
+
+        *last = *last - 1;
+    }
+
+    pub fn move_to_next_sibling(&mut self) {
+        let last = match self.path.pop() {
+            Some(n) => n,
+            None => return,
+        };
+        let len = self.get_current_node().children.len();
+
+        if last + 1 >= len {
+            self.path.push(last);
+
+            return
+        }
+
+        self.path.push(last + 1)
+    }
+
+    /// Remove the current node and move to the parent
     pub fn pop(&mut self) -> Option<Event> {
         let last_idx = self.path.pop()?;
         let node = self.get_current_node_mut();

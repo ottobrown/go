@@ -117,11 +117,31 @@ impl Game {
 
     pub fn undo(&mut self) {
         self.pop_history();
-        self.build_board_from_history(&self.history.get_path())
+        self.build_board_from_history(&self.history.get_path());
     }
 
-    pub fn pop_history(&mut self) -> Option<Event> {
+    fn pop_history(&mut self) -> Option<Event> {
         self.history.pop()
+    }
+
+    pub fn move_back(&mut self) {
+        self.history.move_to_parent();
+        self.build_board_from_history(&self.history.get_path());
+    }
+
+    pub fn move_forward(&mut self) {
+        self.history.move_to_first_child();
+        self.build_board_from_history(&self.history.get_path());
+    }
+
+    pub fn move_up(&mut self) {
+        self.history.move_to_last_sibling();
+        self.build_board_from_history(&self.history.get_path());
+    }
+
+    pub fn move_down(&mut self) {
+        self.history.move_to_next_sibling();
+        self.build_board_from_history(&self.history.get_path());
     }
 
     pub fn handle_event(&mut self, e: &Event) {
