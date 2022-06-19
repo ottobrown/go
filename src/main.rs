@@ -1,3 +1,6 @@
+#![allow(clippy::needless_return)]
+#![allow(clippy::redundant_field_names)]
+
 use eframe::{run_native, NativeOptions};
 
 mod board;
