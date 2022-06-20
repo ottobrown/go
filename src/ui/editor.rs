@@ -17,12 +17,15 @@ enum Tool {
     Circle,
     Square,
     Cross,
+    Line,
 }
 
 pub struct Editor {
     computed: Computed,
     tool: Tool,
     game_info_open: bool,
+    
+    line_starting_point: Option<(usize, usize)>,
 }
 impl Default for Editor {
     fn default() -> Self {
@@ -30,6 +33,7 @@ impl Default for Editor {
             computed: Computed::blank(),
             tool: Tool::Move,
             game_info_open: false,
+            line_starting_point: None,
         }
     }
 }
@@ -95,9 +99,10 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
 
             // Board Frame
             egui::Frame::canvas(&ui.style()).show(ui, |ui| {
-                let response =
-                    render_board(ui, &game.current_board(), style, size, &mut editor.computed);
-                handle_click(ui, editor.tool, &response, &editor.computed, &mut game);
+                let board = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
+                if let Some(e) = tool(ui, editor, &board, &game) {
+                    game.handle_event(&e);
+                }
             });
         });
     });
@@ -186,8 +191,10 @@ fn edit_rules(ui: &mut Ui, rules: &mut Rules) {
     ui.add(egui::Slider::new(&mut rules.komi, 0..=50).show_value(false));
 }
 
-fn handle_click(ui: &mut Ui, tool: Tool, response: &egui::Response, c: &Computed, game: &mut Game) {
-    if response.clicked() || response.secondary_clicked() {
+fn tool(ui: &mut Ui, editor: &mut Editor, board: &egui::Response, game: &Game) -> Option<Event> {
+    let c = &editor.computed;
+
+    if board.clicked() || board.secondary_clicked() {
         if let Some(p) = ui.input().pointer.interact_pos() {
             let (x_f, y_f) = (
                 ((p.x - c.inner_rect.min.x) / c.spacing.x).round() as usize,
@@ -198,31 +205,33 @@ fn handle_click(ui: &mut Ui, tool: Tool, response: &egui::Response, c: &Computed
 
             let (w, h) = game.size();
             if x * h + y >= w * h {
-                return;
+                return None;
             }
 
-            let play = match tool {
-                Tool::Move => Event::Move(x, y),
+            return match editor.tool {
+                Tool::Move => Some(Event::Move(x, y)),
                 Tool::Place => {
                     let mut color = Stone::Black;
 
                     if ui.input().modifiers.shift {
                         color = Stone::White;
                     }
-                    if response.secondary_clicked() {
+                    if board.secondary_clicked() {
                         color = Stone::Empty;
                     }
 
-                    Event::Place(color, x, y)
+                    Some(Event::Place(color, x, y))
                 }
 
-                Tool::Triangle => Event::Mark(Marker::Triangle, x, y),
-                Tool::Circle => Event::Mark(Marker::Circle, x, y),
-                Tool::Square => Event::Mark(Marker::Square, x, y),
-                Tool::Cross => Event::Mark(Marker::Cross, x, y),
-            };
+                Tool::Triangle => Some(Event::Mark(Marker::Triangle, x, y)),
+                Tool::Circle => Some(Event::Mark(Marker::Circle, x, y)),
+                Tool::Square => Some(Event::Mark(Marker::Square, x, y)),
+                Tool::Cross => Some(Event::Mark(Marker::Cross, x, y)),
 
-            game.handle_event(&play);
+                Tool::Line => None,
+            };
         }
     }
+
+    return None;
 }

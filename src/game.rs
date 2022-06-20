@@ -10,6 +10,8 @@ pub enum Marker {
     Circle,
     Square,
     Cross,
+    /// Contains the coordinates of the end point of the line
+    Line(usize, usize),
 }
 
 #[derive(Clone, Copy, Debug)]

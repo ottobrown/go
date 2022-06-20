@@ -259,6 +259,8 @@ pub fn render_board(
                     Marker::Cross => {
                         shapes.push(find_cross(center, c.stone_radius, &style));
                     },
+                    
+                    _ => todo!(),
                 }
             }
         }
