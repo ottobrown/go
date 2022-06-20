@@ -127,6 +127,14 @@ impl Game {
         self.history.pop()
     }
 
+    pub fn black_prisoners(&self) -> u32 {
+        self.current_board.black_prisoners
+    }
+
+    pub fn white_prisoners(&self) -> u32 {
+        self.current_board.white_prisoners
+    }
+
     pub fn handle_event(&mut self, e: &Event) {
         self.history.push(*e);
 

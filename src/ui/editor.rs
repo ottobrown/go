@@ -43,11 +43,13 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
                     ui.with_layout(egui::Layout::top_down(Align::Min), |ui| {
                         ui.label(&game.info.black_player);
                         ui.label(game.info.black_rank.display());
+                        ui.label(format!("Captures: {}", game.white_prisoners()))
                     });
 
                     ui.with_layout(egui::Layout::top_down(Align::Max), |ui| {
                         ui.label(&game.info.white_player);
                         ui.label(game.info.white_rank.display());
+                        ui.label(format!("Captures: {}", game.black_prisoners()))
                     });
                 });
 
@@ -73,6 +75,7 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
                     editor.game_info_open = true;
                 }
             });
+
             if editor.game_info_open {
                 egui::Window::new("Game info").show(ui.ctx(), |ui| {
                     edit_game_info(ui, &mut game.info);
