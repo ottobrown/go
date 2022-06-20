@@ -101,7 +101,7 @@ impl Game {
         for e in history {
             match e {
                 Event::Place(s, x, y) => {
-                    board.play(*s, *x, *y, &self.rules);
+                    board.set(*s, *x, *y);
                 }
                 Event::Move(x, y) => {
                     if board.play(turn, *x, *y, &self.rules) {
@@ -160,10 +160,7 @@ impl Game {
 
         match e {
             Event::Place(s, x, y) => {
-                if !self.current_board.play(*s, *x, *y, &self.rules) {
-                    // Remove event if it waws illegal
-                    self.pop_history();
-                }
+                self.current_board.set(*s, *x, *y);
             }
             Event::Move(x, y) => {
                 if self.current_board.play(self.turn, *x, *y, &self.rules) {
