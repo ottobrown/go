@@ -110,9 +110,12 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
 
             // Board Frame
             egui::Frame::canvas(ui.style()).show(ui, |ui| {
-                let response =
-                    render_board(ui, &game.current_board(), style, size, &mut editor.computed);
-                handle_click(ui, editor.tool, &response, &editor.computed, &mut game);
+                let r = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
+
+                match &game.end_game {
+                    Some(e) => {ui.label(e.display());},
+                    None => {handle_click(ui, editor.tool, &r, &editor.computed, &mut game);},
+                };
             });
         });
     });
