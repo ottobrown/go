@@ -1,3 +1,6 @@
+// Hide terminal on windows
+#![windows_subsystem = "windows"]
+
 #![allow(clippy::needless_return)]
 #![allow(clippy::redundant_field_names)]
 
