@@ -34,7 +34,7 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
     let size = egui::Vec2::splat(ui.style().spacing.item_spacing.x * 100.0);
 
     // Editor frame
-    egui::Frame::group(&ui.style()).show(ui, |ui| {
+    egui::Frame::group(ui.style()).show(ui, |ui| {
         egui::ScrollArea::both().show(ui, |ui| {
             // render player info
             egui::Grid::new("Player info")
@@ -43,11 +43,13 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
                     ui.with_layout(egui::Layout::top_down(Align::Min), |ui| {
                         ui.label(&game.info.black_player);
                         ui.label(game.info.black_rank.display());
+                        ui.label(format!("Captures: {}", game.white_prisoners()))
                     });
 
                     ui.with_layout(egui::Layout::top_down(Align::Max), |ui| {
                         ui.label(&game.info.white_player);
                         ui.label(game.info.white_rank.display());
+                        ui.label(format!("Captures: {}", game.black_prisoners()))
                     });
                 });
 
@@ -73,6 +75,7 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
                     editor.game_info_open = true;
                 }
             });
+            
             ui.horizontal(|ui| {
                 // left arrow
                 if ui.button("\u{2B05}").clicked() {
@@ -106,7 +109,7 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
             }
 
             // Board Frame
-            egui::Frame::canvas(&ui.style()).show(ui, |ui| {
+            egui::Frame::canvas(ui.style()).show(ui, |ui| {
                 let response =
                     render_board(ui, &game.current_board(), style, size, &mut editor.computed);
                 handle_click(ui, editor.tool, &response, &editor.computed, &mut game);

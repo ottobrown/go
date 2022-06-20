@@ -37,11 +37,13 @@ impl Rank {
     pub fn display(&self) -> String {
         if self.0 < 0 {
             return format!("{}k", self.0.abs());
-        } else if self.0 > 0 {
-            return format!("{}d", self.0);
-        } else {
-            return String::new();
         }
+
+        if self.0 > 0 {
+            return format!("{}d", self.0);
+        }
+
+        return String::new();
     }
 }
 
@@ -99,7 +101,9 @@ impl Game {
 
         for e in history {
             match e {
-                Event::Place(s, x, y) => board.set(*s, *x, *y),
+                Event::Place(s, x, y) => {
+                    board.play(*s, *x, *y, &self.rules);
+                }
                 Event::Move(x, y) => {
                     if board.play(turn, *x, *y, &self.rules) {
                         turn = turn.swap();
@@ -143,15 +147,32 @@ impl Game {
         self.history.move_to_next_sibling();
         self.build_board_from_history(&self.history.get_path());
     }
+    
+    pub fn black_prisoners(&self) -> u32 {
+        self.current_board.black_prisoners
+    }
+
+    pub fn white_prisoners(&self) -> u32 {
+        self.current_board.white_prisoners
+    }
 
     pub fn handle_event(&mut self, e: &Event) {
-        self.history.push(e.clone());
+        self.history.push(*e);
 
         match e {
-            Event::Place(s, x, y) => self.current_board.set(*s, *x, *y),
+            Event::Place(s, x, y) => {
+                if !self.current_board.play(*s, *x, *y, &self.rules) {
+                    // Remove event if it waws illegal
+                    self.pop_history();
+                }
+            }
             Event::Move(x, y) => {
                 if self.current_board.play(self.turn, *x, *y, &self.rules) {
                     self.turn = self.turn.swap();
+                }
+                else {
+                    // Remove event if it waws illegal
+                    self.pop_history();
                 }
             }
             Event::Pass => self.turn = self.turn.swap(),
