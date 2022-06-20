@@ -8,6 +8,7 @@ mod game;
 mod rules;
 mod state;
 mod ui;
+mod tree;
 
 use board::Board;
 use board::Stone;

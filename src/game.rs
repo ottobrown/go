@@ -1,3 +1,4 @@
+use crate::tree::EventTree;
 use crate::rules::EndGame;
 use crate::Board;
 use crate::Rules;
@@ -6,6 +7,7 @@ use crate::Stone;
 #[derive(Clone, Copy, Debug)]
 #[allow(unused)]
 pub enum Event {
+    Start,
     Pass,
     Resign(Stone),
     Move(usize, usize),
@@ -76,7 +78,7 @@ pub struct Game {
     current_board: Board,
     initial_board: Board,
     initial_turn: Stone,
-    history: Vec<Event>,
+    history: EventTree,
 
     pub turn: Stone,
     rules: Rules,
@@ -93,12 +95,11 @@ impl Game {
         self.current_board.clone()
     }
 
-    // TODO: don't repeat stuff from Self::handle_event
-    fn build_board_from_history(&mut self) {
+    fn build_board_from_history(&mut self, history: &Vec<Event>) {
         let mut board = self.initial_board.clone();
         let mut turn = self.initial_turn;
 
-        for e in &self.history {
+        for e in history {
             match e {
                 Event::Place(s, x, y) => {
                     board.play(*s, *x, *y, &self.rules);
@@ -120,13 +121,33 @@ impl Game {
 
     pub fn undo(&mut self) {
         self.pop_history();
-        self.build_board_from_history();
+        self.build_board_from_history(&self.history.get_path());
     }
 
-    pub fn pop_history(&mut self) -> Option<Event> {
+    fn pop_history(&mut self) -> Option<Event> {
         self.history.pop()
     }
 
+    pub fn move_back(&mut self) {
+        self.history.move_to_parent();
+        self.build_board_from_history(&self.history.get_path());
+    }
+
+    pub fn move_forward(&mut self) {
+        self.history.move_to_first_child();
+        self.build_board_from_history(&self.history.get_path());
+    }
+
+    pub fn move_up(&mut self) {
+        self.history.move_to_last_sibling();
+        self.build_board_from_history(&self.history.get_path());
+    }
+
+    pub fn move_down(&mut self) {
+        self.history.move_to_next_sibling();
+        self.build_board_from_history(&self.history.get_path());
+    }
+    
     pub fn black_prisoners(&self) -> u32 {
         self.current_board.black_prisoners
     }
@@ -157,6 +178,8 @@ impl Game {
             Event::Pass => self.turn = self.turn.swap(),
 
             Event::Resign(s) => self.end_game = Some(EndGame::Resign(*s)),
+
+            _ => {}
         };
     }
 
@@ -178,7 +201,7 @@ impl NewGameBuilder {
             initial_board: Board::blank(self.size.0, self.size.1),
             initial_turn: Stone::Black,
             current_board: Board::blank(self.size.0, self.size.1),
-            history: Vec::new(),
+            history: EventTree::blank(),
 
             turn: Stone::Black,
             rules: self.rules,

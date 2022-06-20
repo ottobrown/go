@@ -75,6 +75,28 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
                     editor.game_info_open = true;
                 }
             });
+            
+            ui.horizontal(|ui| {
+                // left arrow
+                if ui.button("\u{2B05}").clicked() {
+                    game.move_back();
+                }
+
+                // right arrow
+                if ui.button("\u{27A1}").clicked() {
+                    game.move_forward();
+                }
+
+                // up arrow
+                if ui.button("\u{2B06}").clicked() {
+                    game.move_up();
+                }
+
+                // down arrow
+                if ui.button("\u{2B07}").clicked() {
+                    game.move_down();
+                }
+            });
 
             if editor.game_info_open {
                 egui::Window::new("Game info").show(ui.ctx(), |ui| {
