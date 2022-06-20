@@ -9,7 +9,6 @@ pub struct Rules {
     pub superko: bool,
 }
 impl Rules {
-    #[allow(unused)]
     pub const CHINESE: Self = Self {
         // 7.5
         komi: 15,
@@ -19,7 +18,6 @@ impl Rules {
         superko: true,
     };
 
-    #[allow(unused)]
     pub const JAPANESE: Self = Self {
         /// 6.5
         komi: 13,
@@ -27,7 +25,6 @@ impl Rules {
         superko: false,
     };
 
-    #[allow(unused)]
     pub const NEW_ZEALAND: Self = Self {
         // 7
         komi: 14,

@@ -5,7 +5,6 @@ use crate::Rules;
 use crate::Stone;
 
 #[derive(Clone, Copy, Debug)]
-#[allow(unused)]
 pub enum Event {
     Start,
     Pass,
