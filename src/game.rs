@@ -1,5 +1,5 @@
-use crate::tree::EventTree;
 use crate::rules::EndGame;
+use crate::tree::EventTree;
 use crate::Board;
 use crate::Rules;
 use crate::Stone;
@@ -147,7 +147,7 @@ impl Game {
         self.history.move_to_next_sibling();
         self.build_board_from_history(&self.history.get_path());
     }
-    
+
     pub fn black_prisoners(&self) -> u32 {
         self.current_board.black_prisoners
     }
@@ -169,8 +169,7 @@ impl Game {
             Event::Move(x, y) => {
                 if self.current_board.play(self.turn, *x, *y, &self.rules) {
                     self.turn = self.turn.swap();
-                }
-                else {
+                } else {
                     // Remove event if it waws illegal
                     self.pop_history();
                 }

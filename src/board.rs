@@ -307,8 +307,8 @@ impl Board {
         match g.color {
             Stone::Black => self.black_prisoners += num_captured,
             Stone::White => self.white_prisoners += num_captured,
-            
-            _ => {},
+
+            _ => {}
         }
     }
 }

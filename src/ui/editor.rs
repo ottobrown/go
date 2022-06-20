@@ -75,7 +75,7 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
                     editor.game_info_open = true;
                 }
             });
-            
+
             ui.horizontal(|ui| {
                 // left arrow
                 if ui.button("\u{2B05}").clicked() {
@@ -113,8 +113,12 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
                 let r = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
 
                 match &game.end_game {
-                    Some(e) => {ui.label(e.display());},
-                    None => {handle_click(ui, editor.tool, &r, &editor.computed, &mut game);},
+                    Some(e) => {
+                        ui.label(e.display());
+                    }
+                    None => {
+                        handle_click(ui, editor.tool, &r, &editor.computed, &mut game);
+                    }
                 };
             });
         });

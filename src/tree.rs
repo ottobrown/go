@@ -98,7 +98,7 @@ impl EventTree {
             None => return,
         };
         if *last == 0 {
-            return
+            return;
         }
 
         *last = *last - 1;
@@ -114,7 +114,7 @@ impl EventTree {
         if last + 1 >= len {
             self.path.push(last);
 
-            return
+            return;
         }
 
         self.path.push(last + 1)
