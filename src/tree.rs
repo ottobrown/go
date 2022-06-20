@@ -56,10 +56,6 @@ impl EventTree {
         return current_node;
     }
 
-    pub fn get_current_event(&self) -> Event {
-        return self.get_current_node().event;
-    }
-
     pub fn get_path(&self) -> Vec<Event> {
         let mut vec = Vec::new();
         let mut current_node = &self.root;
@@ -101,7 +97,7 @@ impl EventTree {
             return;
         }
 
-        *last = *last - 1;
+        *last -= 1;
     }
 
     pub fn move_to_next_sibling(&mut self) {
