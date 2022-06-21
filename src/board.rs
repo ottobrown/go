@@ -30,6 +30,11 @@ pub struct Board {
 
     groups: Vec<Group>,
 
+    /// The number of black stones that have been captured by white.
+    pub black_prisoners: u32,
+    /// The number of white stones that have been captured by black.
+    pub white_prisoners: u32,
+
     /// hash64(self.stones) after every move
     past_hashes: Vec<u64>,
 }
@@ -41,6 +46,8 @@ impl Board {
             stones: vec![Stone::Empty; w * h],
             marks: vec![Marker::Empty; w * h],
             groups: Vec::new(),
+            black_prisoners: 0,
+            white_prisoners: 0,
             past_hashes: Vec::new(),
         }
     }
@@ -249,7 +256,7 @@ impl Board {
                     }
 
                     if let Some(g) = board.get_group(c.0, c.1) {
-                        if &board.groups[g].color == &group.color {
+                        if board.groups[g].color == group.color {
                             group.eat(&board.groups[g]);
                             board.groups.remove(g);
                         }
@@ -308,14 +315,23 @@ impl Board {
         }
     }
 
-    /// Kill the group at the given index on self.groups
+    /// Kill the group at the given index on self.groups.
     fn kill_group(&mut self, i: usize) {
+        let mut num_captured = 0_u32;
         let g = self.groups[i].clone();
 
         for j in &g.points {
+            num_captured += 1;
             self.set(Stone::Empty, j.0, j.1);
         }
         self.groups.remove(i);
+
+        match g.color {
+            Stone::Black => self.black_prisoners += num_captured,
+            Stone::White => self.white_prisoners += num_captured,
+
+            _ => {}
+        }
     }
 }
 

@@ -9,7 +9,6 @@ pub struct Rules {
     pub superko: bool,
 }
 impl Rules {
-    #[allow(unused)]
     pub const CHINESE: Self = Self {
         // 7.5
         komi: 15,
@@ -19,7 +18,6 @@ impl Rules {
         superko: true,
     };
 
-    #[allow(unused)]
     pub const JAPANESE: Self = Self {
         /// 6.5
         komi: 13,
@@ -27,7 +25,6 @@ impl Rules {
         superko: false,
     };
 
-    #[allow(unused)]
     pub const NEW_ZEALAND: Self = Self {
         // 7
         komi: 14,
@@ -45,4 +42,14 @@ pub enum EndGame {
     Resign(Stone),
     Time(Stone),
     Forfiet(Stone),
+}
+impl EndGame {
+    pub fn display(&self) -> String {
+        match self {
+            Self::Score(s, p) => format!("{:?} won by {} points.", s, 0.5 * (*p as f32)),
+            Self::Resign(s) => format!("{:?} won by resignation.", s),
+            Self::Time(s) => format!("{:?} won by time.", s),
+            Self::Forfiet(s) => format!("{:?} won by forfiet", s),
+        }
+    }
 }

@@ -1,5 +1,4 @@
 use eframe::egui;
-use egui::Align;
 use egui::Ui;
 
 use super::board::{render_board, BoardStyle, Computed};
@@ -43,71 +42,99 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
 
     let size = egui::Vec2::splat(ui.style().spacing.item_spacing.x * 100.0);
 
-    // Editor frame
-    egui::Frame::group(&ui.style()).show(ui, |ui| {
-        egui::ScrollArea::both().show(ui, |ui| {
-            // render player info
-            egui::Grid::new("Player info")
-                .min_col_width(size.x / 2.0)
-                .show(ui, |ui| {
-                    ui.with_layout(egui::Layout::top_down(Align::Min), |ui| {
-                        ui.label(&game.info.black_player);
-                        ui.label(game.info.black_rank.display());
-                    });
+    ui.horizontal(|ui| {
+        ui.vertical(|ui| {
+            ui.label(&game.info.black_player);
+            ui.label(game.info.black_rank.display());
+            ui.label(format!("Captures: {}", game.white_prisoners()));
+        });
 
-                    ui.with_layout(egui::Layout::top_down(Align::Max), |ui| {
-                        ui.label(&game.info.white_player);
-                        ui.label(game.info.white_rank.display());
-                    });
-                });
-
-            ui.label("Select tool:");
-            egui::ComboBox::from_id_source("Tool selector")
-                .selected_text(format!("{:?}", editor.tool))
-                .show_ui(ui, |ui| {
-                    ui.selectable_value(&mut editor.tool, Tool::Move, "Move");
-                    ui.selectable_value(&mut editor.tool, Tool::Place, "Place");
-                    ui.selectable_value(&mut editor.tool, Tool::Triangle, "Triangle");
-                    ui.selectable_value(&mut editor.tool, Tool::Circle, "Circle");
-                    ui.selectable_value(&mut editor.tool, Tool::Square, "Square");
-                    ui.selectable_value(&mut editor.tool, Tool::Cross, "Cross");
-                });
-
-            ui.horizontal(|ui| {
-                if ui.button("Pass").clicked() {
-                    game.handle_event(&Event::Pass);
+        ui.vertical(|ui| {
+            editor_buttons(ui, editor, &mut game);
+            let board = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
+            match &game.end_game {
+                Some(e) => {
+                    ui.label(e.display());
                 }
-                if ui.button("Resign").clicked() {
-                    game.handle_event(&Event::Resign(game.turn))
-                }
-                if ui.button("Undo").clicked() {
-                    game.undo();
-                }
-                if ui.button("Game info").clicked() {
-                    editor.game_info_open = true;
-                }
-            });
-            if editor.game_info_open {
-                egui::Window::new("Game info").show(ui.ctx(), |ui| {
-                    edit_game_info(ui, &mut game.info);
-
-                    if ui.button("Close").clicked() {
-                        editor.game_info_open = false;
+                None => {
+                    if let Some(e) = tool(ui, editor, &board, &game) {
+                        game.handle_event(&e);
                     }
-                });
-            }
-
-            // Board Frame
-            egui::Frame::canvas(&ui.style()).show(ui, |ui| {
-                let board = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
-                if let Some(e) = tool(ui, editor, &board, &game) {
-                    game.handle_event(&e);
                 }
-            });
+            };
+        });
+
+        ui.vertical(|ui| {
+            ui.label(&game.info.white_player);
+            ui.label(game.info.white_rank.display());
+            ui.label(format!("Captures: {}", game.black_prisoners()));
         });
     });
 
     return game;
+}
+
+fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {
+    ui.horizontal(|ui| {
+        ui.label("Select tool:");
+        egui::ComboBox::from_id_source("Tool selector")
+            .selected_text(format!("{:?}", editor.tool))
+            .show_ui(ui, |ui| {
+                ui.selectable_value(&mut editor.tool, Tool::Move, "Move");
+                ui.selectable_value(&mut editor.tool, Tool::Place, "Place");
+                ui.selectable_value(&mut editor.tool, Tool::Triangle, "Triangle");
+                ui.selectable_value(&mut editor.tool, Tool::Circle, "Circle");
+                ui.selectable_value(&mut editor.tool, Tool::Square, "Square");
+                ui.selectable_value(&mut editor.tool, Tool::Cross, "Cross");
+            });
+    });
+
+    ui.horizontal(|ui| {
+        if ui.button("Pass").clicked() {
+            game.handle_event(&Event::Pass);
+        }
+        if ui.button("Resign").clicked() {
+            game.handle_event(&Event::Resign(game.turn))
+        }
+        if ui.button("Undo").clicked() {
+            game.undo();
+        }
+        if ui.button("Game info").clicked() {
+            editor.game_info_open = true;
+        }
+    });
+
+    ui.horizontal(|ui| {
+        // left arrow
+        if ui.button("\u{2B05}").clicked() {
+            game.move_back();
+        }
+
+        // right arrow
+        if ui.button("\u{27A1}").clicked() {
+            game.move_forward();
+        }
+
+        // up arrow
+        if ui.button("\u{2B06}").clicked() {
+            game.move_up();
+        }
+
+        // down arrow
+        if ui.button("\u{2B07}").clicked() {
+            game.move_down();
+        }
+    });
+
+    if editor.game_info_open {
+        egui::Window::new("Game info").show(ui.ctx(), |ui| {
+            edit_game_info(ui, &mut game.info);
+
+            if ui.button("Close").clicked() {
+                editor.game_info_open = false;
+            }
+        });
+    }
 }
 
 pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {

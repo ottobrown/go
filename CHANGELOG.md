@@ -1,3 +1,17 @@
+# 0.3.0
+
+## New features
+- The game is now stored as a tree, allowing for different variations
+- Prevent continued play if the game has ended
+- Count number of captured stones
+
+## Bug fixes
+- Prevent illegal moves being stored in the game
+
+## UI changes
+- Arrow buttons to navigate game tree
+- Display result of game (ex. "Black won by resignation.")
+
 # 0.2.1
 - Fix star points
 - Fix bug that prevented stones from being captured when using the Move tool

@@ -1,9 +1,16 @@
+// Hide terminal on windows
+#![windows_subsystem = "windows"]
+
+#![allow(clippy::needless_return)]
+#![allow(clippy::redundant_field_names)]
+
 use eframe::{run_native, NativeOptions};
 
 mod board;
 mod game;
 mod rules;
 mod state;
+mod tree;
 mod ui;
 
 use board::Board;
