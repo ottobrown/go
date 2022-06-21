@@ -15,21 +15,19 @@ pub fn render(state: &mut State, ctx: &Context, _frame: &Frame) {
     ctx.set_style(default_style());
 
     egui::CentralPanel::default().show(ctx, |ui| {
-        egui::Frame::group(ui.style()).show(ui, |ui| {
-            egui::ScrollArea::both().show(ui, |ui| {
-                if state.game.is_some() {
-                    state.game = Some(editor::edit_game(
-                        ui,
-                        state.game.as_ref().unwrap(),
-                        &state.style,
-                        &mut state.editor,
-                    ));
-                } else {
-                    state.game = editor::build_game(ui, &mut state.builder);
-                }
-            });
-        });
-    });
+    egui::Frame::group(ui.style()).show(ui, |ui| {
+    egui::ScrollArea::both().show(ui, |ui| {
+        if state.game.is_some() {
+            state.game = Some(editor::edit_game(
+                ui,
+                state.game.as_ref().unwrap(),
+                &state.style,
+                &mut state.editor,
+            ));
+        } else {
+            state.game = editor::build_game(ui, &mut state.builder);
+        }
+    })})});
 }
 
 fn default_style() -> egui::Style {
