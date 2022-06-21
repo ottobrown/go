@@ -86,6 +86,7 @@ fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {
                 ui.selectable_value(&mut editor.tool, Tool::Circle, "Circle");
                 ui.selectable_value(&mut editor.tool, Tool::Square, "Square");
                 ui.selectable_value(&mut editor.tool, Tool::Cross, "Cross");
+                ui.selectable_value(&mut editor.tool, Tool::Line, "Line");
             });
     });
 
@@ -223,12 +224,10 @@ fn tool(ui: &mut Ui, editor: &mut Editor, board: &egui::Response, game: &Game) -
 
     if board.clicked() || board.secondary_clicked() {
         if let Some(p) = ui.input().pointer.interact_pos() {
-            let (x_f, y_f) = (
+            let (x, y) = (
                 ((p.x - c.inner_rect.min.x) / c.spacing.x).round() as usize,
                 ((p.y - c.inner_rect.min.y) / c.spacing.y).round() as usize,
             );
-
-            let (x, y) = (x_f as usize, y_f as usize);
 
             let (w, h) = game.size();
             if x * h + y >= w * h {
@@ -255,7 +254,18 @@ fn tool(ui: &mut Ui, editor: &mut Editor, board: &egui::Response, game: &Game) -
                 Tool::Square => Some(Event::Mark(Marker::Square, x, y)),
                 Tool::Cross => Some(Event::Mark(Marker::Cross, x, y)),
 
-                Tool::Line => None,
+                Tool::Line => match editor.line_starting_point {
+                    Some(p) => {
+                        editor.line_starting_point = None;
+
+                        Some(Event::Mark(Marker::Line(x, y), p.0, p.1))
+                    },
+                    None => {
+                        editor.line_starting_point = Some((x, y));
+
+                        None
+                    },
+                },
             };
         }
     }

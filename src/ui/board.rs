@@ -259,6 +259,15 @@ pub fn render_board(
                     Marker::Cross => {
                         shapes.push(find_cross(center, c.stone_radius, &style));
                     },
+
+                    Marker::Line(px, py) => {
+                        let line = Shape::line_segment(
+                            [c.get_pos(x, y), c.get_pos(px, py)],
+                            egui::Stroke::new(style.marker_stroke, Color32::RED)
+                        );
+
+                        shapes.push(line);
+                    }
                     
                     _ => todo!(),
                 }
