@@ -122,6 +122,17 @@ fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {
 }
 
 pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
+
+    if ui.button("Open sgf").clicked() {
+        builder.sgf_path = crate::sgf::open_sgf();
+    }
+
+    if builder.sgf_path.is_some() {
+        let content = std::fs::read_to_string(builder.sgf_path.as_ref().unwrap()).unwrap();
+
+        ui.label(content);
+    }
+
     egui::Grid::new("Builder grid layout")
         .spacing(ui.style().spacing.item_spacing * 2.0)
         .num_columns(2)

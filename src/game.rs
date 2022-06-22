@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::rules::EndGame;
 use crate::tree::EventTree;
 use crate::Board;
@@ -192,6 +194,8 @@ pub struct NewGameBuilder {
     pub rules: Rules,
 
     pub info: GameInfo,
+
+    pub sgf_path: Option<PathBuf>,
 }
 impl NewGameBuilder {
     pub fn build(&self) -> Game {
@@ -217,6 +221,7 @@ impl Default for NewGameBuilder {
             rules: Rules::CHINESE,
 
             info: GameInfo::default(),
+            sgf_path: None,
         }
     }
 }
