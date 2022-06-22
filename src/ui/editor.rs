@@ -234,6 +234,10 @@ fn tool(ui: &mut Ui, editor: &mut Editor, board: &egui::Response, game: &Game) -
                 return None;
             }
 
+            if editor.tool != Tool::Line {
+                editor.line_starting_point = None;
+            }
+
             return match editor.tool {
                 Tool::Move => Some(Event::Move(x, y)),
                 Tool::Place => {
