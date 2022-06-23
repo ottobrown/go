@@ -6,7 +6,9 @@ use egui::Ui;
 use egui::{pos2, vec2};
 use epaint::{Color32, Shape, Stroke};
 
-#[derive(Clone, Copy)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Clone, Copy, Serialize, Deserialize)]
 /// Specifies display of board
 pub struct BoardStyle {
     pub background_color: Color32,
