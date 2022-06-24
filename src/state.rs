@@ -11,15 +11,15 @@ pub struct State {
     pub builder: NewGameBuilder,
 
     pub editor: ui::Editor,
-    pub style: ui::BoardStyle,
+    pub config: crate::Config,
 }
 impl State {
-    pub fn new(_cc: &CreationContext) -> Self {
+    pub fn new(_cc: &CreationContext, config: crate::Config) -> Self {
         State {
             game: None,
             builder: Game::builder(),
             editor: ui::Editor::default(),
-            style: ui::BoardStyle::default(),
+            config: config,
         }
     }
 }
