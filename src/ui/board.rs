@@ -268,8 +268,12 @@ pub fn render_board(
 
                         shapes.push(line);
                     }
-                    
-                    _ => todo!(),
+
+                    Marker::Label(ch) => {
+                        shapes.push(find_char(ui, center, c.stone_radius, ch, &style))
+                    }
+
+                    _ => todo!()
                 }
             }
         }

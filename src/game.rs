@@ -13,6 +13,7 @@ pub enum Marker {
     Cross,
     /// Contains the coordinates of the end point of the line
     Line(usize, usize),
+    Label(char),
 }
 
 #[derive(Clone, Copy, Debug)]

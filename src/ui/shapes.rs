@@ -5,6 +5,7 @@ use super::BoardStyle;
 
 use eframe::egui;
 use egui::epaint;
+use egui::Ui;
 use egui::pos2;
 use egui::Pos2;
 use epaint::Color32;
@@ -51,4 +52,16 @@ pub fn find_cross(center: Pos2, r: f32, style: &BoardStyle) -> Shape {
         Shape::line_segment([top_left, bottom_right], egui::Stroke::new(style.marker_stroke, Color32::RED)),
         Shape::line_segment([top_right, bottom_left], egui::Stroke::new(style.marker_stroke, Color32::RED)),
     ]);
+}
+
+/// Find a character that fits within the circle
+pub fn find_char(ui: &mut Ui, center: Pos2, r: f32, c: char, style: &BoardStyle) -> Shape {
+    Shape::text(
+        &ui.fonts(),
+        center,
+        egui::Align2::CENTER_CENTER,
+        c,
+        egui::FontId::monospace(r*2.0),
+        Color32::RED
+    )
 }

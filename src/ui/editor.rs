@@ -17,6 +17,7 @@ enum Tool {
     Square,
     Cross,
     Line,
+    Label,
 }
 
 pub struct Editor {
@@ -87,6 +88,7 @@ fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {
                 ui.selectable_value(&mut editor.tool, Tool::Square, "Square");
                 ui.selectable_value(&mut editor.tool, Tool::Cross, "Cross");
                 ui.selectable_value(&mut editor.tool, Tool::Line, "Line");
+                ui.selectable_value(&mut editor.tool, Tool::Label, "Label");
             });
     });
 
@@ -270,6 +272,8 @@ fn tool(ui: &mut Ui, editor: &mut Editor, board: &egui::Response, game: &Game) -
                         None
                     },
                 },
+
+                Tool::Label => Some(Event::Mark(Marker::Label('A'), x, y)),
             };
         }
     }
