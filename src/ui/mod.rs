@@ -21,7 +21,7 @@ pub fn render(state: &mut State, ctx: &Context, _frame: &Frame) {
             state.game = Some(editor::edit_game(
                 ui,
                 state.game.as_ref().unwrap(),
-                &state.style,
+                &mut state.config,
                 &mut state.editor,
             ));
         } else {

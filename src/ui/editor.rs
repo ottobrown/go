@@ -1,10 +1,12 @@
 use eframe::egui;
 use egui::Ui;
+use egui::color_picker;
 
-use super::board::{render_board, BoardStyle, Computed};
+use super::board::{render_board, Computed};
 use crate::game::{GameInfo, NewGameBuilder};
 use crate::rules::Rules;
 use crate::{Event, Game, Stone};
+use crate::Config;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Tool {
@@ -16,18 +18,23 @@ pub struct Editor {
     computed: Computed,
     tool: Tool,
     game_info_open: bool,
+    settings_open: bool,
+    log: String,
 }
 impl Default for Editor {
     fn default() -> Self {
         Self {
             computed: Computed::blank(),
             tool: Tool::Move,
+            settings_open: false,
             game_info_open: false,
+            log: String::new(),
         }
     }
 }
 
-pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor) -> Game {
+pub fn edit_game(ui: &mut Ui, g: &Game, config: &mut Config, editor: &mut Editor) -> Game {
+    let style = config.style;
     let mut game: Game = g.clone();
 
     let size = egui::Vec2::splat(ui.style().spacing.item_spacing.x * 100.0);
@@ -40,8 +47,8 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
         });
 
         ui.vertical(|ui| {
-            editor_buttons(ui, editor, &mut game);
-            let r = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
+            editor_buttons(ui, config, editor, &mut game);
+            let r = render_board(ui, &game.current_board(), &style, size, &mut editor.computed);
             match &game.end_game {
                 Some(e) => {
                     ui.label(e.display());
@@ -59,10 +66,12 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
         });
     });
 
+    ui.label(&editor.log);
+
     return game;
 }
 
-fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {
+fn editor_buttons(ui: &mut Ui, config: &mut Config, editor: &mut Editor, game: &mut Game) {
     ui.horizontal(|ui| {
         ui.label("Select tool:");
         egui::ComboBox::from_id_source("Tool selector")
@@ -85,6 +94,9 @@ fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {
         }
         if ui.button("Game info").clicked() {
             editor.game_info_open = true;
+        }
+        if ui.button("Settings").clicked() {
+            editor.settings_open = true;
         }
     });
 
@@ -116,6 +128,20 @@ fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {
 
             if ui.button("Close").clicked() {
                 editor.game_info_open = false;
+            }
+        });
+    }
+
+    if editor.settings_open {
+        egui::Window::new("Settings menu").show(ui.ctx(), |ui| {
+            edit_config(ui, config);
+
+            if ui.button("Save and close").clicked() {
+                editor.settings_open = false;
+
+                if let Err(e) = confy::store("Baduk", config) {
+                    editor.log = format!("{e}");
+                }
             }
         });
     }
@@ -154,6 +180,31 @@ pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
     }
 
     return None;
+}
+
+fn edit_config(ui: &mut Ui, config: &mut Config) {
+    ui.label("Board background color");
+    color_picker::color_picker_color32(
+        ui,
+        &mut config.style.background_color,
+        color_picker::Alpha::Opaque
+    );
+
+    ui.label("Padding");
+    ui.add(egui::Slider::new(&mut config.style.padding, 0.0..=0.5));
+
+    ui.label("Line thickness");
+    ui.add(egui::Slider::new(&mut config.style.line_thickness, 1.0..=20.0));
+
+    ui.label("Stone radius");
+    ui.add(egui::Slider::new(&mut config.style.stone_radius, 0.0..=0.5));
+
+    ui.label("Star point radius");
+    ui.add(egui::Slider::new(&mut config.style.star_point_radius, 0.0..=10.0));
+
+    if ui.button("Reset to default").clicked() {
+        *config = Config::default();
+    }
 }
 
 fn edit_game_info(ui: &mut Ui, info: &mut GameInfo) {

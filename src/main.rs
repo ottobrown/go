@@ -23,7 +23,7 @@ use state::State;
 use config::Config;
 
 fn main() -> Result<(), confy::ConfyError> {
-    let config: Config = confy::load("Go")?;
+    let config: Config = confy::load("Baduk")?;
 
     let ops = NativeOptions::default();
 
