@@ -4,7 +4,7 @@ use crate::Board;
 use crate::Rules;
 use crate::Stone;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Marker {
     Empty,
     Triangle,
@@ -128,7 +128,7 @@ impl Game {
                     }
                 }
                 Event::Pass => turn = turn.swap(),
-                Event::Mark(m, x, y) => board.set_marker(*m, *x, *y),
+                Event::Mark(m, x, y) => {board.set_marker(*m, *x, *y);},
 
                 _ => {}
             }
@@ -199,7 +199,12 @@ impl Game {
 
             Event::Resign(s) => self.end_game = Some(EndGame::Resign(*s)),
 
-            Event::Mark(m, x, y) => self.current_board.set_marker(*m, *x, *y),
+            Event::Mark(m, x, y) => {
+                if !self.current_board.set_marker(*m, *x, *y) {
+                    // Remove event if it did nothing
+                    self.pop_history();
+                }
+            }
 
             _ => {}
         };

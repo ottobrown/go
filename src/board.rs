@@ -91,9 +91,16 @@ impl Board {
         }
     }
 
-    pub fn set_marker(&mut self, m: Marker, x: usize, y: usize) {
+    /// Returns if self.marks changed
+    pub fn set_marker(&mut self, m: Marker, x: usize, y: usize) -> bool {
         let index = self.index(x, y);
+
+        if self.marks[index] == m {
+            return false;
+        }
+
         self.marks[index] = m;
+        return true;
     }
 
     /// Do move only if it is legal.
