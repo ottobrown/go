@@ -27,7 +27,7 @@ pub struct Editor {
     computed: Computed,
     tool: Tool,
     game_info_open: bool,
-    
+
     line_starting_point: Option<(usize, usize)>,
     arrow_starting_point: Option<(usize, usize)>,
 }
@@ -271,12 +271,12 @@ fn tool(ui: &mut Ui, editor: &mut Editor, board: &egui::Response, game: &Game) -
                         editor.line_starting_point = None;
 
                         Some(Event::Mark(Marker::Line(x, y), p.0, p.1))
-                    },
+                    }
                     None => {
                         editor.line_starting_point = Some((x, y));
 
                         None
-                    },
+                    }
                 },
 
                 Tool::Arrow => match editor.arrow_starting_point {
@@ -284,12 +284,12 @@ fn tool(ui: &mut Ui, editor: &mut Editor, board: &egui::Response, game: &Game) -
                         editor.arrow_starting_point = None;
 
                         Some(Event::Mark(Marker::Arrow(x, y), p.0, p.1))
-                    },
+                    }
                     None => {
                         editor.arrow_starting_point = Some((x, y));
 
                         None
-                    },
+                    }
                 },
 
                 Tool::Label => Some(Event::Mark(Marker::Label('A'), x, y)),

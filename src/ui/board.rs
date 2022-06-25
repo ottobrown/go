@@ -262,19 +262,19 @@ pub fn render_board(
                     }
                     Marker::Square => {
                         shapes.push(find_square(center, c.stone_radius, &style));
-                    },
+                    }
                     Marker::Cross => {
                         shapes.push(find_cross(center, c.stone_radius, &style));
-                    },
+                    }
 
                     Marker::Line(px, py) => {
                         let line = Shape::line_segment(
                             [c.get_pos(x, y), c.get_pos(px, py)],
-                            egui::Stroke::new(style.marker_stroke, Color32::RED)
+                            egui::Stroke::new(style.marker_stroke, Color32::RED),
                         );
 
                         shapes.push(line);
-                    },
+                    }
 
                     Marker::Arrow(px, py) => {
                         let start = c.get_pos(x, y);
@@ -282,20 +282,20 @@ pub fn render_board(
 
                         let line = Shape::line_segment(
                             [start, end],
-                            egui::Stroke::new(style.marker_stroke, Color32::RED)
+                            egui::Stroke::new(style.marker_stroke, Color32::RED),
                         );
 
                         let arrow = find_arrow(start, end, &c, &style);
 
                         shapes.push(line);
                         shapes.push(arrow);
-                    },
+                    }
 
                     Marker::Label(ch) => {
                         shapes.push(find_char(ui, center, c.stone_radius, ch, &style))
                     }
 
-                    _ => todo!()
+                    _ => todo!(),
                 }
             }
         }

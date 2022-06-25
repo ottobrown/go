@@ -200,7 +200,7 @@ impl Game {
             Event::Resign(s) => self.end_game = Some(EndGame::Resign(*s)),
 
             Event::Mark(m, x, y) => self.current_board.set_marker(*m, *x, *y),
-            
+
             _ => {}
         };
     }
