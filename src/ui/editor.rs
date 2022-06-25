@@ -246,6 +246,13 @@ fn tool(ui: &mut Ui, editor: &mut Editor, board: &egui::Response, game: &Game) -
                 editor.line_starting_point = None;
             }
 
+            if board.secondary_clicked() {
+                match game.current_board().get_marker(x, y) {
+                    None | Some(Marker::Empty) => return Some(Event::Place(Stone::Empty, x, y)),
+                    _ => return Some(Event::Mark(Marker::Empty, x, y)),
+                }
+            }
+
             return match editor.tool {
                 Tool::Move => Some(Event::Move(x, y)),
                 Tool::Place => {
@@ -253,9 +260,6 @@ fn tool(ui: &mut Ui, editor: &mut Editor, board: &egui::Response, game: &Game) -
 
                     if ui.input().modifiers.shift {
                         color = Stone::White;
-                    }
-                    if board.secondary_clicked() {
-                        color = Stone::Empty;
                     }
 
                     Some(Event::Place(color, x, y))
