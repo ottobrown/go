@@ -1,7 +1,9 @@
 use std::f32::consts::SQRT_2;
+use std::f32::consts::FRAC_PI_4;
 const SQRT_3: f32 = 1.73205078;
 
 use super::BoardStyle;
+use super::board::Computed;
 
 use eframe::egui;
 use egui::epaint;
@@ -64,4 +66,18 @@ pub fn find_char(ui: &mut Ui, center: Pos2, r: f32, c: char, style: &BoardStyle)
         egui::FontId::monospace(r*2.0),
         Color32::RED
     )
+}
+
+/// Fill a triangle at the end of an arrow
+pub fn find_arrow(start: Pos2, end: Pos2, c: &Computed, style: &BoardStyle) -> Shape {
+    let angle = f32::atan2(end.y - start.y, end.x - start.x);
+
+    let p1 = pos2(end.x - c.arrow_size * f32::cos(angle + FRAC_PI_4), end.y - c.arrow_size * f32::sin(angle + FRAC_PI_4));
+    let p2 = pos2(end.x - c.arrow_size * f32::cos(angle - FRAC_PI_4), end.y - c.arrow_size * f32::sin(angle - FRAC_PI_4));
+
+    return Shape::convex_polygon(
+        vec![p1, end, p2],
+        Color32::RED,
+        egui::Stroke::new(style.marker_stroke, Color32::RED),
+    );
 }

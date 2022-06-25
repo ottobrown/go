@@ -16,7 +16,10 @@ enum Tool {
     Circle,
     Square,
     Cross,
+
     Line,
+    Arrow,
+
     Label,
 }
 
@@ -26,6 +29,7 @@ pub struct Editor {
     game_info_open: bool,
     
     line_starting_point: Option<(usize, usize)>,
+    arrow_starting_point: Option<(usize, usize)>,
 }
 impl Default for Editor {
     fn default() -> Self {
@@ -34,6 +38,7 @@ impl Default for Editor {
             tool: Tool::Move,
             game_info_open: false,
             line_starting_point: None,
+            arrow_starting_point: None,
         }
     }
 }
@@ -88,6 +93,7 @@ fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {
                 ui.selectable_value(&mut editor.tool, Tool::Square, "Square");
                 ui.selectable_value(&mut editor.tool, Tool::Cross, "Cross");
                 ui.selectable_value(&mut editor.tool, Tool::Line, "Line");
+                ui.selectable_value(&mut editor.tool, Tool::Arrow, "Arrow");
                 ui.selectable_value(&mut editor.tool, Tool::Label, "Label");
             });
     });
@@ -268,6 +274,19 @@ fn tool(ui: &mut Ui, editor: &mut Editor, board: &egui::Response, game: &Game) -
                     },
                     None => {
                         editor.line_starting_point = Some((x, y));
+
+                        None
+                    },
+                },
+
+                Tool::Arrow => match editor.arrow_starting_point {
+                    Some(p) => {
+                        editor.arrow_starting_point = None;
+
+                        Some(Event::Mark(Marker::Arrow(x, y), p.0, p.1))
+                    },
+                    None => {
+                        editor.arrow_starting_point = Some((x, y));
 
                         None
                     },

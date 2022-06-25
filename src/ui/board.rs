@@ -23,6 +23,9 @@ pub struct BoardStyle {
     pub star_point_radius: f32,
     /// Stroke thickness of Circle, Square, and Triangle markers
     pub marker_stroke: f32,
+    /// The side length of the triangle at the end of an Arrow.
+    /// Expressed as a proporion of the stone radius.
+    pub arrow_size: f32,
 }
 
 impl Default for BoardStyle {
@@ -35,6 +38,7 @@ impl Default for BoardStyle {
             stone_radius: 0.4,
             star_point_radius: 5.0,
             marker_stroke: 2.0,
+            arrow_size: 0.5,
         }
     }
 }
@@ -46,6 +50,7 @@ pub struct Computed {
     pub padding: egui::Vec2,
     pub spacing: egui::Vec2,
     pub stone_radius: f32,
+    pub arrow_size: f32,
     pub star_points: Vec<(usize, usize)>,
 }
 impl Computed {
@@ -58,6 +63,7 @@ impl Computed {
             padding: egui::Vec2::ZERO,
             spacing: egui::Vec2::ZERO,
             stone_radius: 0.0,
+            arrow_size: 0.0,
             star_points: Vec::new(),
         }
     }
@@ -100,6 +106,7 @@ impl Computed {
             padding: padding,
             spacing: spacing,
             stone_radius: stone_radius,
+            arrow_size: stone_radius * style.arrow_size,
             star_points: star_points,
         };
     }
@@ -267,7 +274,22 @@ pub fn render_board(
                         );
 
                         shapes.push(line);
-                    }
+                    },
+
+                    Marker::Arrow(px, py) => {
+                        let start = c.get_pos(x, y);
+                        let end = c.get_pos(px, py);
+
+                        let line = Shape::line_segment(
+                            [start, end],
+                            egui::Stroke::new(style.marker_stroke, Color32::RED)
+                        );
+
+                        let arrow = find_arrow(start, end, &c, &style);
+
+                        shapes.push(line);
+                        shapes.push(arrow);
+                    },
 
                     Marker::Label(ch) => {
                         shapes.push(find_char(ui, center, c.stone_radius, ch, &style))
