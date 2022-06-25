@@ -26,7 +26,7 @@ pub fn find_square(center: Pos2, r: f32, style: &BoardStyle) -> Shape {
     return Shape::rect_stroke(
         rect,
         egui::Rounding::none(),
-        egui::Stroke::new(style.marker_stroke, Color32::RED),
+        style.marker_stroke,
     );
 }
 
@@ -39,7 +39,7 @@ pub fn find_triangle(center: Pos2, r: f32, style: &BoardStyle) -> Shape {
     return Shape::convex_polygon(
         vec![top, left, right],
         Color32::TRANSPARENT,
-        egui::Stroke::new(style.marker_stroke, Color32::RED),
+        style.marker_stroke,
     );
 }
 
@@ -53,11 +53,11 @@ pub fn find_cross(center: Pos2, r: f32, style: &BoardStyle) -> Shape {
     return Shape::Vec(vec![
         Shape::line_segment(
             [top_left, bottom_right],
-            egui::Stroke::new(style.marker_stroke, Color32::RED),
+            style.marker_stroke,
         ),
         Shape::line_segment(
             [top_right, bottom_left],
-            egui::Stroke::new(style.marker_stroke, Color32::RED),
+            style.marker_stroke,
         ),
     ]);
 }
@@ -90,6 +90,6 @@ pub fn find_arrow(start: Pos2, end: Pos2, c: &Computed, style: &BoardStyle) -> S
     return Shape::convex_polygon(
         vec![p1, end, p2],
         Color32::RED,
-        egui::Stroke::new(style.marker_stroke, Color32::RED),
+        style.marker_stroke,
     );
 }

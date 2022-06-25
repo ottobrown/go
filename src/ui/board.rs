@@ -22,7 +22,8 @@ pub struct BoardStyle {
     /// In egui screen units
     pub star_point_radius: f32,
     /// Stroke thickness of Circle, Square, and Triangle markers
-    pub marker_stroke: f32,
+    /// and line thickness for Line and Arrow tools
+    pub marker_stroke: Stroke,
     /// The side length of the triangle at the end of an Arrow.
     /// Expressed as a proporion of the stone radius.
     pub arrow_size: f32,
@@ -37,7 +38,7 @@ impl Default for BoardStyle {
             line_thickness: 3.0,
             stone_radius: 0.4,
             star_point_radius: 5.0,
-            marker_stroke: 2.0,
+            marker_stroke: Stroke::new(2.0, Color32::RED),
             arrow_size: 0.5,
         }
     }
@@ -255,7 +256,7 @@ pub fn render_board(
                         let circle = Shape::circle_stroke(
                             center,
                             r,
-                            egui::Stroke::new(style.marker_stroke, Color32::RED),
+                            style.marker_stroke,
                         );
 
                         shapes.push(circle);
@@ -270,7 +271,7 @@ pub fn render_board(
                     Marker::Line(px, py) => {
                         let line = Shape::line_segment(
                             [c.get_pos(x, y), c.get_pos(px, py)],
-                            egui::Stroke::new(style.marker_stroke, Color32::RED),
+                            style.marker_stroke,
                         );
 
                         shapes.push(line);
@@ -282,7 +283,7 @@ pub fn render_board(
 
                         let line = Shape::line_segment(
                             [start, end],
-                            egui::Stroke::new(style.marker_stroke, Color32::RED),
+                            style.marker_stroke,
                         );
 
                         let arrow = find_arrow(start, end, &c, &style);
