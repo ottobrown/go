@@ -1,3 +1,22 @@
+# 0.4.0
+
+## New features
+- New tools to mark up the board!
+    - Triangle
+    - Circle
+    - Square
+    - Cross
+    - Line
+    - Arrow
+    - Letter
+    - Number
+    - Custom label
+- Prevent terminal from always opening when running on windows
+
+## Ui changes
+- New layout: Player info on top left and top right of the board
+- Move editor `Frame` and `ScrollArea` to main `CentralPanel`
+
 # 0.3.0
 
 ## New features
