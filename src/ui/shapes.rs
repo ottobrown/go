@@ -53,14 +53,14 @@ pub fn find_cross(center: Pos2, r: f32, style: &BoardStyle) -> Shape {
 }
 
 /// Find a character that fits within the circle
-pub fn find_char(ui: &mut Ui, center: Pos2, r: f32, c: char, _style: &BoardStyle) -> Shape {
+pub fn find_char(ui: &mut Ui, center: Pos2, r: f32, c: char, style: &BoardStyle) -> Shape {
     Shape::text(
         &ui.fonts(),
         center,
         egui::Align2::CENTER_CENTER,
         c,
         egui::FontId::monospace(r * 2.0),
-        Color32::RED,
+        style.marker_stroke.color,
     )
 }
 
@@ -77,5 +77,5 @@ pub fn find_arrow(start: Pos2, end: Pos2, c: &Computed, style: &BoardStyle) -> S
         end.y - c.arrow_size * f32::sin(angle - FRAC_PI_4),
     );
 
-    return Shape::convex_polygon(vec![p1, end, p2], Color32::RED, style.marker_stroke);
+    return Shape::convex_polygon(vec![p1, end, p2], style.marker_stroke.color, style.marker_stroke);
 }
