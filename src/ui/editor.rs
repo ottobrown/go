@@ -7,6 +7,8 @@ use crate::game::{GameInfo, NewGameBuilder};
 use crate::rules::Rules;
 use crate::{Event, Game, Stone};
 
+const LETTERS: &'static str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Tool {
     Move,
@@ -20,7 +22,9 @@ enum Tool {
     Line,
     Arrow,
 
-    Label,
+    Letter,
+    Number,
+    CustomLabel,
 }
 
 pub struct Editor {
@@ -30,6 +34,11 @@ pub struct Editor {
 
     line_starting_point: Option<(usize, usize)>,
     arrow_starting_point: Option<(usize, usize)>,
+
+    last_number: u8,
+
+    /// Index on [LETTERS]
+    last_letter_index: usize,
 }
 impl Default for Editor {
     fn default() -> Self {
@@ -39,6 +48,8 @@ impl Default for Editor {
             game_info_open: false,
             line_starting_point: None,
             arrow_starting_point: None,
+            last_number: 0,
+            last_letter_index: 0,
         }
     }
 }
@@ -94,7 +105,9 @@ fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {
                 ui.selectable_value(&mut editor.tool, Tool::Cross, "Cross");
                 ui.selectable_value(&mut editor.tool, Tool::Line, "Line");
                 ui.selectable_value(&mut editor.tool, Tool::Arrow, "Arrow");
-                ui.selectable_value(&mut editor.tool, Tool::Label, "Label");
+                ui.selectable_value(&mut editor.tool, Tool::Letter, "Letter");
+                ui.selectable_value(&mut editor.tool, Tool::Number, "Number");
+                ui.selectable_value(&mut editor.tool, Tool::CustomLabel, "Custom label");
             });
     });
 
@@ -296,7 +309,31 @@ fn tool(ui: &mut Ui, editor: &mut Editor, board: &egui::Response, game: &Game) -
                     }
                 },
 
-                Tool::Label => Some(Event::Mark(Marker::Label('A'), x, y)),
+                Tool::Letter => {
+                    if editor.last_letter_index > 25 {
+                        editor.last_letter_index = 0;
+                    }
+
+                    let c = LETTERS.chars().nth(editor.last_letter_index).unwrap();
+
+                    editor.last_letter_index += 1;
+
+                    Some(Event::Mark(Marker::Label(c), x, y))
+                }
+
+                Tool::Number => {
+                    editor.last_number += 1;
+                    if editor.last_number > 9 {
+                        editor.last_number = 1;
+                    }
+
+                    let s = format!("{}", editor.last_number);
+                    let c = s.chars().nth(0).unwrap();
+
+                    Some(Event::Mark(Marker::Label(c), x, y))
+                }
+
+                _ => todo!(),
             };
         }
     }

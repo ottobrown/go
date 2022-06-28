@@ -253,11 +253,7 @@ pub fn render_board(
                     }
                     Marker::Circle => {
                         let r = 0.75 * c.stone_radius;
-                        let circle = Shape::circle_stroke(
-                            center,
-                            r,
-                            style.marker_stroke,
-                        );
+                        let circle = Shape::circle_stroke(center, r, style.marker_stroke);
 
                         shapes.push(circle);
                     }
@@ -281,10 +277,7 @@ pub fn render_board(
                         let start = c.get_pos(x, y);
                         let end = c.get_pos(px, py);
 
-                        let line = Shape::line_segment(
-                            [start, end],
-                            style.marker_stroke,
-                        );
+                        let line = Shape::line_segment([start, end], style.marker_stroke);
 
                         let arrow = find_arrow(start, end, &c, &style);
 

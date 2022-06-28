@@ -23,11 +23,7 @@ pub fn find_square(center: Pos2, r: f32, style: &BoardStyle) -> Shape {
         max: bottom_right,
     };
 
-    return Shape::rect_stroke(
-        rect,
-        egui::Rounding::none(),
-        style.marker_stroke,
-    );
+    return Shape::rect_stroke(rect, egui::Rounding::none(), style.marker_stroke);
 }
 
 /// Stroke a triangle within a circle
@@ -51,14 +47,8 @@ pub fn find_cross(center: Pos2, r: f32, style: &BoardStyle) -> Shape {
     let bottom_left = pos2(center.x - 0.5 * r * SQRT_2, center.y + 0.5 * r * SQRT_2);
 
     return Shape::Vec(vec![
-        Shape::line_segment(
-            [top_left, bottom_right],
-            style.marker_stroke,
-        ),
-        Shape::line_segment(
-            [top_right, bottom_left],
-            style.marker_stroke,
-        ),
+        Shape::line_segment([top_left, bottom_right], style.marker_stroke),
+        Shape::line_segment([top_right, bottom_left], style.marker_stroke),
     ]);
 }
 
@@ -87,9 +77,5 @@ pub fn find_arrow(start: Pos2, end: Pos2, c: &Computed, style: &BoardStyle) -> S
         end.y - c.arrow_size * f32::sin(angle - FRAC_PI_4),
     );
 
-    return Shape::convex_polygon(
-        vec![p1, end, p2],
-        Color32::RED,
-        style.marker_stroke,
-    );
+    return Shape::convex_polygon(vec![p1, end, p2], Color32::RED, style.marker_stroke);
 }

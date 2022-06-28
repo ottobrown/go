@@ -128,7 +128,9 @@ impl Game {
                     }
                 }
                 Event::Pass => turn = turn.swap(),
-                Event::Mark(m, x, y) => {board.set_marker(*m, *x, *y);},
+                Event::Mark(m, x, y) => {
+                    board.set_marker(*m, *x, *y);
+                }
 
                 _ => {}
             }
