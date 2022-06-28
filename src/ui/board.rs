@@ -1,3 +1,5 @@
+use super::shapes::*;
+use crate::game::Marker;
 use crate::Board;
 use crate::Stone;
 use eframe::egui;
@@ -19,6 +21,12 @@ pub struct BoardStyle {
     pub stone_radius: f32,
     /// In egui screen units
     pub star_point_radius: f32,
+    /// Stroke thickness of Circle, Square, and Triangle markers
+    /// and line thickness for Line and Arrow tools
+    pub marker_stroke: Stroke,
+    /// The side length of the triangle at the end of an Arrow.
+    /// Expressed as a proporion of the stone radius.
+    pub arrow_size: f32,
 }
 
 impl Default for BoardStyle {
@@ -30,6 +38,8 @@ impl Default for BoardStyle {
             line_thickness: 3.0,
             stone_radius: 0.4,
             star_point_radius: 5.0,
+            marker_stroke: Stroke::new(2.0, Color32::RED),
+            arrow_size: 0.5,
         }
     }
 }
@@ -41,6 +51,7 @@ pub struct Computed {
     pub padding: egui::Vec2,
     pub spacing: egui::Vec2,
     pub stone_radius: f32,
+    pub arrow_size: f32,
     pub star_points: Vec<(usize, usize)>,
 }
 impl Computed {
@@ -53,6 +64,7 @@ impl Computed {
             padding: egui::Vec2::ZERO,
             spacing: egui::Vec2::ZERO,
             stone_radius: 0.0,
+            arrow_size: 0.0,
             star_points: Vec::new(),
         }
     }
@@ -95,6 +107,7 @@ impl Computed {
             padding: padding,
             spacing: spacing,
             stone_radius: stone_radius,
+            arrow_size: stone_radius * style.arrow_size,
             star_points: star_points,
         };
     }
@@ -210,7 +223,7 @@ pub fn render_board(
         shapes.push(line)
     }
 
-    // draw stones
+    // draw stones and markers
     for x in 0..w {
         for y in 0..h {
             let center = c.get_pos(x, y);
@@ -230,6 +243,52 @@ pub fn render_board(
             if let Some(color) = stone_color {
                 let circle = Shape::circle_filled(center, c.stone_radius, color);
                 shapes.push(circle)
+            }
+
+            if let Some(m) = board.get_marker(x, y) {
+                match m {
+                    Marker::Empty => {}
+                    Marker::Triangle => {
+                        shapes.push(find_triangle(center, c.stone_radius, &style));
+                    }
+                    Marker::Circle => {
+                        let r = 0.75 * c.stone_radius;
+                        let circle = Shape::circle_stroke(center, r, style.marker_stroke);
+
+                        shapes.push(circle);
+                    }
+                    Marker::Square => {
+                        shapes.push(find_square(center, c.stone_radius, &style));
+                    }
+                    Marker::Cross => {
+                        shapes.push(find_cross(center, c.stone_radius, &style));
+                    }
+
+                    Marker::Line(px, py) => {
+                        let line = Shape::line_segment(
+                            [c.get_pos(x, y), c.get_pos(px, py)],
+                            style.marker_stroke,
+                        );
+
+                        shapes.push(line);
+                    }
+
+                    Marker::Arrow(px, py) => {
+                        let start = c.get_pos(x, y);
+                        let end = c.get_pos(px, py);
+
+                        let line = Shape::line_segment([start, end], style.marker_stroke);
+
+                        let arrow = find_arrow(start, end, &c, &style);
+
+                        shapes.push(line);
+                        shapes.push(arrow);
+                    }
+
+                    Marker::Label(ch) => {
+                        shapes.push(find_char(ui, center, c.stone_radius, ch, &style))
+                    }
+                }
             }
         }
     }
