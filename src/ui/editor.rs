@@ -39,6 +39,7 @@ pub struct Editor {
 
     /// Index on [LETTERS]
     last_letter_index: usize,
+    custom_char: String,
 }
 impl Default for Editor {
     fn default() -> Self {
@@ -50,6 +51,7 @@ impl Default for Editor {
             arrow_starting_point: None,
             last_number: 0,
             last_letter_index: 0,
+            custom_char: String::from('A'),
         }
     }
 }
@@ -123,6 +125,14 @@ fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {
         }
         if ui.button("Game info").clicked() {
             editor.game_info_open = true;
+        }
+
+        if editor.tool == Tool::CustomLabel {
+            ui.text_edit_singleline(&mut editor.custom_char);
+            match editor.custom_char.chars().nth(0) {
+                Some(c) => editor.custom_char = String::from(c),
+                None => {}
+            };
         }
     });
 
@@ -333,7 +343,10 @@ fn tool(ui: &mut Ui, editor: &mut Editor, board: &egui::Response, game: &Game) -
                     Some(Event::Mark(Marker::Label(c), x, y))
                 }
 
-                _ => todo!(),
+                Tool::CustomLabel => {
+                    let c = editor.custom_char.chars().nth(0)?;
+                    Some(Event::Mark(Marker::Label(c), x, y))
+                }
             };
         }
     }

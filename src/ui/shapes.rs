@@ -53,7 +53,7 @@ pub fn find_cross(center: Pos2, r: f32, style: &BoardStyle) -> Shape {
 }
 
 /// Find a character that fits within the circle
-pub fn find_char(ui: &mut Ui, center: Pos2, r: f32, c: char, style: &BoardStyle) -> Shape {
+pub fn find_char(ui: &mut Ui, center: Pos2, r: f32, c: char, _style: &BoardStyle) -> Shape {
     Shape::text(
         &ui.fonts(),
         center,

@@ -288,8 +288,6 @@ pub fn render_board(
                     Marker::Label(ch) => {
                         shapes.push(find_char(ui, center, c.stone_radius, ch, &style))
                     }
-
-                    _ => todo!(),
                 }
             }
         }
