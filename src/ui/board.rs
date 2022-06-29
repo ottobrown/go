@@ -249,7 +249,7 @@ pub fn render_board(
                 match m {
                     Marker::Empty => {}
                     Marker::Triangle => {
-                        shapes.push(find_triangle(center, c.stone_radius, &style));
+                        shapes.push(find_triangle(center, c.stone_radius, style));
                     }
                     Marker::Circle => {
                         let r = 0.75 * c.stone_radius;
@@ -258,10 +258,10 @@ pub fn render_board(
                         shapes.push(circle);
                     }
                     Marker::Square => {
-                        shapes.push(find_square(center, c.stone_radius, &style));
+                        shapes.push(find_square(center, c.stone_radius, style));
                     }
                     Marker::Cross => {
-                        shapes.push(find_cross(center, c.stone_radius, &style));
+                        shapes.push(find_cross(center, c.stone_radius, style));
                     }
 
                     Marker::Line(px, py) => {
@@ -279,14 +279,14 @@ pub fn render_board(
 
                         let line = Shape::line_segment([start, end], style.marker_stroke);
 
-                        let arrow = find_arrow(start, end, &c, &style);
+                        let arrow = find_arrow(start, end, c, style);
 
                         shapes.push(line);
                         shapes.push(arrow);
                     }
 
                     Marker::Label(ch) => {
-                        shapes.push(find_char(ui, center, c.stone_radius, ch, &style))
+                        shapes.push(find_char(ui, center, c.stone_radius, ch, style))
                     }
                 }
             }

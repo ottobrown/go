@@ -7,7 +7,7 @@ use crate::game::{GameInfo, NewGameBuilder};
 use crate::rules::Rules;
 use crate::{Event, Game, Stone};
 
-const LETTERS: &'static str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+const LETTERS: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Tool {
@@ -129,7 +129,7 @@ fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {
 
         if editor.tool == Tool::CustomLabel {
             ui.text_edit_singleline(&mut editor.custom_char);
-            match editor.custom_char.chars().nth(0) {
+            match editor.custom_char.chars().next() {
                 Some(c) => editor.custom_char = String::from(c),
                 None => {}
             };
@@ -338,13 +338,13 @@ fn tool(ui: &mut Ui, editor: &mut Editor, board: &egui::Response, game: &Game) -
                     }
 
                     let s = format!("{}", editor.last_number);
-                    let c = s.chars().nth(0).unwrap();
+                    let c = s.chars().next().unwrap();
 
                     Some(Event::Mark(Marker::Label(c), x, y))
                 }
 
                 Tool::CustomLabel => {
-                    let c = editor.custom_char.chars().nth(0)?;
+                    let c = editor.custom_char.chars().next().unwrap();
                     Some(Event::Mark(Marker::Label(c), x, y))
                 }
             };

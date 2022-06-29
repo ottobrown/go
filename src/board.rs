@@ -65,10 +65,7 @@ impl Board {
     }
 
     pub fn get(&self, x: usize, y: usize) -> Option<Stone> {
-        match self.stones.get(self.index(x, y)) {
-            Some(s) => Some(*s),
-            None => None,
-        }
+        self.stones.get(self.index(x, y)).copied()
     }
 
     /// Place a stone, regardless of its legality
@@ -78,10 +75,7 @@ impl Board {
     }
 
     pub fn get_marker(&self, x: usize, y: usize) -> Option<Marker> {
-        match self.marks.get(self.index(x, y)) {
-            Some(m) => Some(*m),
-            None => None,
-        }
+        self.marks.get(self.index(x, y)).copied()
     }
 
     /// Remove all markers

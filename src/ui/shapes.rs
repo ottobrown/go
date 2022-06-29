@@ -1,6 +1,6 @@
 use std::f32::consts::FRAC_PI_4;
 use std::f32::consts::SQRT_2;
-const SQRT_3: f32 = 1.73205078;
+const SQRT_3: f32 = 1.7320508;
 
 use super::board::Computed;
 use super::BoardStyle;
@@ -77,5 +77,9 @@ pub fn find_arrow(start: Pos2, end: Pos2, c: &Computed, style: &BoardStyle) -> S
         end.y - c.arrow_size * f32::sin(angle - FRAC_PI_4),
     );
 
-    return Shape::convex_polygon(vec![p1, end, p2], style.marker_stroke.color, style.marker_stroke);
+    return Shape::convex_polygon(
+        vec![p1, end, p2],
+        style.marker_stroke.color,
+        style.marker_stroke,
+    );
 }
