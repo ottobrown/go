@@ -8,11 +8,18 @@ use crate::Stone;
 
 #[derive(Clone, Copy, Debug)]
 pub enum Event {
+    /// The event at the root of the [GameTree].
+    /// Does nothing.
     Start,
+    /// Do nothing.
+    Noop,
+    /// A player passes their turn.
     Pass,
+    /// A player resigns the game.
     Resign(Stone),
+    /// Place a stone from the palyer whose turn it is.
     Move(usize, usize),
-
+    /// Place a stone of the given color.
     Place(Stone, usize, usize),
 }
 
@@ -58,6 +65,8 @@ pub struct GameInfo {
     pub white_player: String,
     pub black_rank: Rank,
     pub white_rank: Rank,
+
+    pub sgf_path: Option<PathBuf>,
 }
 impl Default for GameInfo {
     fn default() -> Self {
@@ -70,6 +79,8 @@ impl Default for GameInfo {
             white_player: String::from("White"),
             black_rank: Rank::none(),
             white_rank: Rank::none(),
+
+            sgf_path: None,
         }
     }
 }
@@ -194,8 +205,7 @@ pub struct NewGameBuilder {
     pub rules: Rules,
 
     pub info: GameInfo,
-
-    pub sgf_path: Option<PathBuf>,
+    pub tree: Option<EventTree>,
 }
 impl NewGameBuilder {
     pub fn build(&self) -> Game {
@@ -203,7 +213,10 @@ impl NewGameBuilder {
             initial_board: Board::blank(self.size.0, self.size.1),
             initial_turn: Stone::Black,
             current_board: Board::blank(self.size.0, self.size.1),
-            history: EventTree::blank(),
+            history: match &self.tree {
+                Some(t) => t.clone(),
+                None => EventTree::blank(),
+            },
 
             turn: Stone::Black,
             rules: self.rules,
@@ -221,7 +234,7 @@ impl Default for NewGameBuilder {
             rules: Rules::CHINESE,
 
             info: GameInfo::default(),
-            sgf_path: None,
+            tree: None,
         }
     }
 }

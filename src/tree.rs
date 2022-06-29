@@ -82,6 +82,10 @@ impl EventTree {
         self.path.pop();
     }
 
+    pub fn move_to_root(&mut self) {
+        self.path = vec![0];
+    }
+
     pub fn move_to_first_child(&mut self) {
         if !self.get_current_node().children.is_empty() {
             self.path.push(0);

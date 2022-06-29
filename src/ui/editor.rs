@@ -122,15 +122,17 @@ fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {
 }
 
 pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
-
     if ui.button("Open sgf").clicked() {
-        builder.sgf_path = crate::sgf::open_sgf();
+        builder.info.sgf_path = crate::sgf::open_sgf();
     }
 
-    if builder.sgf_path.is_some() {
-        let content = std::fs::read_to_string(builder.sgf_path.as_ref().unwrap()).unwrap();
-
-        ui.label(content);
+    if let Some(p) = &builder.info.sgf_path {
+        match crate::sgf::parse_tree(p.clone()) {
+            Ok(event_tree) => builder.tree = Some(event_tree),
+            Err(e) => {
+                ui.label(format!("Failed to parse sgf data {}", e));
+            },
+        };
     }
 
     egui::Grid::new("Builder grid layout")
