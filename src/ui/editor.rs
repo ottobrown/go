@@ -5,6 +5,7 @@ use super::board::{render_board, BoardStyle, Computed};
 use crate::game::Marker;
 use crate::game::{GameInfo, NewGameBuilder};
 use crate::rules::Rules;
+use crate::rules::EndGame;
 use crate::{Event, Game, Stone};
 
 const LETTERS: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -71,16 +72,16 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
         ui.vertical(|ui| {
             editor_buttons(ui, editor, &mut game);
             let board = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
-            match &game.end_game {
-                Some(e) => {
-                    ui.label(e.display());
+
+            if !game.ended() {
+                if let Some(e) = tool(ui, editor, &board, &game) {
+                    game.handle_event(&e);
                 }
-                None => {
-                    if let Some(e) = tool(ui, editor, &board, &game) {
-                        game.handle_event(&e);
-                    }
+            } else {
+                if game.info.end_game != EndGame::None {
+                    ui.label(game.info.end_game.display());
                 }
-            };
+            }
         });
 
         ui.vertical(|ui| {
@@ -235,6 +236,39 @@ fn edit_game_info(ui: &mut Ui, info: &mut GameInfo) {
         ui.label(info.white_rank.display());
     });
     ui.add(egui::Slider::new(&mut info.white_rank.0, -30..=9).show_value(false));
+
+    ui.label("End Game");
+    egui::ComboBox::from_id_source("End game editor")
+        .selected_text(info.end_game.display())
+        .show_ui(ui, |ui| {
+            ui.selectable_value(&mut info.end_game, EndGame::None, "None");
+            ui.selectable_value(&mut info.end_game, EndGame::Resign(Stone::Black), "Resignation");
+            ui.selectable_value(&mut info.end_game, EndGame::Score(Stone::Black, 0), "Score");
+            ui.selectable_value(&mut info.end_game, EndGame::Time(Stone::Black), "Time");
+            ui.selectable_value(&mut info.end_game, EndGame::Forfiet(Stone::Black), "Forfiet");
+        });
+
+    match &mut info.end_game {
+        EndGame::Resign(_) => {
+            if let Some(s) = select_stone(ui) {
+                info.end_game = EndGame::Resign(s);
+            }
+        },
+
+        _ => {ui.label("TODO");}
+    };
+}
+
+fn select_stone(ui: &mut Ui) -> Option<Stone> {
+    ui.horizontal(|ui| {
+        if ui.button("Black").clicked() {
+            return Some(Stone::Black)
+        }
+        if ui.button("White").clicked() {
+            return Some(Stone::White)
+        }
+        return None
+    }).inner
 }
 
 fn edit_rules(ui: &mut Ui, rules: &mut Rules) {

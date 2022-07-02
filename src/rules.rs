@@ -34,7 +34,7 @@ impl Rules {
 }
 
 /// The winner and method of winning
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 #[allow(unused)]
 pub enum EndGame {
     // Score in half points
@@ -42,10 +42,12 @@ pub enum EndGame {
     Resign(Stone),
     Time(Stone),
     Forfiet(Stone),
+    None,
 }
 impl EndGame {
     pub fn display(&self) -> String {
         match self {
+            Self::None => String::from("Game not over."),
             Self::Score(s, p) => format!("{:?} won by {} points.", s, 0.5 * (*p as f32)),
             Self::Resign(s) => format!("{:?} won by resignation.", s),
             Self::Time(s) => format!("{:?} won by time.", s),

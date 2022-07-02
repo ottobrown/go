@@ -56,7 +56,7 @@ impl EventTree {
         return current_node;
     }
 
-    pub fn get_path(&self) -> Vec<Event> {
+    pub fn get_history(&self) -> Vec<Event> {
         let mut vec = Vec::new();
         let mut current_node = &self.root;
 
