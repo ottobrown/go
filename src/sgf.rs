@@ -40,7 +40,9 @@ pub fn parse_tree(path: PathBuf) -> Result<EventTree, Box<dyn Error>> {
 fn build_event_tree(events: &mut EventTree, game: GameTree) {
     for n in game.nodes {
         for t in n.tokens {
-            events.push(token_to_event(t));
+            if let Some(e) = token_to_event(t) {
+                events.push(e);
+            }
         }
     }
 
@@ -58,26 +60,26 @@ fn color_to_stone(c: Color) -> Stone {
     }
 }
 
-fn token_to_event(token: SgfToken) -> Event {
+fn token_to_event(token: SgfToken) -> Option<Event> {
     match token {
         SgfToken::Move {
             color: _,
             action: Action::Move(x, y),
-        } => Event::Move((x-1) as usize, (y-1) as usize),
+        } => Some(Event::Move((x-1) as usize, (y-1) as usize)),
 
         SgfToken::Add {
             color,
             coordinate: (x, y),
-        } => Event::Place(color_to_stone(color), (x-1) as usize, (y-1) as usize),
+        } => Some(Event::Place(color_to_stone(color), (x-1) as usize, (y-1) as usize)),
 
         SgfToken::Square {
             coordinate: (x, y),
-        } => Event::Mark(Marker::Square, (x-1) as usize, (y-1) as usize),
+        } => Some(Event::Mark(Marker::Square, (x-1) as usize, (y-1) as usize)),
 
         SgfToken::Triangle {
             coordinate: (x, y),
-        } => Event::Mark(Marker::Triangle , (x-1) as usize, (y-1) as usize),
+        } => Some(Event::Mark(Marker::Triangle, (x-1) as usize, (y-1) as usize)),
 
-        _ => Event::Noop,
+        _ => None,
     }
 }
