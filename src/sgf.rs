@@ -3,6 +3,7 @@ use std::fs;
 use std::error::Error;
 
 use crate::Event;
+use crate::game::Marker;
 use crate::Stone;
 use crate::EventTree;
 
@@ -68,6 +69,14 @@ fn token_to_event(token: SgfToken) -> Event {
             color,
             coordinate: (x, y),
         } => Event::Place(color_to_stone(color), (x-1) as usize, (y-1) as usize),
+
+        SgfToken::Square {
+            coordinate: (x, y),
+        } => Event::Mark(Marker::Square, (x-1) as usize, (y-1) as usize),
+
+        SgfToken::Triangle {
+            coordinate: (x, y),
+        } => Event::Mark(Marker::Triangle , (x-1) as usize, (y-1) as usize),
 
         _ => Event::Noop,
     }
