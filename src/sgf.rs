@@ -1,5 +1,5 @@
 use std::path::PathBuf;
-use std::{io, fs};
+use std::fs;
 use std::error::Error;
 
 use crate::Event;
@@ -39,7 +39,6 @@ pub fn parse_tree(path: PathBuf) -> Result<EventTree, Box<dyn Error>> {
 fn build_event_tree(events: &mut EventTree, game: GameTree) {
     for n in game.nodes {
         for t in n.tokens {
-            changed = true;
             events.push(token_to_event(t));
         }
     }
@@ -61,7 +60,7 @@ fn color_to_stone(c: Color) -> Stone {
 fn token_to_event(token: SgfToken) -> Event {
     match token {
         SgfToken::Move {
-            color,
+            color: _,
             action: Action::Move(x, y),
         } => Event::Move((x-1) as usize, (y-1) as usize),
 
