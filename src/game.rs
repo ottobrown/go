@@ -6,7 +6,21 @@ use crate::Board;
 use crate::Rules;
 use crate::Stone;
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Marker {
+    Empty,
+    Triangle,
+    Circle,
+    Square,
+    Cross,
+    /// Contains the coordinates of the end point of the line
+    Line(usize, usize),
+    Arrow(usize, usize),
+    Label(char),
+}
+
 #[derive(Clone, Copy, Debug)]
+#[allow(unused)]
 pub enum Event {
     /// The event at the root of the [GameTree].
     /// Does nothing.
@@ -21,6 +35,8 @@ pub enum Event {
     Move(usize, usize),
     /// Place a stone of the given color.
     Place(Stone, usize, usize),
+
+    Mark(Marker, usize, usize),
 }
 
 /// <0 is kyu,
@@ -114,14 +130,20 @@ impl Game {
         for e in history {
             match e {
                 Event::Place(s, x, y) => {
-                    board.play(*s, *x, *y, &self.rules);
+                    if board.play(*s, *x, *y, &self.rules) {
+                        self.current_board.clear_markers();
+                    }
                 }
                 Event::Move(x, y) => {
                     if board.play(turn, *x, *y, &self.rules) {
                         turn = turn.swap();
+                        self.current_board.clear_markers();
                     }
                 }
                 Event::Pass => turn = turn.swap(),
+                Event::Mark(m, x, y) => {
+                    board.set_marker(*m, *x, *y);
+                }
 
                 _ => {}
             }
@@ -174,21 +196,30 @@ impl Game {
         match e {
             Event::Place(s, x, y) => {
                 if !self.current_board.play(*s, *x, *y, &self.rules) {
-                    // Remove event if it waws illegal
+                    // Remove event if it was illegal
+                    self.current_board.clear_markers();
                     self.pop_history();
                 }
             }
             Event::Move(x, y) => {
                 if self.current_board.play(self.turn, *x, *y, &self.rules) {
                     self.turn = self.turn.swap();
+                    self.current_board.clear_markers();
                 } else {
-                    // Remove event if it waws illegal
+                    // Remove event if it was illegal
                     self.pop_history();
                 }
             }
             Event::Pass => self.turn = self.turn.swap(),
 
             Event::Resign(s) => self.end_game = Some(EndGame::Resign(*s)),
+
+            Event::Mark(m, x, y) => {
+                if !self.current_board.set_marker(*m, *x, *y) {
+                    // Remove event if it did nothing
+                    self.pop_history();
+                }
+            }
 
             _ => {}
         };

@@ -2,20 +2,44 @@ use eframe::egui;
 use egui::Ui;
 
 use super::board::{render_board, BoardStyle, Computed};
+use crate::game::Marker;
 use crate::game::{GameInfo, NewGameBuilder};
 use crate::rules::Rules;
 use crate::{Event, Game, Stone};
+
+const LETTERS: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Tool {
     Move,
     Place,
+
+    Triangle,
+    Circle,
+    Square,
+    Cross,
+
+    Line,
+    Arrow,
+
+    Letter,
+    Number,
+    CustomLabel,
 }
 
 pub struct Editor {
     computed: Computed,
     tool: Tool,
     game_info_open: bool,
+
+    line_starting_point: Option<(usize, usize)>,
+    arrow_starting_point: Option<(usize, usize)>,
+
+    last_number: u8,
+
+    /// Index on [LETTERS]
+    last_letter_index: usize,
+    custom_char: String,
 }
 impl Default for Editor {
     fn default() -> Self {
@@ -23,6 +47,11 @@ impl Default for Editor {
             computed: Computed::blank(),
             tool: Tool::Move,
             game_info_open: false,
+            line_starting_point: None,
+            arrow_starting_point: None,
+            last_number: 0,
+            last_letter_index: 0,
+            custom_char: String::from('A'),
         }
     }
 }
@@ -41,13 +70,15 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
 
         ui.vertical(|ui| {
             editor_buttons(ui, editor, &mut game);
-            let r = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
+            let board = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
             match &game.end_game {
                 Some(e) => {
                     ui.label(e.display());
                 }
                 None => {
-                    handle_click(ui, editor.tool, &r, &editor.computed, &mut game);
+                    if let Some(e) = tool(ui, editor, &board, &game) {
+                        game.handle_event(&e);
+                    }
                 }
             };
         });
@@ -70,6 +101,15 @@ fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {
             .show_ui(ui, |ui| {
                 ui.selectable_value(&mut editor.tool, Tool::Move, "Move");
                 ui.selectable_value(&mut editor.tool, Tool::Place, "Place");
+                ui.selectable_value(&mut editor.tool, Tool::Triangle, "Triangle");
+                ui.selectable_value(&mut editor.tool, Tool::Circle, "Circle");
+                ui.selectable_value(&mut editor.tool, Tool::Square, "Square");
+                ui.selectable_value(&mut editor.tool, Tool::Cross, "Cross");
+                ui.selectable_value(&mut editor.tool, Tool::Line, "Line");
+                ui.selectable_value(&mut editor.tool, Tool::Arrow, "Arrow");
+                ui.selectable_value(&mut editor.tool, Tool::Letter, "Letter");
+                ui.selectable_value(&mut editor.tool, Tool::Number, "Number");
+                ui.selectable_value(&mut editor.tool, Tool::CustomLabel, "Custom label");
             });
     });
 
@@ -85,6 +125,14 @@ fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {
         }
         if ui.button("Game info").clicked() {
             editor.game_info_open = true;
+        }
+
+        if editor.tool == Tool::CustomLabel {
+            ui.text_edit_singleline(&mut editor.custom_char);
+            match editor.custom_char.chars().next() {
+                Some(c) => editor.custom_char = String::from(c),
+                None => {}
+            };
         }
     });
 
@@ -216,8 +264,10 @@ fn edit_rules(ui: &mut Ui, rules: &mut Rules) {
     ui.add(egui::Slider::new(&mut rules.komi, 0..=50).show_value(false));
 }
 
-fn handle_click(ui: &mut Ui, tool: Tool, response: &egui::Response, c: &Computed, game: &mut Game) {
-    if response.clicked() || response.secondary_clicked() {
+fn tool(ui: &mut Ui, editor: &mut Editor, board: &egui::Response, game: &Game) -> Option<Event> {
+    let c = &editor.computed;
+
+    if board.clicked() || board.secondary_clicked() {
         if let Some(p) = ui.input().pointer.interact_pos() {
             let (x, y) = (
                 ((p.x - c.inner_rect.min.x) / c.spacing.x).round() as usize,
@@ -225,27 +275,95 @@ fn handle_click(ui: &mut Ui, tool: Tool, response: &egui::Response, c: &Computed
             );
 
             let (w, h) = game.size();
-            if (x as usize) * h + (y as usize) >= w * h {
-                return;
+            if x * h + y >= w * h {
+                return None;
             }
 
-            let play = match tool {
-                Tool::Move => Event::Move(x as usize, y as usize),
+            if editor.tool != Tool::Line {
+                editor.line_starting_point = None;
+            }
+
+            if board.secondary_clicked() {
+                match game.current_board().get_marker(x, y) {
+                    None | Some(Marker::Empty) => return Some(Event::Place(Stone::Empty, x, y)),
+                    _ => return Some(Event::Mark(Marker::Empty, x, y)),
+                }
+            }
+
+            return match editor.tool {
+                Tool::Move => Some(Event::Move(x, y)),
                 Tool::Place => {
                     let mut color = Stone::Black;
 
                     if ui.input().modifiers.shift {
                         color = Stone::White;
                     }
-                    if response.secondary_clicked() {
-                        color = Stone::Empty;
+
+                    Some(Event::Place(color, x, y))
+                }
+
+                Tool::Triangle => Some(Event::Mark(Marker::Triangle, x, y)),
+                Tool::Circle => Some(Event::Mark(Marker::Circle, x, y)),
+                Tool::Square => Some(Event::Mark(Marker::Square, x, y)),
+                Tool::Cross => Some(Event::Mark(Marker::Cross, x, y)),
+
+                Tool::Line => match editor.line_starting_point {
+                    Some(p) => {
+                        editor.line_starting_point = None;
+
+                        Some(Event::Mark(Marker::Line(x, y), p.0, p.1))
+                    }
+                    None => {
+                        editor.line_starting_point = Some((x, y));
+
+                        None
+                    }
+                },
+
+                Tool::Arrow => match editor.arrow_starting_point {
+                    Some(p) => {
+                        editor.arrow_starting_point = None;
+
+                        Some(Event::Mark(Marker::Arrow(x, y), p.0, p.1))
+                    }
+                    None => {
+                        editor.arrow_starting_point = Some((x, y));
+
+                        None
+                    }
+                },
+
+                Tool::Letter => {
+                    if editor.last_letter_index > 25 {
+                        editor.last_letter_index = 0;
                     }
 
-                    Event::Place(color, x as usize, y as usize)
+                    let c = LETTERS.chars().nth(editor.last_letter_index).unwrap();
+
+                    editor.last_letter_index += 1;
+
+                    Some(Event::Mark(Marker::Label(c), x, y))
+                }
+
+                Tool::Number => {
+                    editor.last_number += 1;
+                    if editor.last_number > 9 {
+                        editor.last_number = 1;
+                    }
+
+                    let s = format!("{}", editor.last_number);
+                    let c = s.chars().next().unwrap();
+
+                    Some(Event::Mark(Marker::Label(c), x, y))
+                }
+
+                Tool::CustomLabel => {
+                    let c = editor.custom_char.chars().next().unwrap();
+                    Some(Event::Mark(Marker::Label(c), x, y))
                 }
             };
-
-            game.handle_event(&play);
         }
     }
+
+    return None;
 }
