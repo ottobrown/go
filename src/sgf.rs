@@ -31,11 +31,24 @@ pub fn parse_tree(path: PathBuf) -> Result<EventTree, Box<dyn Error>> {
 
     build_event_tree(&mut events, game);
 
+    events.move_to_root();
+
     return Ok(events);
 }
 
 fn build_event_tree(events: &mut EventTree, game: GameTree) {
-    todo!()
+    for n in game.nodes {
+        for t in n.tokens {
+            changed = true;
+            events.push(token_to_event(t));
+        }
+    }
+
+    for v in game.variations {
+        build_event_tree(events, v);
+
+        events.move_to_parent();
+    }
 }
 
 fn color_to_stone(c: Color) -> Stone {

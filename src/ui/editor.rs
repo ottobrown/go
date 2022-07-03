@@ -127,6 +127,7 @@ pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
     }
 
     if let Some(p) = &builder.info.sgf_path {
+        ui.label(format!("sgf file: {}", p.display()));
         match crate::sgf::parse_tree(p.clone()) {
             Ok(event_tree) => builder.tree = Some(event_tree),
             Err(e) => {
