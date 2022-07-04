@@ -3,7 +3,11 @@ use std::fs;
 use std::error::Error;
 
 use crate::Event;
-use crate::game::Marker;
+use crate::game::{
+    Marker,
+    NewGameBuilder,
+    GameInfo,
+};
 use crate::Stone;
 use crate::EventTree;
 
@@ -24,30 +28,34 @@ pub fn open_sgf() -> Option<PathBuf> {
 }
 
 
-pub fn parse_tree(path: PathBuf) -> Result<EventTree, Box<dyn Error>> {
+pub fn parse_sgf(path: PathBuf, builder: &mut NewGameBuilder) -> Result<(), Box<dyn Error>> {
     let string = fs::read_to_string(path)?;
 
     let game = sgf_parser::parse(&string)?;
     let mut events = EventTree::blank();
 
-    build_event_tree(&mut events, game);
+    build_event_tree(&mut events, &mut builder.info, game);
 
     events.move_to_root();
 
-    return Ok(events);
+    builder.tree = Some(events);
+
+    return Ok(());
 }
 
-fn build_event_tree(events: &mut EventTree, game: GameTree) {
+fn build_event_tree(events: &mut EventTree, info: &mut GameInfo, game: GameTree) {
     for n in game.nodes {
         for t in n.tokens {
-            if let Some(e) = token_to_event(t) {
+            token_to_info(&t, info);
+
+            if let Some(e) = token_to_event(&t) {
                 events.push(e);
             }
         }
     }
 
     for v in game.variations {
-        build_event_tree(events, v);
+        build_event_tree(events, info, v);
 
         events.move_to_parent();
     }
@@ -60,7 +68,7 @@ fn color_to_stone(c: Color) -> Stone {
     }
 }
 
-fn token_to_event(token: SgfToken) -> Option<Event> {
+fn token_to_event(token: &SgfToken) -> Option<Event> {
     match token {
         SgfToken::Move {
             color: _,
@@ -70,7 +78,7 @@ fn token_to_event(token: SgfToken) -> Option<Event> {
         SgfToken::Add {
             color,
             coordinate: (x, y),
-        } => Some(Event::Place(color_to_stone(color), (x-1) as usize, (y-1) as usize)),
+        } => Some(Event::Place(color_to_stone(*color), (x-1) as usize, (y-1) as usize)),
 
         SgfToken::Square {
             coordinate: (x, y),
@@ -81,5 +89,22 @@ fn token_to_event(token: SgfToken) -> Option<Event> {
         } => Some(Event::Mark(Marker::Triangle, (x-1) as usize, (y-1) as usize)),
 
         _ => None,
+    }
+}
+
+fn token_to_info(token: &SgfToken, info: &mut GameInfo) {
+    match token {
+        SgfToken::Event(s) => info.event = s.to_string(),
+        SgfToken::GameName(s) => info.name = s.to_string(),
+        SgfToken::PlayerName {
+            color: Color::Black,
+            name,
+        } => info.black_player = name.to_string(),
+        SgfToken::PlayerName {
+            color: Color::White,
+            name,
+        } => info.white_player = name.to_string(),
+
+        _ => {}
     }
 }
