@@ -34,7 +34,7 @@ pub fn parse_sgf(path: PathBuf, builder: &mut NewGameBuilder) -> Result<(), Box<
     let game = sgf_parser::parse(&string)?;
     let mut events = EventTree::blank();
 
-    build_event_tree(&mut events, &mut builder.info, game);
+    build_event_tree(&mut events, &mut builder.info, &mut builder.size, game);
 
     events.move_to_root();
 
@@ -43,10 +43,10 @@ pub fn parse_sgf(path: PathBuf, builder: &mut NewGameBuilder) -> Result<(), Box<
     return Ok(());
 }
 
-fn build_event_tree(events: &mut EventTree, info: &mut GameInfo, game: GameTree) {
+fn build_event_tree(events: &mut EventTree, info: &mut GameInfo, size: &mut (usize, usize), game: GameTree) {
     for n in game.nodes {
         for t in n.tokens {
-            token_to_info(&t, info);
+            token_to_info(&t, info, size);
 
             if let Some(e) = token_to_event(&t) {
                 events.push(e);
@@ -55,7 +55,7 @@ fn build_event_tree(events: &mut EventTree, info: &mut GameInfo, game: GameTree)
     }
 
     for v in game.variations {
-        build_event_tree(events, info, v);
+        build_event_tree(events, info, size, v);
 
         events.move_to_parent();
     }
@@ -92,7 +92,7 @@ fn token_to_event(token: &SgfToken) -> Option<Event> {
     }
 }
 
-fn token_to_info(token: &SgfToken, info: &mut GameInfo) {
+fn token_to_info(token: &SgfToken, info: &mut GameInfo, size: &mut (usize, usize)) {
     match token {
         SgfToken::Event(s) => info.event = s.to_string(),
         SgfToken::GameName(s) => info.name = s.to_string(),
@@ -104,6 +104,7 @@ fn token_to_info(token: &SgfToken, info: &mut GameInfo) {
             color: Color::White,
             name,
         } => info.white_player = name.to_string(),
+        SgfToken::Size(w, h) => *size = (*w as usize, *h as usize),
 
         _ => {}
     }
