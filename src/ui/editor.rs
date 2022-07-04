@@ -78,7 +78,7 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
                     game.handle_event(&e);
                 }
             } else {
-                if game.info.end_game != EndGame::None {
+                if game.info.end_game != EndGame::NotOver {
                     ui.label(game.info.end_game.display());
                 }
             }
@@ -241,7 +241,7 @@ fn edit_game_info(ui: &mut Ui, info: &mut GameInfo) {
     egui::ComboBox::from_id_source("End game editor")
         .selected_text(info.end_game.display())
         .show_ui(ui, |ui| {
-            ui.selectable_value(&mut info.end_game, EndGame::None, "None");
+            ui.selectable_value(&mut info.end_game, EndGame::NotOver, "Not over");
             ui.selectable_value(&mut info.end_game, EndGame::Resign(Stone::Black), "Resignation");
             ui.selectable_value(&mut info.end_game, EndGame::Score(Stone::Black, 0), "Score");
             ui.selectable_value(&mut info.end_game, EndGame::Time(Stone::Black), "Time");
@@ -252,6 +252,16 @@ fn edit_game_info(ui: &mut Ui, info: &mut GameInfo) {
         EndGame::Resign(_) => {
             if let Some(s) = select_stone(ui) {
                 info.end_game = EndGame::Resign(s);
+            }
+        },
+        EndGame::Time(_) => {
+            if let Some(s) = select_stone(ui) {
+                info.end_game = EndGame::Time(s);
+            }
+        },
+        EndGame::Forfiet(_) => {
+            if let Some(s) = select_stone(ui) {
+                info.end_game = EndGame::Forfiet(s);
             }
         },
 

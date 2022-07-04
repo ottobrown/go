@@ -87,7 +87,7 @@ impl Default for GameInfo {
             black_rank: Rank::none(),
             white_rank: Rank::none(),
 
-            end_game: EndGame::None,
+            end_game: EndGame::NotOver,
         }
     }
 }
