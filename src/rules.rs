@@ -51,7 +51,7 @@ impl EndGame {
             Self::Score(s, p) => format!("{:?} won by {} points.", s, 0.5 * (*p as f32)),
             Self::Resign(s) => format!("{:?} won by resignation.", s),
             Self::Time(s) => format!("{:?} won by time.", s),
-            Self::Forfiet(s) => format!("{:?} won by forfiet", s),
+            Self::Forfiet(s) => format!("{:?} won by forfiet.", s),
         }
     }
 }

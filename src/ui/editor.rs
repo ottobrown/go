@@ -249,23 +249,36 @@ fn edit_game_info(ui: &mut Ui, info: &mut GameInfo) {
         });
 
     match &mut info.end_game {
-        EndGame::Resign(_) => {
-            if let Some(s) = select_stone(ui) {
-                info.end_game = EndGame::Resign(s);
+        EndGame::Resign(s) => {
+            if let Some(stone) = select_stone(ui) {
+                *s = stone;
             }
         },
-        EndGame::Time(_) => {
-            if let Some(s) = select_stone(ui) {
-                info.end_game = EndGame::Time(s);
+        EndGame::Time(s) => {
+            if let Some(stone) = select_stone(ui) {
+                *s = stone;
             }
         },
-        EndGame::Forfiet(_) => {
-            if let Some(s) = select_stone(ui) {
-                info.end_game = EndGame::Forfiet(s);
+        EndGame::Forfiet(s) => {
+            if let Some(stone) = select_stone(ui) {
+                *s = stone;
             }
         },
 
-        _ => {ui.label("TODO");}
+        EndGame::Score(s, p) => {
+            if let Some(stone) = select_stone(ui) {
+                *s = stone;
+            }
+
+            let before = *p;
+            ui.add(
+                egui::Slider::new(p, 0..=400)
+                    .show_value(false)
+                    .text(format!("{}", 0.5*(before as f32)))
+            );
+        }
+
+        _ => {}
     };
 }
 
