@@ -222,8 +222,7 @@ impl Game {
     pub fn ended(&self) -> bool {
         let mut path = self.history.get_history();
 
-        if path.pop() == Some(Event::Pass)
-        && path.pop() == Some(Event::Pass) {
+        if path.pop() == Some(Event::Pass) && path.pop() == Some(Event::Pass) {
             return true;
         }
 

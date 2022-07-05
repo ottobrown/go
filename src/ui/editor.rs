@@ -4,8 +4,8 @@ use egui::Ui;
 use super::board::{render_board, BoardStyle, Computed};
 use crate::game::Marker;
 use crate::game::{GameInfo, NewGameBuilder};
-use crate::rules::Rules;
 use crate::rules::EndGame;
+use crate::rules::Rules;
 use crate::{Event, Game, Stone};
 
 const LETTERS: &str = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -77,12 +77,10 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
                 if let Some(e) = tool(ui, editor, &board, &game) {
                     game.handle_event(&e);
                 }
+            } else if game.info.end_game != EndGame::NotOver {
+                ui.label(game.info.end_game.display());
             } else {
-                if game.info.end_game != EndGame::NotOver {
-                    ui.label(game.info.end_game.display());
-                } else {
-                    ui.label("Game over. Edit the result of the game in `Game info`.");
-                }
+                ui.label("Game over. Edit the result of the game in `Game info`.");
             }
         });
 
@@ -244,10 +242,18 @@ fn edit_game_info(ui: &mut Ui, info: &mut GameInfo) {
         .selected_text(info.end_game.display())
         .show_ui(ui, |ui| {
             ui.selectable_value(&mut info.end_game, EndGame::NotOver, "Not over");
-            ui.selectable_value(&mut info.end_game, EndGame::Resign(Stone::Black), "Resignation");
+            ui.selectable_value(
+                &mut info.end_game,
+                EndGame::Resign(Stone::Black),
+                "Resignation",
+            );
             ui.selectable_value(&mut info.end_game, EndGame::Score(Stone::Black, 0), "Score");
             ui.selectable_value(&mut info.end_game, EndGame::Time(Stone::Black), "Time");
-            ui.selectable_value(&mut info.end_game, EndGame::Forfiet(Stone::Black), "Forfiet");
+            ui.selectable_value(
+                &mut info.end_game,
+                EndGame::Forfiet(Stone::Black),
+                "Forfiet",
+            );
         });
 
     match &mut info.end_game {
@@ -255,17 +261,17 @@ fn edit_game_info(ui: &mut Ui, info: &mut GameInfo) {
             if let Some(stone) = select_stone(ui) {
                 *s = stone;
             }
-        },
+        }
         EndGame::Time(s) => {
             if let Some(stone) = select_stone(ui) {
                 *s = stone;
             }
-        },
+        }
         EndGame::Forfiet(s) => {
             if let Some(stone) = select_stone(ui) {
                 *s = stone;
             }
-        },
+        }
 
         EndGame::Score(s, p) => {
             if let Some(stone) = select_stone(ui) {
@@ -280,7 +286,7 @@ fn edit_game_info(ui: &mut Ui, info: &mut GameInfo) {
                 egui::Slider::new(p, 0..=400)
                     .show_value(false)
                     .integer()
-                    .text(format!("{}", 0.5*(before as f32)))
+                    .text(format!("{}", 0.5 * (before as f32))),
             );
 
             ui.horizontal(|ui| {
@@ -307,13 +313,14 @@ fn edit_game_info(ui: &mut Ui, info: &mut GameInfo) {
 fn select_stone(ui: &mut Ui) -> Option<Stone> {
     ui.horizontal(|ui| {
         if ui.button("Black").clicked() {
-            return Some(Stone::Black)
+            return Some(Stone::Black);
         }
         if ui.button("White").clicked() {
-            return Some(Stone::White)
+            return Some(Stone::White);
         }
-        return None
-    }).inner
+        return None;
+    })
+    .inner
 }
 
 fn edit_rules(ui: &mut Ui, rules: &mut Rules) {
