@@ -271,11 +271,31 @@ fn edit_game_info(ui: &mut Ui, info: &mut GameInfo) {
             }
 
             let before = *p;
+
+            // TODO: replae this with a number input box widget
+            ui.style_mut().spacing.slider_width *= 3.0;
             ui.add(
                 egui::Slider::new(p, 0..=400)
                     .show_value(false)
+                    .integer()
                     .text(format!("{}", 0.5*(before as f32)))
             );
+
+            ui.horizontal(|ui| {
+                if ui.button("-5").clicked() {
+                    *p -= 10
+                }
+                if ui.button("-0.5").clicked() {
+                    *p -= 1
+                }
+
+                if ui.button("+0.5").clicked() {
+                    *p += 1
+                }
+                if ui.button("+5").clicked() {
+                    *p += 10
+                }
+            });
         }
 
         _ => {}
