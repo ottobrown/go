@@ -80,6 +80,8 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
             } else {
                 if game.info.end_game != EndGame::NotOver {
                     ui.label(game.info.end_game.display());
+                } else {
+                    ui.label("Game over. Edit the result of the game in `Game info`.");
                 }
             }
         });
@@ -115,10 +117,10 @@ fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {
     });
 
     ui.horizontal(|ui| {
-        if ui.button("Pass").clicked() {
+        if ui.button("Pass").clicked() && !game.ended() {
             game.handle_event(&Event::Pass);
         }
-        if ui.button("Resign").clicked() {
+        if ui.button("Resign").clicked() && !game.ended() {
             game.handle_event(&Event::Resign(game.turn))
         }
         if ui.button("Undo").clicked() {

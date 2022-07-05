@@ -222,12 +222,12 @@ impl Game {
     pub fn ended(&self) -> bool {
         let mut path = self.history.get_history();
 
-        if let Some(Event::Resign(_)) = path.last() {
+        if path.pop() == Some(Event::Pass)
+        && path.pop() == Some(Event::Pass) {
             return true;
         }
 
-        if path.pop() == Some(Event::Pass)
-        && path.pop() == Some(Event::Pass) {
+        if let Some(Event::Resign(_)) = path.last() {
             return true;
         }
 
