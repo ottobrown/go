@@ -1,22 +1,13 @@
-use std::path::PathBuf;
-use std::fs;
 use std::error::Error;
+use std::fs;
+use std::path::PathBuf;
 
+use crate::game::{GameInfo, Marker, NewGameBuilder};
 use crate::Event;
-use crate::game::{
-    Marker,
-    NewGameBuilder,
-    GameInfo,
-};
-use crate::Stone;
 use crate::EventTree;
+use crate::Stone;
 
-use sgf_parser::{
-    GameTree,
-    SgfToken,
-    Action,
-    Color,
-};
+use sgf_parser::{Action, Color, GameTree, SgfToken};
 
 use rfd::FileDialog;
 
@@ -26,7 +17,6 @@ pub fn open_sgf() -> Option<PathBuf> {
         .add_filter("Smart Game Format", &["sgf"])
         .pick_file()
 }
-
 
 pub fn parse_sgf(path: PathBuf, builder: &mut NewGameBuilder) -> Result<(), Box<dyn Error>> {
     let string = fs::read_to_string(path)?;
@@ -43,7 +33,12 @@ pub fn parse_sgf(path: PathBuf, builder: &mut NewGameBuilder) -> Result<(), Box<
     return Ok(());
 }
 
-fn build_event_tree(events: &mut EventTree, info: &mut GameInfo, size: &mut (usize, usize), game: GameTree) {
+fn build_event_tree(
+    events: &mut EventTree,
+    info: &mut GameInfo,
+    size: &mut (usize, usize),
+    game: GameTree,
+) {
     for n in game.nodes {
         for t in n.tokens {
             token_to_info(&t, info, size);
@@ -73,20 +68,28 @@ fn token_to_event(token: &SgfToken) -> Option<Event> {
         SgfToken::Move {
             color: _,
             action: Action::Move(x, y),
-        } => Some(Event::Move((x-1) as usize, (y-1) as usize)),
+        } => Some(Event::Move((x - 1) as usize, (y - 1) as usize)),
 
         SgfToken::Add {
             color,
             coordinate: (x, y),
-        } => Some(Event::Place(color_to_stone(*color), (x-1) as usize, (y-1) as usize)),
+        } => Some(Event::Place(
+            color_to_stone(*color),
+            (x - 1) as usize,
+            (y - 1) as usize,
+        )),
 
-        SgfToken::Square {
-            coordinate: (x, y),
-        } => Some(Event::Mark(Marker::Square, (x-1) as usize, (y-1) as usize)),
+        SgfToken::Square { coordinate: (x, y) } => Some(Event::Mark(
+            Marker::Square,
+            (x - 1) as usize,
+            (y - 1) as usize,
+        )),
 
-        SgfToken::Triangle {
-            coordinate: (x, y),
-        } => Some(Event::Mark(Marker::Triangle, (x-1) as usize, (y-1) as usize)),
+        SgfToken::Triangle { coordinate: (x, y) } => Some(Event::Mark(
+            Marker::Triangle,
+            (x - 1) as usize,
+            (y - 1) as usize,
+        )),
 
         _ => None,
     }

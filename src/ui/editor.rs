@@ -178,8 +178,10 @@ pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
         ui.label(format!("sgf file: {}", p.display()));
 
         match crate::sgf::parse_sgf(p.clone(), builder) {
-            Ok(()) => { return Some(builder.build()) },
-            Err(e) => { ui.label(format!("{e}")); },
+            Ok(()) => return Some(builder.build()),
+            Err(e) => {
+                ui.label(format!("{e}"));
+            }
         };
     }
 

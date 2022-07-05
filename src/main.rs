@@ -8,10 +8,10 @@ use eframe::{run_native, NativeOptions};
 mod board;
 mod game;
 mod rules;
+mod sgf;
 mod state;
 mod tree;
 mod ui;
-mod sgf;
 
 use board::Board;
 use board::Stone;
