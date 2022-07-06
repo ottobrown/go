@@ -12,6 +12,8 @@ pub struct State {
 
     pub editor: ui::Editor,
     pub style: ui::BoardStyle,
+
+    pub debug_mode: bool,
 }
 impl State {
     pub fn new(_cc: &CreationContext) -> Self {
@@ -20,6 +22,7 @@ impl State {
             builder: Game::builder(),
             editor: ui::Editor::default(),
             style: ui::BoardStyle::default(),
+            debug_mode: false,
         }
     }
 }

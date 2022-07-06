@@ -8,6 +8,7 @@ use crate::State;
 mod board;
 mod editor;
 mod shapes;
+mod debug;
 
 pub use board::BoardStyle;
 pub use editor::Editor;
@@ -29,7 +30,15 @@ pub fn render(state: &mut State, ctx: &Context, _frame: &Frame) {
                     state.game = editor::build_game(ui, &mut state.builder);
                 }
             })
-        })
+        });
+
+        ui.checkbox(&mut state.debug_mode, "Debug mode");
+
+        if state.debug_mode {
+            egui::Window::new("Debug").show(ctx, |ui| {
+               debug::debug_window(ui, state);
+            });
+        }
     });
 }
 
