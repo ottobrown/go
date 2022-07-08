@@ -91,6 +91,12 @@ fn token_to_event(token: &SgfToken) -> Option<Event> {
             (y - 1) as usize,
         )),
 
+        SgfToken::Label { label, coordinate: (x, y) } => Some(Event::Mark(
+            Marker::Label(label.chars().nth(0).unwrap()),
+            (x - 1) as usize,
+            (y - 1) as usize,
+        )),
+
         _ => None,
     }
 }
