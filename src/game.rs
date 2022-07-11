@@ -227,9 +227,24 @@ impl Game {
             Event::Resign(s) => self.end_game = Some(EndGame::Resign(*s)),
 
             Event::Mark(m, x, y) => {
-                if !self.current_board.set_marker(*m, *x, *y) {
-                    // Remove event if it did nothing
-                    self.pop_history();
+                self.pop_history();
+
+                let current_event = self.history.get_current_event_mut();
+                if let Event::Group(v) = current_event {
+                    if self.current_board.set_marker(*m, *x, *y) {
+                        let mut vec = v.clone();
+
+                        vec.push(Event::Mark(*m, *x, *y));
+
+                        *current_event = Event::Group(vec);
+                    }
+                }
+                else {
+                    if self.current_board.set_marker(*m, *x, *y) {
+                        let mut vec = vec![current_event.clone(), Event::Mark(*m, *x, *y)];
+                        
+                        *current_event = Event::Group(vec);
+                    }
                 }
             }
 

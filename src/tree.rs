@@ -127,4 +127,8 @@ impl EventTree {
 
         return Some(node.children.remove(last_idx).event);
     }
+
+    pub fn get_current_event_mut(&mut self) -> &mut Event {
+        &mut self.get_current_node_mut().event
+    }
 }
