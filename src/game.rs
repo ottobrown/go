@@ -132,12 +132,12 @@ impl Game {
         fn handle(e: &Event, board: &mut Board, turn: &mut Stone, rules: &Rules) {
             match e {
                 Event::Place(s, x, y) => {
-                    if board.play(*s, *x, *y, &rules) {
+                    if board.play(*s, *x, *y, rules) {
                         board.clear_markers();
                     }
                 }
                 Event::Move(x, y) => {
-                    if board.play(*turn, *x, *y, &rules) {
+                    if board.play(*turn, *x, *y, rules) {
                         *turn = turn.swap();
                         board.clear_markers();
                     }
@@ -149,7 +149,7 @@ impl Game {
 
                 Event::Group(v) => {
                     for i in v {
-                        handle(&i, board, turn, rules);
+                        handle(i, board, turn, rules);
                     }
                 }
 
@@ -158,7 +158,7 @@ impl Game {
         }
 
         for e in history {
-            handle(&e, &mut board, &mut turn, &self.rules);
+            handle(e, &mut board, &mut turn, &self.rules);
         }
 
         self.current_board = board;
@@ -238,13 +238,10 @@ impl Game {
 
                         *current_event = Event::Group(vec);
                     }
-                }
-                else {
-                    if self.current_board.set_marker(*m, *x, *y) {
-                        let mut vec = vec![current_event.clone(), Event::Mark(*m, *x, *y)];
-                        
-                        *current_event = Event::Group(vec);
-                    }
+                } else if self.current_board.set_marker(*m, *x, *y) {
+                    let vec = vec![current_event.clone(), Event::Mark(*m, *x, *y)];
+
+                    *current_event = Event::Group(vec);
                 }
             }
 

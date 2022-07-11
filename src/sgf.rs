@@ -44,7 +44,7 @@ fn build_event_tree(
             let t = &n.tokens[0];
 
             token_to_info(t, info, size);
- 
+
             if let Some(e) = token_to_event(t) {
                 events.push(e);
             }
@@ -109,8 +109,11 @@ fn token_to_event(token: &SgfToken) -> Option<Event> {
             (y - 1) as usize,
         )),
 
-        SgfToken::Label { label, coordinate: (x, y) } => Some(Event::Mark(
-            Marker::Label(label.chars().nth(0).unwrap()),
+        SgfToken::Label {
+            label,
+            coordinate: (x, y),
+        } => Some(Event::Mark(
+            Marker::Label(label.chars().next().unwrap()),
             (x - 1) as usize,
             (y - 1) as usize,
         )),
