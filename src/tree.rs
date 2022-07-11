@@ -63,7 +63,7 @@ impl EventTree {
         for i in &self.path {
             current_node = current_node.get_child(*i).unwrap();
 
-            vec.push(current_node.event);
+            vec.push(current_node.event.clone());
         }
 
         return vec;

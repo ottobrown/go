@@ -40,12 +40,30 @@ fn build_event_tree(
     game: GameTree,
 ) {
     for n in game.nodes {
+        if n.tokens.len() == 1 {
+            let t = &n.tokens[0];
+
+            token_to_info(t, info, size);
+ 
+            if let Some(e) = token_to_event(t) {
+                events.push(e);
+            }
+
+            continue;
+        }
+
+        let mut vec = Vec::new();
+
         for t in n.tokens {
             token_to_info(&t, info, size);
 
             if let Some(e) = token_to_event(&t) {
-                events.push(e);
+                vec.push(e);
             }
+        }
+
+        if !vec.is_empty() {
+            events.push(Event::Group(vec.clone()));
         }
     }
 

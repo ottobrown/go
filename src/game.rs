@@ -19,7 +19,7 @@ pub enum Marker {
     Label(char),
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 #[allow(unused)]
 pub enum Event {
     /// The event at the root of the [GameTree].
@@ -37,6 +37,8 @@ pub enum Event {
     Place(Stone, usize, usize),
 
     Mark(Marker, usize, usize),
+
+    Group(Vec<Event>),
 }
 
 /// <0 is kyu,
@@ -127,26 +129,36 @@ impl Game {
         let mut board = self.initial_board.clone();
         let mut turn = self.initial_turn;
 
-        for e in history {
+        fn handle(game: &mut Game, e: &Event, board: &mut Board, turn: &mut Stone) {
             match e {
                 Event::Place(s, x, y) => {
-                    if board.play(*s, *x, *y, &self.rules) {
-                        self.current_board.clear_markers();
+                    if board.play(*s, *x, *y, &game.rules) {
+                        game.current_board.clear_markers();
                     }
                 }
                 Event::Move(x, y) => {
-                    if board.play(turn, *x, *y, &self.rules) {
-                        turn = turn.swap();
-                        self.current_board.clear_markers();
+                    if board.play(*turn, *x, *y, &game.rules) {
+                        *turn = turn.swap();
+                        game.current_board.clear_markers();
                     }
                 }
-                Event::Pass => turn = turn.swap(),
+                Event::Pass => *turn = turn.swap(),
                 Event::Mark(m, x, y) => {
                     board.set_marker(*m, *x, *y);
                 }
 
+                Event::Group(v) => {
+                    for i in v {
+                        handle(game, &i, board, turn);
+                    }
+                }
+
                 _ => {}
             }
+        }
+
+        for e in history {
+            handle(self, &e, &mut board, &mut turn);
         }
 
         self.current_board = board;
@@ -191,7 +203,7 @@ impl Game {
     }
 
     pub fn handle_event(&mut self, e: &Event) {
-        self.history.push(*e);
+        self.history.push(e.clone());
 
         match e {
             Event::Place(s, x, y) => {
