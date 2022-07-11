@@ -129,17 +129,17 @@ impl Game {
         let mut board = self.initial_board.clone();
         let mut turn = self.initial_turn;
 
-        fn handle(game: &mut Game, e: &Event, board: &mut Board, turn: &mut Stone) {
+        fn handle(e: &Event, board: &mut Board, turn: &mut Stone, rules: &Rules) {
             match e {
                 Event::Place(s, x, y) => {
-                    if board.play(*s, *x, *y, &game.rules) {
-                        game.current_board.clear_markers();
+                    if board.play(*s, *x, *y, &rules) {
+                        board.clear_markers();
                     }
                 }
                 Event::Move(x, y) => {
-                    if board.play(*turn, *x, *y, &game.rules) {
+                    if board.play(*turn, *x, *y, &rules) {
                         *turn = turn.swap();
-                        game.current_board.clear_markers();
+                        board.clear_markers();
                     }
                 }
                 Event::Pass => *turn = turn.swap(),
@@ -149,7 +149,7 @@ impl Game {
 
                 Event::Group(v) => {
                     for i in v {
-                        handle(game, &i, board, turn);
+                        handle(&i, board, turn, rules);
                     }
                 }
 
@@ -158,7 +158,7 @@ impl Game {
         }
 
         for e in history {
-            handle(self, &e, &mut board, &mut turn);
+            handle(&e, &mut board, &mut turn, &self.rules);
         }
 
         self.current_board = board;
