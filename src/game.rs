@@ -35,10 +35,26 @@ pub enum Event {
     Move(usize, usize),
     /// Place a stone of the given color.
     Place(Stone, usize, usize),
-
+    /// Used to mark up the board.
     Mark(Marker, usize, usize),
-
+    /// Events grouped together so they can be handled at the same time.
+    /// e.g. a bunch of [Event::Mark]s, [Event::Place]s
     Group(Vec<Event>),
+}
+impl Event {
+    pub fn add_to_group(&mut self, e: Event) {
+        if let Event::Group(ref v) = e {
+            let mut vec = v.clone();
+
+            vec.push(e.clone());
+
+            *self = Event::Group(vec);
+        } else {
+            let vec = vec![self.clone(), e];
+
+            *self = Event::Group(vec);
+        }
+    }
 }
 
 /// <0 is kyu,
@@ -108,7 +124,7 @@ pub struct Game {
     current_board: Board,
     initial_board: Board,
     initial_turn: Stone,
-    history: EventTree,
+    pub history: EventTree,
 
     pub turn: Stone,
     rules: Rules,
@@ -230,18 +246,8 @@ impl Game {
                 self.pop_history();
 
                 let current_event = self.history.get_current_event_mut();
-                if let Event::Group(v) = current_event {
-                    if self.current_board.set_marker(*m, *x, *y) {
-                        let mut vec = v.clone();
-
-                        vec.push(Event::Mark(*m, *x, *y));
-
-                        *current_event = Event::Group(vec);
-                    }
-                } else if self.current_board.set_marker(*m, *x, *y) {
-                    let vec = vec![current_event.clone(), Event::Mark(*m, *x, *y)];
-
-                    *current_event = Event::Group(vec);
+                if self.current_board.set_marker(*m, *x, *y) {
+                    current_event.add_to_group(Event::Mark(*m, *x, *y));
                 }
             }
 

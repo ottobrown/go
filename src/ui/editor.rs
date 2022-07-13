@@ -70,6 +70,7 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
 
         ui.vertical(|ui| {
             editor_buttons(ui, editor, &mut game);
+
             let board = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
             match &game.end_game {
                 Some(e) => {
