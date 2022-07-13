@@ -20,13 +20,10 @@ pub enum Marker {
 }
 
 #[derive(Clone, Debug)]
-#[allow(unused)]
 pub enum Event {
     /// The event at the root of the [GameTree].
     /// Does nothing.
     Start,
-    /// Do nothing.
-    Noop,
     /// A player passes their turn.
     Pass,
     /// A player resigns the game.
