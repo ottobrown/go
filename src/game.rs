@@ -34,6 +34,8 @@ pub enum Event {
     Place(Stone, usize, usize),
     /// Used to mark up the board.
     Mark(Marker, usize, usize),
+    /// Comment attached to a group
+    Comment(String),
     /// Events grouped together so they can be handled at the same time.
     /// e.g. a bunch of [Event::Mark]s, [Event::Place]s
     Group(Vec<Event>),
@@ -244,8 +246,13 @@ impl Game {
 
                 let current_event = self.history.get_current_event_mut();
                 if self.current_board.set_marker(*m, *x, *y) {
-                    current_event.add_to_group(Event::Mark(*m, *x, *y));
+                    current_event.add_to_group(e.clone());
                 }
+            }
+
+            Event::Comment(s) => {
+                let current_event = self.history.get_current_event_mut();
+                current_event.add_to_group(e.clone());
             }
 
             _ => {}

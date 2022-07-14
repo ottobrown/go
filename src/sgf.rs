@@ -118,6 +118,8 @@ fn token_to_event(token: &SgfToken) -> Option<Event> {
             (y - 1) as usize,
         )),
 
+        SgfToken::Comment(s) => Some(Event::Comment(s.clone())),
+
         _ => None,
     }
 }
