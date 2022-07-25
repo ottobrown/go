@@ -34,7 +34,7 @@ pub enum Event {
     Place(Stone, usize, usize),
     /// Used to mark up the board.
     Mark(Marker, usize, usize),
-    /// Comment attached to a group
+    /// Comment attached to a [Event::Group]
     Comment(String),
     /// Events grouped together so they can be handled at the same time.
     /// e.g. a bunch of [Event::Mark]s, [Event::Place]s
@@ -52,6 +52,22 @@ impl Event {
             let vec = vec![self.clone(), e];
 
             *self = Event::Group(vec);
+        }
+    }
+
+    pub fn comment(&self) -> Option<String> {
+        match self {
+            Event::Group(v) => {
+                for i in v {
+                    if let Event::Comment(s) = i {
+                        return Some(s.clone());
+                    }
+                }
+
+                None
+            },
+
+            _ => None,
         }
     }
 }

@@ -70,6 +70,7 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
 
         ui.vertical(|ui| {
             editor_buttons(ui, editor, &mut game);
+            edit_comment(ui, game.history.get_current_event_mut());
 
             let board = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
             match &game.end_game {
@@ -92,6 +93,12 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
     });
 
     return game;
+}
+
+pub fn edit_comment(ui: &mut Ui, current_event: &mut Event) {
+    let mut s = current_event.comment().unwrap_or(String::new());
+
+    ui.text_edit_multiline(&mut s);
 }
 
 fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {
