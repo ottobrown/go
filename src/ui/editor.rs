@@ -99,6 +99,10 @@ pub fn edit_comment(ui: &mut Ui, current_event: &mut Event) {
     let mut s = current_event.comment().unwrap_or(String::new());
 
     ui.text_edit_multiline(&mut s);
+
+    if !s.is_empty() {
+        current_event.add_comment(s.clone());
+    }
 }
 
 fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {

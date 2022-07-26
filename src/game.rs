@@ -70,6 +70,18 @@ impl Event {
             _ => None,
         }
     }
+
+    pub fn add_comment(&mut self, comment: String) {
+        if let Event::Group(v) = self {
+            for i in 0..v.len() {
+                if let Event::Comment(_) = v[i] {
+                    v.remove(i);
+                }
+            }
+        }
+
+        self.add_to_group(Event::Comment(comment))
+    }
 }
 
 /// <0 is kyu,
@@ -268,7 +280,7 @@ impl Game {
 
             Event::Comment(s) => {
                 let current_event = self.history.get_current_event_mut();
-                current_event.add_to_group(e.clone());
+                current_event.add_comment(s.clone());
             }
 
             _ => {}
