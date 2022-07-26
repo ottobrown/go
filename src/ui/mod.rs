@@ -5,6 +5,7 @@ use egui::Style;
 
 use crate::State;
 use crate::state::OpenGame;
+use crate::game::NewGameBuilder;
 
 mod board;
 mod editor;
@@ -20,12 +21,20 @@ pub fn render(state: &mut State, ctx: &Context, _frame: &Frame) {
         egui::Frame::group(ui.style()).show(ui, |ui| {
             egui::ScrollArea::both().show(ui, |ui| {
                 match &mut state.game {
-                    OpenGame::Open(g) => state.game = OpenGame::Open(editor::edit_game(
-                        ui,
-                        &g,
-                        &state.style,
-                        &mut state.editor,
-                    )),
+                    OpenGame::Open(g) => {
+                        if ui.button("Close game").clicked() {
+                            state.game = OpenGame::Closed(NewGameBuilder::default());
+                            return;
+                        }
+
+                        // Update game
+                        state.game = OpenGame::Open(editor::edit_game(
+                            ui,
+                            &g,
+                            &state.style,
+                            &mut state.editor,
+                        ));
+                    }
 
                     OpenGame::Closed(builder) => {
                         match editor::build_game(ui, builder) {
