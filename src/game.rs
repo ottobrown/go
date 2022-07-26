@@ -65,7 +65,7 @@ impl Event {
                 }
 
                 None
-            },
+            }
 
             _ => None,
         }

@@ -96,7 +96,7 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
 }
 
 pub fn edit_comment(ui: &mut Ui, current_event: &mut Event) {
-    let mut s = current_event.comment().unwrap_or(String::new());
+    let mut s = current_event.comment().unwrap_or_default();
 
     ui.text_edit_multiline(&mut s);
 
