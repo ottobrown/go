@@ -126,11 +126,11 @@ impl Game {
                 }
                 Event::Move(x, y) => {
                     if board.play(turn, *x, *y, &self.rules) {
-                        turn = turn.swap();
+                        turn = !turn;
                         self.current_board.clear_markers();
                     }
                 }
-                Event::Pass => turn = turn.swap(),
+                Event::Pass => turn = !turn,
                 Event::Mark(m, x, y) => {
                     board.set_marker(*m, *x, *y);
                 }
@@ -193,14 +193,14 @@ impl Game {
             }
             Event::Move(x, y) => {
                 if self.current_board.play(self.turn, *x, *y, &self.rules) {
-                    self.turn = self.turn.swap();
+                    self.turn = !self.turn;
                     self.current_board.clear_markers();
                 } else {
                     // Remove event if it was illegal
                     self.pop_history();
                 }
             }
-            Event::Pass => self.turn = self.turn.swap(),
+            Event::Pass => self.turn = !self.turn,
 
             Event::Resign(s) => self.info.end_game = EndGame::Resign(*s),
 
