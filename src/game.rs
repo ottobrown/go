@@ -95,11 +95,10 @@ impl Default for GameInfo {
 #[derive(Clone)]
 pub struct Game {
     current_board: Board,
-    initial_board: Board,
-    initial_turn: Stone,
     history: EventTree,
 
     pub turn: Stone,
+    initial_turn: Stone,
     rules: Rules,
 
     pub info: GameInfo,
@@ -114,7 +113,7 @@ impl Game {
     }
 
     fn build_board_from_history(&mut self, history: &Vec<Event>) {
-        let mut board = self.initial_board.clone();
+        let mut board = Board::blank(self.current_board.width(), self.current_board.height());
         let mut turn = self.initial_turn;
 
         for e in history {
@@ -244,7 +243,6 @@ pub struct NewGameBuilder {
 impl NewGameBuilder {
     pub fn build(&self) -> Game {
         Game {
-            initial_board: Board::blank(self.size.0, self.size.1),
             initial_turn: Stone::Black,
             current_board: Board::blank(self.size.0, self.size.1),
             history: EventTree::blank(),
