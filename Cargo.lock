@@ -1422,7 +1422,7 @@ checksum = "61ea8d54c77f8315140a05f4c7237403bf38b72704d031543aa1d16abbf517d1"
 [[package]]
 name = "sgf-parser"
 version = "2.6.0"
-source = "git+https://github.com/ottobrown/sgf-parser.git#a18431465981c4475f4313c94ba4454fbaa05177"
+source = "git+https://github.com/ottobrown/sgf-parser.git?branch=master#76f2e9f4c3c3c5916031ed39dd8005b79d10268a"
 dependencies = [
  "derive_more",
  "pest",
