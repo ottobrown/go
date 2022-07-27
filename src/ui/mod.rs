@@ -3,9 +3,9 @@ use eframe::Frame;
 use egui::Context;
 use egui::Style;
 
-use crate::State;
 use crate::state::OpenGame;
 use crate::Game;
+use crate::State;
 
 mod board;
 mod editor;
@@ -36,11 +36,9 @@ pub fn render(state: &mut State, ctx: &Context, _frame: &Frame) {
                         ));
                     }
 
-                    OpenGame::Closed(builder) => {
-                        match editor::build_game(ui, builder) {
-                            Some(g) => state.game = OpenGame::Open(g),
-                            None => {}
-                        }
+                    OpenGame::Closed(builder) => match editor::build_game(ui, builder) {
+                        Some(g) => state.game = OpenGame::Open(g),
+                        None => {}
                     },
                 }
             })

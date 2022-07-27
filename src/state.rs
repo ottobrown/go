@@ -2,9 +2,9 @@ use eframe::egui;
 use eframe::{CreationContext, Frame};
 use egui::Context;
 
+use crate::game::NewGameBuilder;
 use crate::ui;
 use crate::Game;
-use crate::game::NewGameBuilder;
 
 pub enum OpenGame {
     Open(Game),
