@@ -2,9 +2,9 @@ use eframe::egui;
 use eframe::{CreationContext, Frame};
 use egui::Context;
 
-use crate::game::NewGameBuilder;
 use crate::ui;
 use crate::Game;
+use crate::game::NewGameBuilder;
 
 pub enum OpenGame {
     Open(Game),
@@ -20,7 +20,7 @@ pub struct State {
 impl State {
     pub fn new(_cc: &CreationContext) -> Self {
         State {
-            game: OpenGame::Closed(NewGameBuilder::default()),
+            game: OpenGame::Closed(Game::builder()),
             editor: ui::Editor::default(),
             style: ui::BoardStyle::default(),
         }

@@ -5,7 +5,7 @@ use egui::Style;
 
 use crate::State;
 use crate::state::OpenGame;
-use crate::game::NewGameBuilder;
+use crate::Game;
 
 mod board;
 mod editor;
@@ -23,14 +23,14 @@ pub fn render(state: &mut State, ctx: &Context, _frame: &Frame) {
                 match &mut state.game {
                     OpenGame::Open(g) => {
                         if ui.button("Close game").clicked() {
-                            state.game = OpenGame::Closed(NewGameBuilder::default());
+                            state.game = OpenGame::Closed(Game::builder());
                             return;
                         }
 
                         // Update game
                         state.game = OpenGame::Open(editor::edit_game(
                             ui,
-                            &g,
+                            g,
                             &state.style,
                             &mut state.editor,
                         ));
