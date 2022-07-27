@@ -138,6 +138,8 @@ fn token_to_info(token: &SgfToken, info: &mut GameInfo, size: &mut (usize, usize
         } => info.white_player = name.to_string(),
         SgfToken::Size(w, h) => *size = (*w as usize, *h as usize),
 
+        SgfToken::GameComment(s) => info.comment = s.clone(),
+
         _ => {}
     }
 }
