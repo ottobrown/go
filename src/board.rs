@@ -1,3 +1,5 @@
+use std::ops::Not;
+
 use crate::game::Marker;
 use crate::Rules;
 
@@ -10,8 +12,10 @@ pub enum Stone {
     Black = 1,
     White = 2,
 }
-impl Stone {
-    pub fn swap(&self) -> Self {
+impl Not for Stone {
+    type Output = Self;
+
+    fn not(self) -> Self::Output {
         match self {
             Self::Black => Self::White,
             Self::White => Self::Black,
@@ -129,7 +133,7 @@ impl Board {
         for i in (0..new.groups.len()).rev() {
             let g = &new.groups[i];
 
-            if g.liberties.is_empty() && g.color == group.color.swap() {
+            if g.liberties.is_empty() && g.color == !group.color {
                 new.kill_group(i);
             }
         }
