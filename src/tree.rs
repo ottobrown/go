@@ -137,6 +137,6 @@ impl EventTree {
     }
 
     pub fn load_path(&mut self, v: Vec<usize>) {
-        self.path = v.clone();
+        self.path = v;
     }
 }

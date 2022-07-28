@@ -3,12 +3,12 @@ use std::fs;
 use std::path::PathBuf;
 
 use crate::game::{GameInfo, Marker, NewGameBuilder};
+use crate::rules::EndGame;
 use crate::Event;
 use crate::EventTree;
 use crate::Stone;
-use crate::rules::EndGame;
 
-use sgf_parser::{Action, Color, GameTree, SgfToken, Outcome};
+use sgf_parser::{Action, Color, GameTree, Outcome, SgfToken};
 
 use rfd::FileDialog;
 
@@ -121,7 +121,6 @@ fn token_to_event(token: &SgfToken) -> Option<Event> {
 
         SgfToken::Comment(s) => Some(Event::Comment(s.clone())),
 
-
         _ => None,
     }
 }
@@ -140,19 +139,23 @@ fn token_to_info(token: &SgfToken, info: &mut GameInfo, size: &mut (usize, usize
         } => info.white_player = name.to_string(),
         SgfToken::Size(w, h) => *size = (*w as usize, *h as usize),
 
-        SgfToken::Result(r) => info.end_game = match r {
-            Outcome::WinnerByResign(c) => EndGame::Resign(color_to_stone(*c)),
-            Outcome::WinnerByForfeit(c) => EndGame::Forfiet(color_to_stone(*c)),
-            Outcome::WinnerByPoints(c, p) => EndGame::Score(color_to_stone(*c), (2.0*p) as u32),
-            Outcome::WinnerByTime(c) => EndGame::Time(color_to_stone(*c)),
-            Outcome::Draw => EndGame::Draw,
-        },
+        SgfToken::Result(r) => {
+            info.end_game = match r {
+                Outcome::WinnerByResign(c) => EndGame::Resign(color_to_stone(*c)),
+                Outcome::WinnerByForfeit(c) => EndGame::Forfiet(color_to_stone(*c)),
+                Outcome::WinnerByPoints(c, p) => {
+                    EndGame::Score(color_to_stone(*c), (2.0 * p) as u32)
+                }
+                Outcome::WinnerByTime(c) => EndGame::Time(color_to_stone(*c)),
+                Outcome::Draw => EndGame::Draw,
+            }
+        }
 
         SgfToken::Unknown((token, value)) => match token.as_str() {
             "GC" => info.comment = value.clone(),
 
             _ => {}
-        }
+        },
 
         _ => {}
     }

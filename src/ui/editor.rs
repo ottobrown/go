@@ -93,8 +93,6 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
         });
     });
 
-    ui.label(format!("{:#?}", game.history));
-
     return game;
 }
 
