@@ -63,7 +63,7 @@ impl EventTree {
         for i in &self.path {
             current_node = current_node.get_child(*i).unwrap();
 
-            vec.push(current_node.event);
+            vec.push(current_node.event.clone());
         }
 
         return vec;
@@ -80,6 +80,10 @@ impl EventTree {
 
     pub fn move_to_parent(&mut self) {
         self.path.pop();
+    }
+
+    pub fn move_to_root(&mut self) {
+        self.path = vec![0];
     }
 
     pub fn move_to_first_child(&mut self) {
@@ -122,5 +126,9 @@ impl EventTree {
         let node = self.get_current_node_mut();
 
         return Some(node.children.remove(last_idx).event);
+    }
+
+    pub fn get_current_event_mut(&mut self) -> &mut Event {
+        &mut self.get_current_node_mut().event
     }
 }

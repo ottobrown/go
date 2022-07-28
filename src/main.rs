@@ -8,6 +8,7 @@ use eframe::{run_native, NativeOptions};
 mod board;
 mod game;
 mod rules;
+mod sgf;
 mod state;
 mod tree;
 mod ui;
@@ -18,6 +19,7 @@ use game::Event;
 use game::Game;
 use rules::Rules;
 use state::State;
+use tree::EventTree;
 
 fn main() {
     let ops = NativeOptions::default();

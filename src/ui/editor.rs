@@ -71,6 +71,8 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
 
         ui.vertical(|ui| {
             editor_buttons(ui, editor, &mut game);
+            edit_comment(ui, game.history.get_current_event_mut());
+
             let board = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
 
             if !game.ended() {
@@ -92,6 +94,16 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
     });
 
     return game;
+}
+
+pub fn edit_comment(ui: &mut Ui, current_event: &mut Event) {
+    let mut s = current_event.comment().unwrap_or_default();
+
+    ui.text_edit_multiline(&mut s);
+
+    if !s.is_empty() {
+        current_event.add_comment(s.clone());
+    }
 }
 
 fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {
@@ -171,6 +183,21 @@ fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {
 }
 
 pub fn build_game(ui: &mut Ui, builder: &mut NewGameBuilder) -> Option<Game> {
+    if ui.button("Open sgf").clicked() {
+        builder.info.sgf_path = crate::sgf::open_sgf();
+    }
+
+    if let Some(p) = &builder.info.sgf_path {
+        ui.label(format!("sgf file: {}", p.display()));
+
+        match crate::sgf::parse_sgf(p.clone(), builder) {
+            Ok(()) => return Some(builder.build()),
+            Err(e) => {
+                ui.label(format!("{e}"));
+            }
+        };
+    }
+
     egui::Grid::new("Builder grid layout")
         .spacing(ui.style().spacing.item_spacing * 2.0)
         .num_columns(2)
@@ -242,6 +269,7 @@ fn edit_game_info(ui: &mut Ui, info: &mut GameInfo) {
         .selected_text(info.end_game.display())
         .show_ui(ui, |ui| {
             ui.selectable_value(&mut info.end_game, EndGame::NotOver, "Not over");
+            ui.selectable_value(&mut info.end_game, EndGame::Draw, "Draw");
             ui.selectable_value(
                 &mut info.end_game,
                 EndGame::Resign(Stone::Black),

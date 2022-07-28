@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::rules::EndGame;
 use crate::tree::EventTree;
 use crate::Board;
@@ -17,17 +19,69 @@ pub enum Marker {
     Label(char),
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-#[allow(unused)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Event {
+    /// The event at the root of the [GameTree].
+    /// Does nothing.
     Start,
+    /// A player passes their turn.
     Pass,
+    /// A player resigns the game.
     Resign(Stone),
+    /// Place a stone from the palyer whose turn it is.
     Move(usize, usize),
-
+    /// Place a stone of the given color.
     Place(Stone, usize, usize),
-
+    /// Used to mark up the board.
     Mark(Marker, usize, usize),
+    /// Comment attached to a [Event::Group]
+    Comment(String),
+    /// Events grouped together so they can be handled at the same time.
+    /// e.g. a bunch of [Event::Mark]s, [Event::Place]s
+    Group(Vec<Event>),
+}
+impl Event {
+    pub fn add_to_group(&mut self, e: Event) {
+        if let Event::Group(ref v) = e {
+            let mut vec = v.clone();
+
+            vec.push(e.clone());
+
+            *self = Event::Group(vec);
+        } else {
+            let vec = vec![self.clone(), e];
+
+            *self = Event::Group(vec);
+        }
+    }
+
+    pub fn comment(&self) -> Option<String> {
+        match self {
+            Event::Group(v) => {
+                for i in v {
+                    if let Event::Comment(s) = i {
+                        return Some(s.clone());
+                    }
+                }
+
+                None
+            }
+
+            _ => None,
+        }
+    }
+
+    pub fn add_comment(&mut self, comment: String) {
+        if let Event::Group(v) = self {
+            for i in 0..v.len() {
+                if let Event::Comment(_) = v[i] {
+                    v.remove(i);
+                }
+            }
+        }
+
+        self.add_to_group(Event::Comment(comment))
+    }
 }
 
 /// <0 is kyu,
@@ -73,6 +127,7 @@ pub struct GameInfo {
     pub black_rank: Rank,
     pub white_rank: Rank,
 
+    pub sgf_path: Option<PathBuf>,
     pub end_game: EndGame,
 }
 impl Default for GameInfo {
@@ -87,6 +142,7 @@ impl Default for GameInfo {
             black_rank: Rank::none(),
             white_rank: Rank::none(),
 
+            sgf_path: None,
             end_game: EndGame::NotOver,
         }
     }
@@ -95,10 +151,10 @@ impl Default for GameInfo {
 #[derive(Clone)]
 pub struct Game {
     current_board: Board,
-    history: EventTree,
+    initial_turn: Stone,
+    pub history: EventTree,
 
     pub turn: Stone,
-    initial_turn: Stone,
     rules: Rules,
 
     pub info: GameInfo,
@@ -116,26 +172,37 @@ impl Game {
         let mut board = Board::blank(self.current_board.width(), self.current_board.height());
         let mut turn = self.initial_turn;
 
-        for e in history {
+        fn handle(e: &Event, board: &mut Board, turn: &mut Stone, rules: &Rules) {
             match e {
                 Event::Place(s, x, y) => {
-                    if board.play(*s, *x, *y, &self.rules) {
-                        self.current_board.clear_markers();
+                    if board.play(*s, *x, *y, rules) {
+                        board.clear_markers();
                     }
                 }
                 Event::Move(x, y) => {
-                    if board.play(turn, *x, *y, &self.rules) {
-                        turn = !turn;
-                        self.current_board.clear_markers();
+                    if board.play(*turn, *x, *y, rules) {
+                        *turn = !*turn;
+                        board.clear_markers();
                     }
                 }
-                Event::Pass => turn = !turn,
+                Event::Pass => *turn = !*turn,
+
                 Event::Mark(m, x, y) => {
                     board.set_marker(*m, *x, *y);
                 }
 
+                Event::Group(v) => {
+                    for i in v {
+                        handle(i, board, turn, rules);
+                    }
+                }
+
                 _ => {}
             }
+        }
+
+        for e in history {
+            handle(e, &mut board, &mut turn, &self.rules);
         }
 
         self.current_board = board;
@@ -180,7 +247,7 @@ impl Game {
     }
 
     pub fn handle_event(&mut self, e: &Event) {
-        self.history.push(*e);
+        self.history.push(e.clone());
 
         match e {
             Event::Place(s, x, y) => {
@@ -204,10 +271,17 @@ impl Game {
             Event::Resign(s) => self.info.end_game = EndGame::Resign(*s),
 
             Event::Mark(m, x, y) => {
-                if !self.current_board.set_marker(*m, *x, *y) {
-                    // Remove event if it did nothing
-                    self.pop_history();
+                self.pop_history();
+
+                let current_event = self.history.get_current_event_mut();
+                if self.current_board.set_marker(*m, *x, *y) {
+                    current_event.add_to_group(e.clone());
                 }
+            }
+
+            Event::Comment(s) => {
+                let current_event = self.history.get_current_event_mut();
+                current_event.add_comment(s.clone());
             }
 
             _ => {}
@@ -239,13 +313,17 @@ pub struct NewGameBuilder {
     pub rules: Rules,
 
     pub info: GameInfo,
+    pub tree: Option<EventTree>,
 }
 impl NewGameBuilder {
     pub fn build(&self) -> Game {
         Game {
             initial_turn: Stone::Black,
             current_board: Board::blank(self.size.0, self.size.1),
-            history: EventTree::blank(),
+            history: match &self.tree {
+                Some(t) => t.clone(),
+                None => EventTree::blank(),
+            },
 
             turn: Stone::Black,
             rules: self.rules,
@@ -262,6 +340,7 @@ impl Default for NewGameBuilder {
             rules: Rules::CHINESE,
 
             info: GameInfo::default(),
+            tree: None,
         }
     }
 }

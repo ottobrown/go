@@ -43,6 +43,7 @@ pub enum EndGame {
     Time(Stone),
     Forfiet(Stone),
     NotOver,
+    Draw,
 }
 impl EndGame {
     pub fn display(&self) -> String {
@@ -52,6 +53,7 @@ impl EndGame {
             Self::Resign(s) => format!("{:?} won by resignation.", s),
             Self::Time(s) => format!("{:?} won by time.", s),
             Self::Forfiet(s) => format!("{:?} won by forfiet.", s),
+            Self::Draw => String::from("The game is a draw."),
         }
     }
 }
