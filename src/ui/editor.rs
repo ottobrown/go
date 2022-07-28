@@ -269,6 +269,7 @@ fn edit_game_info(ui: &mut Ui, info: &mut GameInfo) {
         .selected_text(info.end_game.display())
         .show_ui(ui, |ui| {
             ui.selectable_value(&mut info.end_game, EndGame::NotOver, "Not over");
+            ui.selectable_value(&mut info.end_game, EndGame::Draw, "Draw");
             ui.selectable_value(
                 &mut info.end_game,
                 EndGame::Resign(Stone::Black),
