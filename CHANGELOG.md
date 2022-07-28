@@ -1,3 +1,8 @@
+# 0.4.1
+- Revamp how endgames work:
+    - Prevent moving when the game is over (When 2 passes have happened or a player has resigned)
+    - Allow editing of the game's result from the `Game info` window.
+
 # 0.4.0
 
 ## New features

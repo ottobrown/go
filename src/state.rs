@@ -6,9 +6,13 @@ use crate::game::NewGameBuilder;
 use crate::ui;
 use crate::Game;
 
+pub enum OpenGame {
+    Open(Game),
+    Closed(NewGameBuilder),
+}
+
 pub struct State {
-    pub game: Option<Game>,
-    pub builder: NewGameBuilder,
+    pub game: OpenGame,
 
     pub editor: ui::Editor,
     pub style: ui::BoardStyle,
@@ -16,8 +20,7 @@ pub struct State {
 impl State {
     pub fn new(_cc: &CreationContext) -> Self {
         State {
-            game: None,
-            builder: Game::builder(),
+            game: OpenGame::Closed(Game::builder()),
             editor: ui::Editor::default(),
             style: ui::BoardStyle::default(),
         }

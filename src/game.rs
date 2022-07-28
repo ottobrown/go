@@ -19,7 +19,7 @@ pub enum Marker {
     Label(char),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Event {
     /// The event at the root of the [GameTree].
     /// Does nothing.
@@ -128,6 +128,7 @@ pub struct GameInfo {
     pub white_rank: Rank,
 
     pub sgf_path: Option<PathBuf>,
+    pub end_game: EndGame,
 }
 impl Default for GameInfo {
     fn default() -> Self {
@@ -142,6 +143,7 @@ impl Default for GameInfo {
             white_rank: Rank::none(),
 
             sgf_path: None,
+            end_game: EndGame::NotOver,
         }
     }
 }
@@ -149,7 +151,6 @@ impl Default for GameInfo {
 #[derive(Clone)]
 pub struct Game {
     current_board: Board,
-    initial_board: Board,
     initial_turn: Stone,
     pub history: EventTree,
 
@@ -157,7 +158,6 @@ pub struct Game {
     rules: Rules,
 
     pub info: GameInfo,
-    pub end_game: Option<EndGame>,
 }
 impl Game {
     pub fn builder() -> NewGameBuilder {
@@ -169,7 +169,7 @@ impl Game {
     }
 
     fn build_board_from_history(&mut self, history: &Vec<Event>) {
-        let mut board = self.initial_board.clone();
+        let mut board = Board::blank(self.current_board.width(), self.current_board.height());
         let mut turn = self.initial_turn;
 
         fn handle(e: &Event, board: &mut Board, turn: &mut Stone, rules: &Rules) {
@@ -181,11 +181,12 @@ impl Game {
                 }
                 Event::Move(x, y) => {
                     if board.play(*turn, *x, *y, rules) {
-                        *turn = turn.swap();
+                        *turn = !*turn;
                         board.clear_markers();
                     }
                 }
-                Event::Pass => *turn = turn.swap(),
+                Event::Pass => *turn = !*turn,
+
                 Event::Mark(m, x, y) => {
                     board.set_marker(*m, *x, *y);
                 }
@@ -210,7 +211,7 @@ impl Game {
 
     pub fn undo(&mut self) {
         self.pop_history();
-        self.build_board_from_history(&self.history.get_path());
+        self.build_board_from_history(&self.history.get_history());
     }
 
     fn pop_history(&mut self) -> Option<Event> {
@@ -219,22 +220,22 @@ impl Game {
 
     pub fn move_back(&mut self) {
         self.history.move_to_parent();
-        self.build_board_from_history(&self.history.get_path());
+        self.build_board_from_history(&self.history.get_history());
     }
 
     pub fn move_forward(&mut self) {
         self.history.move_to_first_child();
-        self.build_board_from_history(&self.history.get_path());
+        self.build_board_from_history(&self.history.get_history());
     }
 
     pub fn move_up(&mut self) {
         self.history.move_to_last_sibling();
-        self.build_board_from_history(&self.history.get_path());
+        self.build_board_from_history(&self.history.get_history());
     }
 
     pub fn move_down(&mut self) {
         self.history.move_to_next_sibling();
-        self.build_board_from_history(&self.history.get_path());
+        self.build_board_from_history(&self.history.get_history());
     }
 
     pub fn black_prisoners(&self) -> u32 {
@@ -258,16 +259,16 @@ impl Game {
             }
             Event::Move(x, y) => {
                 if self.current_board.play(self.turn, *x, *y, &self.rules) {
-                    self.turn = self.turn.swap();
+                    self.turn = !self.turn;
                     self.current_board.clear_markers();
                 } else {
                     // Remove event if it was illegal
                     self.pop_history();
                 }
             }
-            Event::Pass => self.turn = self.turn.swap(),
+            Event::Pass => self.turn = !self.turn,
 
-            Event::Resign(s) => self.end_game = Some(EndGame::Resign(*s)),
+            Event::Resign(s) => self.info.end_game = EndGame::Resign(*s),
 
             Event::Mark(m, x, y) => {
                 self.pop_history();
@@ -290,6 +291,20 @@ impl Game {
     pub fn size(&self) -> (usize, usize) {
         (self.current_board.width(), self.current_board.height())
     }
+
+    pub fn ended(&self) -> bool {
+        let mut path = self.history.get_history();
+
+        if path.pop() == Some(Event::Pass) && path.pop() == Some(Event::Pass) {
+            return true;
+        }
+
+        if let Some(Event::Resign(_)) = path.last() {
+            return true;
+        }
+
+        return false;
+    }
 }
 
 /// Used to build a new, blank game
@@ -303,7 +318,6 @@ pub struct NewGameBuilder {
 impl NewGameBuilder {
     pub fn build(&self) -> Game {
         Game {
-            initial_board: Board::blank(self.size.0, self.size.1),
             initial_turn: Stone::Black,
             current_board: Board::blank(self.size.0, self.size.1),
             history: match &self.tree {
@@ -313,7 +327,6 @@ impl NewGameBuilder {
 
             turn: Stone::Black,
             rules: self.rules,
-            end_game: None,
 
             info: self.info.clone(),
         }

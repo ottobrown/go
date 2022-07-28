@@ -4,6 +4,7 @@ use egui::Ui;
 use super::board::{render_board, BoardStyle, Computed};
 use crate::game::Marker;
 use crate::game::{GameInfo, NewGameBuilder};
+use crate::rules::EndGame;
 use crate::rules::Rules;
 use crate::{Event, Game, Stone};
 
@@ -73,16 +74,16 @@ pub fn edit_game(ui: &mut Ui, g: &Game, style: &BoardStyle, editor: &mut Editor)
             edit_comment(ui, game.history.get_current_event_mut());
 
             let board = render_board(ui, &game.current_board(), style, size, &mut editor.computed);
-            match &game.end_game {
-                Some(e) => {
-                    ui.label(e.display());
+
+            if !game.ended() {
+                if let Some(e) = tool(ui, editor, &board, &game) {
+                    game.handle_event(&e);
                 }
-                None => {
-                    if let Some(e) = tool(ui, editor, &board, &game) {
-                        game.handle_event(&e);
-                    }
-                }
-            };
+            } else if game.info.end_game != EndGame::NotOver {
+                ui.label(game.info.end_game.display());
+            } else {
+                ui.label("Game over. Edit the result of the game in `Game info`.");
+            }
         });
 
         ui.vertical(|ui| {
@@ -126,10 +127,10 @@ fn editor_buttons(ui: &mut Ui, editor: &mut Editor, game: &mut Game) {
     });
 
     ui.horizontal(|ui| {
-        if ui.button("Pass").clicked() {
+        if ui.button("Pass").clicked() && !game.ended() {
             game.handle_event(&Event::Pass);
         }
-        if ui.button("Resign").clicked() {
+        if ui.button("Resign").clicked() && !game.ended() {
             game.handle_event(&Event::Resign(game.turn))
         }
         if ui.button("Undo").clicked() {
@@ -262,6 +263,91 @@ fn edit_game_info(ui: &mut Ui, info: &mut GameInfo) {
         ui.label(info.white_rank.display());
     });
     ui.add(egui::Slider::new(&mut info.white_rank.0, -30..=9).show_value(false));
+
+    ui.label("End Game");
+    egui::ComboBox::from_id_source("End game editor")
+        .selected_text(info.end_game.display())
+        .show_ui(ui, |ui| {
+            ui.selectable_value(&mut info.end_game, EndGame::NotOver, "Not over");
+            ui.selectable_value(
+                &mut info.end_game,
+                EndGame::Resign(Stone::Black),
+                "Resignation",
+            );
+            ui.selectable_value(&mut info.end_game, EndGame::Score(Stone::Black, 0), "Score");
+            ui.selectable_value(&mut info.end_game, EndGame::Time(Stone::Black), "Time");
+            ui.selectable_value(
+                &mut info.end_game,
+                EndGame::Forfiet(Stone::Black),
+                "Forfiet",
+            );
+        });
+
+    match &mut info.end_game {
+        EndGame::Resign(s) => {
+            if let Some(stone) = select_stone(ui) {
+                *s = stone;
+            }
+        }
+        EndGame::Time(s) => {
+            if let Some(stone) = select_stone(ui) {
+                *s = stone;
+            }
+        }
+        EndGame::Forfiet(s) => {
+            if let Some(stone) = select_stone(ui) {
+                *s = stone;
+            }
+        }
+
+        EndGame::Score(s, p) => {
+            if let Some(stone) = select_stone(ui) {
+                *s = stone;
+            }
+
+            let before = *p;
+
+            // TODO: replae this with a number input box widget
+            ui.style_mut().spacing.slider_width *= 3.0;
+            ui.add(
+                egui::Slider::new(p, 0..=400)
+                    .show_value(false)
+                    .integer()
+                    .text(format!("{}", 0.5 * (before as f32))),
+            );
+
+            ui.horizontal(|ui| {
+                if ui.button("-5").clicked() {
+                    *p -= 10
+                }
+                if ui.button("-0.5").clicked() {
+                    *p -= 1
+                }
+
+                if ui.button("+0.5").clicked() {
+                    *p += 1
+                }
+                if ui.button("+5").clicked() {
+                    *p += 10
+                }
+            });
+        }
+
+        _ => {}
+    };
+}
+
+fn select_stone(ui: &mut Ui) -> Option<Stone> {
+    ui.horizontal(|ui| {
+        if ui.button("Black").clicked() {
+            return Some(Stone::Black);
+        }
+        if ui.button("White").clicked() {
+            return Some(Stone::White);
+        }
+        return None;
+    })
+    .inner
 }
 
 fn edit_rules(ui: &mut Ui, rules: &mut Rules) {

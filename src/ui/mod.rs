@@ -3,6 +3,8 @@ use eframe::Frame;
 use egui::Context;
 use egui::Style;
 
+use crate::state::OpenGame;
+use crate::Game;
 use crate::State;
 
 mod board;
@@ -18,15 +20,26 @@ pub fn render(state: &mut State, ctx: &Context, _frame: &Frame) {
     egui::CentralPanel::default().show(ctx, |ui| {
         egui::Frame::group(ui.style()).show(ui, |ui| {
             egui::ScrollArea::both().show(ui, |ui| {
-                if state.game.is_some() {
-                    state.game = Some(editor::edit_game(
-                        ui,
-                        state.game.as_ref().unwrap(),
-                        &state.style,
-                        &mut state.editor,
-                    ));
-                } else {
-                    state.game = editor::build_game(ui, &mut state.builder);
+                match &mut state.game {
+                    OpenGame::Open(g) => {
+                        if ui.button("Close game").clicked() {
+                            state.game = OpenGame::Closed(Game::builder());
+                            return;
+                        }
+
+                        // Update game
+                        state.game = OpenGame::Open(editor::edit_game(
+                            ui,
+                            g,
+                            &state.style,
+                            &mut state.editor,
+                        ));
+                    }
+
+                    OpenGame::Closed(builder) => match editor::build_game(ui, builder) {
+                        Some(g) => state.game = OpenGame::Open(g),
+                        None => {}
+                    },
                 }
             })
         })

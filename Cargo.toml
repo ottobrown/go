@@ -4,7 +4,7 @@ description = "Go/Baduk/Weiqi client"
 keywords = ["Go", "Baduk", "Weiqi", "Board Game"]
 repository = "https://github.com/ottobrown/go"
 license = "MIT"
-version = "0.4.0"
+version = "0.4.1"
 readme = "README.md"
 edition = "2021"
 
