@@ -120,6 +120,7 @@ fn token_to_event(token: &SgfToken) -> Option<Event> {
 
         SgfToken::Comment(s) => Some(Event::Comment(s.clone())),
 
+
         _ => None,
     }
 }
@@ -137,6 +138,12 @@ fn token_to_info(token: &SgfToken, info: &mut GameInfo, size: &mut (usize, usize
             name,
         } => info.white_player = name.to_string(),
         SgfToken::Size(w, h) => *size = (*w as usize, *h as usize),
+
+        SgfToken::Unknown((token, value)) => match token.as_str() {
+            "GC" => info.comment = value.clone(),
+
+            _ => {}
+        }
 
         _ => {}
     }
