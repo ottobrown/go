@@ -251,8 +251,8 @@ fn edit_game_info(ui: &mut Ui, info: &mut GameInfo) {
             ui.selectable_value(&mut info.end_game, EndGame::Time(Stone::Black), "Time");
             ui.selectable_value(
                 &mut info.end_game,
-                EndGame::Forfiet(Stone::Black),
-                "Forfiet",
+                EndGame::Forfeit(Stone::Black),
+                "Forfeit",
             );
         });
 
@@ -267,7 +267,7 @@ fn edit_game_info(ui: &mut Ui, info: &mut GameInfo) {
                 *s = stone;
             }
         }
-        EndGame::Forfiet(s) => {
+        EndGame::Forfeit(s) => {
             if let Some(stone) = select_stone(ui) {
                 *s = stone;
             }
