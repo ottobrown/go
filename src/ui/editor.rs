@@ -291,17 +291,17 @@ fn edit_game_info(ui: &mut Ui, info: &mut GameInfo) {
 
             ui.horizontal(|ui| {
                 if ui.button("-5").clicked() {
-                    *p -= 10
+                    *p = p.saturating_sub(10);
                 }
                 if ui.button("-0.5").clicked() {
-                    *p -= 1
+                    *p = p.saturating_sub(1);
                 }
 
                 if ui.button("+0.5").clicked() {
-                    *p += 1
+                    *p = p.saturating_add(1);
                 }
                 if ui.button("+5").clicked() {
-                    *p += 10
+                    *p = p.saturating_add(10);
                 }
             });
         }
