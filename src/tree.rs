@@ -131,4 +131,12 @@ impl EventTree {
     pub fn get_current_event_mut(&mut self) -> &mut Event {
         &mut self.get_current_node_mut().event
     }
+
+    pub fn get_path(&mut self) -> Vec<usize> {
+        self.path.clone()
+    }
+
+    pub fn load_path(&mut self, v: Vec<usize>) {
+        self.path = v.clone();
+    }
 }

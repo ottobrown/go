@@ -69,9 +69,9 @@ fn build_event_tree(
     }
 
     for v in game.variations {
+        let p = events.get_path();
         build_event_tree(events, info, size, v);
-
-        events.move_to_parent();
+        events.load_path(p);
     }
 }
 
