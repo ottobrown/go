@@ -82,6 +82,16 @@ impl Event {
 
         self.add_to_group(Event::Comment(comment))
     }
+
+    pub fn remove_comment(&mut self) {
+         if let Event::Group(v) = self {
+            for i in 0..v.len() {
+                if let Event::Comment(_) = v[i] {
+                    v.remove(i);
+                }
+            }
+        }
+    }
 }
 
 /// <0 is kyu,

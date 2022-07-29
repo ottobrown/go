@@ -101,7 +101,10 @@ pub fn edit_comment(ui: &mut Ui, current_event: &mut Event) {
 
     ui.text_edit_multiline(&mut s);
 
-    if !s.is_empty() {
+    if s.is_empty() {
+        current_event.remove_comment();
+    }
+    else {
         current_event.add_comment(s.clone());
     }
 }
