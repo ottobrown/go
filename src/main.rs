@@ -1,10 +1,12 @@
 use eframe::egui;
 
 mod board;
+mod game;
 mod ui;
 
 pub use board::Board;
 pub use board::Stone;
+pub use game::Game;
 
 fn main() -> eframe::Result<()> {
     let native_options = eframe::NativeOptions::default();
@@ -17,14 +19,17 @@ fn main() -> eframe::Result<()> {
 }
 
 pub struct State {
-    board: Board,
+    game: Game,
     style: ui::BoardStyle,
 }
 
 impl State {
     fn new(_cc: &eframe::CreationContext<'_>) -> Self {
         Self {
-            board: Board::new(19, 19),
+            game: Game {
+                board: Board::new(19, 19),
+                turn: Stone::Black,
+            },
             style: ui::BoardStyle::default(),
         }
     }
