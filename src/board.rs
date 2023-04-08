@@ -64,6 +64,16 @@ impl Board {
 
         self.stones[i] = s;
     }
+
+    /// Places the stone if it is a legal move
+    pub fn attempt_set(&mut self, x: usize, y: usize, s: Stone) -> bool {
+        if self.get(x, y) != Stone::Empty {
+            return false;
+        }
+
+        self.set(x, y, s);
+        true
+    }
 }
 
 #[cfg(test)]

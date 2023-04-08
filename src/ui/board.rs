@@ -99,8 +99,9 @@ pub(super) fn render_board(
                 (((p.y - inner_rect.min.y) / spacing.y).round() as usize).min(w - 1),
             );
 
-            board.set(x, y, *turn);
-            *turn = !*turn;
+            if board.attempt_set(x, y, *turn) {
+                *turn = !*turn;
+            }
         }
     }
 }
