@@ -47,7 +47,7 @@ pub fn find_group(board: &Board, x: usize, y: usize, color: Stone) -> Group {
         }
     }
 
-    return group;
+    group
 }
 
 pub struct Group {

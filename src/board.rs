@@ -76,10 +76,10 @@ impl Board {
 
         self.kill_neighboring_groups(x, y, s);
 
-        let group = find_group(&self, x, y, s);
+        let group = find_group(self, x, y, s);
 
         // prevent suicidal move
-        if group.liberties.len() == 0 {
+        if group.liberties.is_empty() {
             return false;
         }
 
@@ -96,7 +96,7 @@ impl Board {
 
     fn kill_neighboring_groups(&mut self, x: usize, y: usize, s: Stone) {
         if x < self.size.0 - 1 && self.get(x + 1, y) == !s {
-            let g = find_group(&self, x + 1, y, !s);
+            let g = find_group(self, x + 1, y, !s);
 
             if g.liberties.len() == 1 && g.liberties.contains(&(x, y)) {
                 self.kill_group(g);
@@ -104,7 +104,7 @@ impl Board {
         }
 
         if x > 0 && self.get(x - 1, y) == !s {
-            let g = find_group(&self, x - 1, y, !s);
+            let g = find_group(self, x - 1, y, !s);
 
             if g.liberties.len() == 1 && g.liberties.contains(&(x, y)) {
                 self.kill_group(g);
@@ -112,7 +112,7 @@ impl Board {
         }
 
         if y < self.size.1 - 1 && self.get(x, y + 1) == !s {
-            let g = find_group(&self, x, y + 1, !s);
+            let g = find_group(self, x, y + 1, !s);
 
             if g.liberties.len() == 1 && g.liberties.contains(&(x, y)) {
                 self.kill_group(g);
@@ -120,7 +120,7 @@ impl Board {
         }
 
         if y > 0 && self.get(x, y - 1) == !s {
-            let g = find_group(&self, x, y - 1, !s);
+            let g = find_group(self, x, y - 1, !s);
 
             if g.liberties.len() == 1 && g.liberties.contains(&(x, y)) {
                 self.kill_group(g);
