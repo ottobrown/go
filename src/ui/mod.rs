@@ -8,6 +8,7 @@ pub use board::BoardStyle;
 
 pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
     let min_size = size.x.min(size.y);
+
     board::render_board(
         &mut state.game.board,
         ui,

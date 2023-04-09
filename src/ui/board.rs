@@ -116,8 +116,8 @@ pub(super) fn render_board(
     if response.clicked() {
         if let Some(p) = ui.input(|i| i.pointer.interact_pos()) {
             let (x, y) = (
-                (((p.x - inner_rect.min.x) / spacing.x).round() as usize).min(h - 1),
-                (((p.y - inner_rect.min.y) / spacing.y).round() as usize).min(w - 1),
+                (((p.x - inner_rect.min.x) / spacing.x).round() as usize).min(w - 1),
+                (((p.y - inner_rect.min.y) / spacing.y).round() as usize).min(h - 1),
             );
 
             if board.attempt_set(x, y, *turn) {

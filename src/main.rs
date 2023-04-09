@@ -28,7 +28,6 @@ impl State {
     fn new(_cc: &eframe::CreationContext<'_>) -> Self {
         Self {
             game: Game {
-                // TODO: non-square boards don't place stones correctly
                 board: Board::new(19, 19),
                 turn: Stone::Black,
             },
