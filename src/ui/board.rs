@@ -3,7 +3,28 @@ use crate::Stone;
 use eframe::egui;
 use egui::{pos2, vec2, Color32, Ui};
 
-// TODO: split this into smaller functions with fewer parameters
+#[derive(Clone, Copy)]
+pub struct BoardStyle {
+    background_color: Color32,
+    /// as a proportion of the board width/height
+    padding: f32,
+    line_thickness: f32,
+    /// as a proportion of the min of the spacing between
+    /// horizontal lines and the spacing between vertical lines
+    stone_radius: f32,
+}
+
+impl Default for BoardStyle {
+    fn default() -> Self {
+        Self {
+            background_color: Color32::from_rgb(0xDE, 0xB8, 0x87),
+            padding: 0.05,
+            line_thickness: 2.0,
+            stone_radius: 0.4,
+        }
+    }
+}
+
 pub(super) fn render_board(
     board: &mut crate::Board,
     ui: &mut Ui,
@@ -102,28 +123,6 @@ pub(super) fn render_board(
             if board.attempt_set(x, y, *turn) {
                 *turn = !*turn;
             }
-        }
-    }
-}
-
-#[derive(Clone, Copy)]
-pub struct BoardStyle {
-    background_color: Color32,
-    /// as a proportion of the board width/height
-    padding: f32,
-    line_thickness: f32,
-    /// as a proportion of the min of the spacing between
-    /// horizontal lines and the spacing between vertical lines
-    stone_radius: f32,
-}
-
-impl Default for BoardStyle {
-    fn default() -> Self {
-        Self {
-            background_color: Color32::from_rgb(0xDE, 0xB8, 0x87),
-            padding: 0.05,
-            line_thickness: 2.0,
-            stone_radius: 0.4,
         }
     }
 }

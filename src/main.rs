@@ -1,6 +1,7 @@
 use eframe::egui;
 
 mod board;
+mod flood_fill;
 mod game;
 mod ui;
 

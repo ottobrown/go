@@ -1,3 +1,5 @@
+use crate::flood_fill::*;
+
 /// Represents a location on a [Board]
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
 #[repr(u8)]
@@ -67,12 +69,63 @@ impl Board {
 
     /// Places the stone if it is a legal move
     pub fn attempt_set(&mut self, x: usize, y: usize, s: Stone) -> bool {
+        // prevent playing in a place that is already filled
         if self.get(x, y) != Stone::Empty {
             return false;
         }
 
+        self.kill_neighboring_groups(x, y, s);
+
+        let group = find_group(&self, x, y, s);
+
+        // prevent suicidal move
+        if group.liberties.len() == 0 {
+            return false;
+        }
+
         self.set(x, y, s);
+
         true
+    }
+
+    fn kill_group(&mut self, g: Group) {
+        for p in g.inside {
+            self.set(p.0, p.1, Stone::Empty);
+        }
+    }
+
+    fn kill_neighboring_groups(&mut self, x: usize, y: usize, s: Stone) {
+        if x < self.size.0 - 1 && self.get(x + 1, y) == !s {
+            let g = find_group(&self, x + 1, y, !s);
+
+            if g.liberties.len() == 1 && g.liberties.contains(&(x, y)) {
+                self.kill_group(g);
+            }
+        }
+
+        if x > 0 && self.get(x - 1, y) == !s {
+            let g = find_group(&self, x - 1, y, !s);
+
+            if g.liberties.len() == 1 && g.liberties.contains(&(x, y)) {
+                self.kill_group(g);
+            }
+        }
+
+        if y < self.size.1 - 1 && self.get(x, y + 1) == !s {
+            let g = find_group(&self, x, y + 1, !s);
+
+            if g.liberties.len() == 1 && g.liberties.contains(&(x, y)) {
+                self.kill_group(g);
+            }
+        }
+
+        if y > 0 && self.get(x, y - 1) == !s {
+            let g = find_group(&self, x, y - 1, !s);
+
+            if g.liberties.len() == 1 && g.liberties.contains(&(x, y)) {
+                self.kill_group(g);
+            }
+        }
     }
 }
 
