@@ -4,6 +4,7 @@ mod board;
 mod flood_fill;
 mod game;
 mod ui;
+mod util;
 
 pub use board::Board;
 pub use board::Stone;

@@ -1,4 +1,6 @@
 use crate::flood_fill::*;
+use crate::util::calculate_hash;
+use std::collections::HashSet;
 
 /// Represents a location on a [Board]
 #[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
@@ -24,12 +26,15 @@ impl std::ops::Not for Stone {
 pub struct Board {
     stones: Vec<Stone>,
     size: (usize, usize),
+
+    hashes: HashSet<u64>,
 }
 impl Board {
     pub fn new(w: usize, h: usize) -> Self {
         Self {
             stones: vec![Stone::Empty; w * h],
             size: (w, h),
+            hashes: HashSet::new(),
         }
     }
 
@@ -74,7 +79,7 @@ impl Board {
             return false;
         }
 
-        self.kill_neighboring_groups(x, y, s);
+        let killed = self.kill_neighboring_groups(x, y, s);
 
         let group = find_group(self, x, y, s);
 
@@ -85,21 +90,37 @@ impl Board {
 
         self.set(x, y, s);
 
+        // ko detected!
+        if !self.hashes.insert(calculate_hash(&self.stones)) {
+            // undo everything that happened
+            self.set(x, y, Stone::Empty);
+
+            for k in killed {
+                self.set(k.0, k.1, !s);
+            }
+
+            return false;
+        }
+
         true
     }
 
-    fn kill_group(&mut self, g: Group) {
-        for p in g.inside {
+    fn kill_group(&mut self, g: &Group) {
+        for p in &g.inside {
             self.set(p.0, p.1, Stone::Empty);
         }
     }
 
-    fn kill_neighboring_groups(&mut self, x: usize, y: usize, s: Stone) {
+    /// returns the stones killed
+    fn kill_neighboring_groups(&mut self, x: usize, y: usize, s: Stone) -> HashSet<(usize, usize)> {
+        let mut removed = HashSet::new();
+
         if x < self.size.0 - 1 && self.get(x + 1, y) == !s {
             let g = find_group(self, x + 1, y, !s);
 
             if g.liberties.len() == 1 && g.liberties.contains(&(x, y)) {
-                self.kill_group(g);
+                self.kill_group(&g);
+                removed.extend(g.inside);
             }
         }
 
@@ -107,7 +128,8 @@ impl Board {
             let g = find_group(self, x - 1, y, !s);
 
             if g.liberties.len() == 1 && g.liberties.contains(&(x, y)) {
-                self.kill_group(g);
+                self.kill_group(&g);
+                removed.extend(g.inside);
             }
         }
 
@@ -115,7 +137,8 @@ impl Board {
             let g = find_group(self, x, y + 1, !s);
 
             if g.liberties.len() == 1 && g.liberties.contains(&(x, y)) {
-                self.kill_group(g);
+                self.kill_group(&g);
+                removed.extend(g.inside);
             }
         }
 
@@ -123,9 +146,12 @@ impl Board {
             let g = find_group(self, x, y - 1, !s);
 
             if g.liberties.len() == 1 && g.liberties.contains(&(x, y)) {
-                self.kill_group(g);
+                self.kill_group(&g);
+                removed.extend(g.inside);
             }
         }
+
+        removed
     }
 }
 
