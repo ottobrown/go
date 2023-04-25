@@ -6,9 +6,8 @@ mod game;
 mod ui;
 mod util;
 
-pub use board::Board;
-pub use board::Stone;
-pub use game::Game;
+pub use board::{Board, Stone};
+pub use game::{Game, GameBuilder};
 
 fn main() -> eframe::Result<()> {
     let native_options = eframe::NativeOptions::default();
@@ -21,17 +20,18 @@ fn main() -> eframe::Result<()> {
 }
 
 pub struct State {
-    game: Game,
+    /// Some => show board editor
+    /// None => show game builder ui
+    game: Option<Game>,
+    builder: GameBuilder,
     style: ui::BoardStyle,
 }
 
 impl State {
     fn new(_cc: &eframe::CreationContext<'_>) -> Self {
         Self {
-            game: Game {
-                board: Board::new(19, 19),
-                turn: Stone::Black,
-            },
+            game: None,
+            builder: GameBuilder::default(),
             style: ui::BoardStyle::default(),
         }
     }
