@@ -6,4 +6,6 @@ use crate::Stone;
 pub struct Game {
     pub board: Board,
     pub turn: Stone,
+
+    pub tree: crate::SgfTree,
 }

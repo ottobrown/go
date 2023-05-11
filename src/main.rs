@@ -7,9 +7,9 @@ mod sgf;
 mod ui;
 mod util;
 
-pub use board::Board;
-pub use board::Stone;
+pub use board::{Board, Stone};
 pub use game::Game;
+pub use sgf::{SgfSequence, SgfTree};
 
 fn main() -> eframe::Result<()> {
     let native_options = eframe::NativeOptions::default();
@@ -32,6 +32,7 @@ impl State {
             game: Game {
                 board: Board::new(19, 19),
                 turn: Stone::Black,
+                tree: SgfTree::default(),
             },
             style: ui::BoardStyle::default(),
         }

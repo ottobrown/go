@@ -30,8 +30,7 @@ pub(super) fn render_board(
     ui: &mut Ui,
     size: egui::Vec2,
     style: BoardStyle,
-    turn: &mut Stone,
-) {
+) -> BoardResponse {
     let (response, painter) = ui.allocate_painter(size, egui::Sense::drag());
     let (w, h) = board.size();
 
@@ -113,11 +112,31 @@ pub(super) fn render_board(
         }
     }
 
-    if response.clicked() {
+    return BoardResponse {
+        response,
+        inner_rect,
+        spacing,
+    };
+}
+
+pub(super) struct BoardResponse {
+    response: egui::Response,
+    inner_rect: egui::Rect,
+    spacing: egui::Vec2,
+}
+
+pub(super) fn handle_click(
+    ui: &mut Ui,
+    br: &BoardResponse,
+    board: &mut crate::Board,
+    turn: &mut Stone,
+) {
+    let (w, h) = board.size();
+    if br.response.clicked() {
         if let Some(p) = ui.input(|i| i.pointer.interact_pos()) {
             let (x, y) = (
-                (((p.x - inner_rect.min.x) / spacing.x).round() as usize).min(w - 1),
-                (((p.y - inner_rect.min.y) / spacing.y).round() as usize).min(h - 1),
+                (((p.x - br.inner_rect.min.x) / br.spacing.x).round() as usize).min(w - 1),
+                (((p.y - br.inner_rect.min.y) / br.spacing.y).round() as usize).min(h - 1),
             );
 
             if board.attempt_set(x, y, *turn) {
