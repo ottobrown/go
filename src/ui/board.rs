@@ -1,4 +1,5 @@
 use crate::Stone;
+use crate::sgf::Action;
 
 use eframe::egui;
 use egui::{pos2, vec2, Color32, Ui};
@@ -112,11 +113,11 @@ pub(super) fn render_board(
         }
     }
 
-    return BoardResponse {
+    BoardResponse {
         response,
         inner_rect,
         spacing,
-    };
+    }
 }
 
 pub(super) struct BoardResponse {
@@ -130,7 +131,7 @@ pub(super) fn handle_click(
     br: &BoardResponse,
     board: &mut crate::Board,
     turn: &mut Stone,
-) {
+) -> Action {
     let (w, h) = board.size();
     if br.response.clicked() {
         if let Some(p) = ui.input(|i| i.pointer.interact_pos()) {
@@ -141,7 +142,12 @@ pub(super) fn handle_click(
 
             if board.attempt_set(x, y, *turn) {
                 *turn = !*turn;
+
+                if !*turn == Stone::Black { return Action::PlayBlack(x, y); }
+                if !*turn == Stone::White { return Action::PlayWhite(x, y); }
             }
         }
     }
+
+    Action::NoOp
 }

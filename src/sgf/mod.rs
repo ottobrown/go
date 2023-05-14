@@ -1,5 +1,7 @@
 mod error;
+mod action;
 pub use error::*;
+pub use action::*;
 
 #[derive(Default)]
 pub struct SgfTree {

@@ -16,5 +16,9 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
         state.style,
     );
 
-    board::handle_click(ui, &br, &mut state.game.board, &mut state.game.turn);
+    let a = board::handle_click(ui, &br, &mut state.game.board, &mut state.game.turn);
+
+    if a != crate::sgf::Action::NoOp {
+        println!("{}", a.to_sgf_text().unwrap());
+    }
 }
