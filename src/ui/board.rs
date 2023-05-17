@@ -1,5 +1,5 @@
-use crate::Stone;
 use crate::sgf::Action;
+use crate::Stone;
 
 use eframe::egui;
 use egui::{pos2, vec2, Color32, Ui};
@@ -143,8 +143,12 @@ pub(super) fn handle_click(
             if board.attempt_set(x, y, *turn) {
                 *turn = !*turn;
 
-                if !*turn == Stone::Black { return Action::PlayBlack(x, y); }
-                if !*turn == Stone::White { return Action::PlayWhite(x, y); }
+                if !*turn == Stone::Black {
+                    return Action::PlayBlack(x, y);
+                }
+                if !*turn == Stone::White {
+                    return Action::PlayWhite(x, y);
+                }
             }
         }
     }

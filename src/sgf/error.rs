@@ -6,6 +6,8 @@ pub enum SgfError {
     ParentOfRoot,
     /// A coordinate > 51 (The max sgf allows)
     CoordTooBig,
+    /// Trying to parse a char as a coordinate that isn't a..z or A..Z
+    InvalidCoordChar,
 }
 
 pub type SgfResult<T> = Result<T, SgfError>;
