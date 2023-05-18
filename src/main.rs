@@ -9,7 +9,7 @@ mod util;
 
 pub use board::{Board, Stone};
 pub use game::Game;
-pub use sgf::{SgfSequence, SgfTree};
+pub use sgf::{SgfNode, SgfTree};
 
 fn main() -> eframe::Result<()> {
     let native_options = eframe::NativeOptions::default();

@@ -6,8 +6,8 @@ pub use error::{SgfError, SgfResult};
 
 #[derive(Debug)]
 pub struct SgfTree {
-    /// The root is stored at sequences[0]
-    sequences: Vec<SgfSequence>,
+    /// The root is stored at nodes[0]
+    nodes: Vec<SgfNode>,
     current: usize,
 }
 impl SgfTree {
@@ -17,29 +17,29 @@ impl SgfTree {
     }
     */
 
-    pub fn current_sequence(&self) -> &SgfSequence {
-        &self.sequences[self.current]
+    pub fn current_node(&self) -> &SgfNode {
+        &self.nodes[self.current]
     }
 
-    /// The number of children the current sequence has
+    /// The number of children the current node has
     pub fn num_children(&self) -> usize {
-        self.sequences[self.current].children.len()
+        self.nodes[self.current].children.len()
     }
 
-    /// sets the specified child of the current sequence (if it exists) as the new
-    /// current sequence, and returns a reference to the new current
-    pub fn select_child(&mut self, child: usize) -> SgfResult<&SgfSequence> {
-        if let Some(i) = self.sequences[self.current].children.get(child) {
+    /// sets the specified child of the current node (if it exists) as the new
+    /// current node, and returns a reference to the new current
+    pub fn select_child(&mut self, child: usize) -> SgfResult<&SgfNode> {
+        if let Some(i) = self.nodes[self.current].children.get(child) {
             self.current = *i;
 
-            return Ok(&self.sequences[*i]);
+            return Ok(&self.nodes[*i]);
         }
 
         Err(SgfError::ChildDoesntExist)
     }
 
     pub fn select_parent(&mut self) -> SgfResult<()> {
-        if let Some(i) = self.sequences[self.current].parent {
+        if let Some(i) = self.nodes[self.current].parent {
             self.current = i;
 
             return Ok(());
@@ -49,14 +49,27 @@ impl SgfTree {
     }
 
     pub fn handle_new_text(&mut self, s: String) {
-        self.sequences[self.current].handle_new_text(s);
+        if s.starts_with(';') {
+            let n = SgfNode {
+                text: s,
+                parent: Some(self.current),
+                children: Vec::new(),
+            };
+            let l = self.nodes.len();
+            self.nodes.push(n);
+            self.nodes[self.current].children.push(l);
+
+            self.current = l;
+        } else {
+            self.nodes[self.current].text.push_str(&s);
+        }
     }
 }
 
 impl Default for SgfTree {
     fn default() -> Self {
         Self {
-            sequences: vec![SgfSequence::default()],
+            nodes: vec![SgfNode::default()],
             current: 0,
         }
     }
@@ -68,26 +81,11 @@ impl Default for SgfTree {
 /// 'sgf node' (a list of sgf properties). SgfSequence is a tree node, but
 /// consists of many contiguous sgf nodes.
 #[derive(Default, Debug)]
-pub struct SgfSequence {
-    pub nodes: Vec<String>,
+pub struct SgfNode {
+    pub text: String,
 
     /// Indices on the parent `SgfTree::sequences`
     children: Vec<usize>,
-    /// All sequences have a parent except the root node
+    /// All nodes have a parent except the root node
     parent: Option<usize>,
-}
-impl SgfSequence {
-    pub fn handle_new_text(&mut self, s: String) {
-        if s.starts_with(';') {
-            self.nodes.push(s);
-            return;
-        }
-
-        if let Some(l) = self.nodes.last_mut() {
-            l.push_str(&s);
-        } else {
-            // if self.nodes is empty
-            self.nodes.push(s);
-        }
-    }
 }
