@@ -27,6 +27,16 @@ pub fn from_sgf_coord(c: char) -> SgfResult<usize> {
     Err(SgfError::InvalidCoordChar)
 }
 
+/// Converts the first two characters of the string into coordinates
+pub fn string_coords(s: &str) -> SgfResult<(usize, usize)> {
+    let mut ch = s.chars();
+
+    Ok((
+        from_sgf_coord(ch.next().unwrap())?,
+        from_sgf_coord(ch.next().unwrap())?,
+    ))
+}
+
 #[test]
 fn to_coord_test() {
     assert_eq!(to_sgf_coord(0), Ok('a'));

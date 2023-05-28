@@ -1,7 +1,7 @@
 mod action;
 mod error;
 mod util;
-pub use action::Action;
+pub use action::{to_actions, Action};
 pub use error::{SgfError, SgfResult};
 
 #[derive(Debug)]
@@ -64,6 +64,20 @@ impl SgfTree {
             self.nodes[self.current].text.push_str(&s);
         }
     }
+
+    /// The text of the current node, followed by the text of the parent,
+    /// followed by the text of the parent's parent, all the way to the root node
+    pub fn get_all_parent_text(&self) -> Vec<String> {
+        let mut node = self.current_node();
+        let mut all = Vec::new();
+
+        while let Some(p) = node.parent {
+            all.push(node.text.clone());
+            node = &self.nodes[p];
+        }
+
+        all
+    }
 }
 
 impl Default for SgfTree {
@@ -75,11 +89,6 @@ impl Default for SgfTree {
     }
 }
 
-/// Consists of several sgf nodes, but forms a single node in the sgf tree.
-///
-/// note the difference between a 'tree node' (like a node in a graph) and an
-/// 'sgf node' (a list of sgf properties). SgfSequence is a tree node, but
-/// consists of many contiguous sgf nodes.
 #[derive(Default, Debug)]
 pub struct SgfNode {
     pub text: String,

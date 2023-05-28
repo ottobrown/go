@@ -4,6 +4,7 @@ use egui::{vec2, Ui, Vec2};
 use crate::State;
 
 mod board;
+mod sgf;
 pub use board::BoardStyle;
 
 pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
@@ -16,7 +17,6 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
             vec2(min_size, min_size),
             state.style,
         );
-
         let a = board::handle_click(ui, &br, &mut state.game.board, &mut state.game.turn);
 
         if a != crate::sgf::Action::NoOp {
@@ -24,5 +24,7 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
         }
 
         ui.code_editor(&mut format!("{:#?}", state.game.tree));
+
+        sgf::sgf_arrows(ui, &mut state.game);
     });
 }
