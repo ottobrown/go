@@ -16,9 +16,11 @@ impl Game {
         match a {
             Action::PlayBlack(x, y) => {
                 self.board.attempt_set(x, y, Stone::Black);
+                self.turn = Stone::White;
             }
             Action::PlayWhite(x, y) => {
                 self.board.attempt_set(x, y, Stone::White);
+                self.turn = Stone::Black;
             }
 
             _ => {}
@@ -29,6 +31,7 @@ impl Game {
     pub fn do_to_now(&mut self) {
         let (w, h) = self.board.size();
         self.board = Board::new(w, h);
+        self.turn = Stone::Black;
 
         let all = self.tree.get_all_parent_text();
 
