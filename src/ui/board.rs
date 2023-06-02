@@ -9,6 +9,7 @@ pub struct BoardStyle {
     /// as a proportion of the board width/height
     padding: f32,
     line_thickness: f32,
+    star_point_radius: f32,
     /// as a proportion of the min of the spacing between
     /// horizontal lines and the spacing between vertical lines
     stone_radius: f32,
@@ -20,6 +21,7 @@ impl Default for BoardStyle {
             background_color: Color32::from_rgb(0xDE, 0xB8, 0x87),
             padding: 0.05,
             line_thickness: 2.0,
+            star_point_radius: 5.0,
             stone_radius: 0.4,
         }
     }
@@ -91,6 +93,14 @@ pub(super) fn render_board(
             [pos2(start_x, y_pos), pos2(end_x, y_pos)],
             egui::Stroke::from((style.line_thickness, Color32::BLACK)),
         );
+    }
+
+    for p in crate::util::star_points(w, h) {
+        let pos = egui::Pos2 {
+            x: inner_rect.min.x + spacing.x * (p.0 as f32),
+            y: inner_rect.min.y + spacing.y * (p.1 as f32),
+        };
+        painter.circle_filled(pos, style.star_point_radius, Color32::BLACK);
     }
 
     let stone_radius = f32::min(spacing.x, spacing.y) * style.stone_radius;
