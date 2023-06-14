@@ -1,6 +1,7 @@
 mod action;
 mod error;
 mod util;
+mod parse;
 pub use action::{to_actions, Action};
 pub use error::{SgfError, SgfResult};
 
@@ -11,11 +12,9 @@ pub struct SgfTree {
     current: usize,
 }
 impl SgfTree {
-    /*
-    pub fn parse(s: String) -> SgfTree {
-        todo!();
+    pub fn parse(s: String) -> SgfResult<SgfTree> {
+        parse::parse(parse::lex(s))
     }
-    */
 
     pub fn current_node(&self) -> &SgfNode {
         &self.nodes[self.current]
