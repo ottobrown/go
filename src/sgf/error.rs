@@ -8,6 +8,8 @@ pub enum SgfError {
     CoordTooBig,
     /// Trying to parse a char as a coordinate that isn't a..z or A..Z
     InvalidCoordChar,
+    /// if there is no LParen at the start of an sgf file
+    MissingLParen,
 }
 
 pub type SgfResult<T> = Result<T, SgfError>;

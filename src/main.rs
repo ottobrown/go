@@ -32,7 +32,10 @@ impl State {
             game: Game {
                 board: Board::new(19, 19),
                 turn: Stone::Black,
-                tree: SgfTree::default(),
+                tree: SgfTree::parse(
+                    "(;FF[4]  ;B[pd]   ;W[dp];B[dd](;W[qp];B[oq])(;W[pq];B[qo]))".to_string(),
+                )
+                .unwrap(),
             },
             style: ui::BoardStyle::default(),
         }

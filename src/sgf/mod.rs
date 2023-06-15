@@ -1,7 +1,7 @@
 mod action;
 mod error;
-mod util;
 mod parse;
+mod util;
 pub use action::{to_actions, Action};
 pub use error::{SgfError, SgfResult};
 
@@ -45,6 +45,14 @@ impl SgfTree {
         }
 
         Err(SgfError::ParentOfRoot)
+    }
+
+    pub fn set_root(&mut self, s: String) {
+        self.nodes[0].text = s;
+    }
+
+    pub fn select_root(&mut self) {
+        self.current = 0;
     }
 
     pub fn handle_new_text(&mut self, s: String) {

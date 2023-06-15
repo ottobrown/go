@@ -1,3 +1,4 @@
+use super::SgfError;
 use super::SgfResult;
 use super::SgfTree;
 
@@ -25,21 +26,21 @@ pub fn lex(s: String) -> Vec<ParserToken> {
                     node.clear();
                 }
                 tokens.push(LParen);
-            },
+            }
             ')' => {
                 if node.starts_with(';') {
                     tokens.push(Node(node.trim().to_string()));
                     node.clear();
                 }
                 tokens.push(RParen);
-            },
+            }
             ';' => {
                 if node.starts_with(';') {
                     tokens.push(Node(node.trim().to_string()));
                     node.clear();
                 }
                 node.push(';');
-            },
+            }
 
             _ => {
                 if node.starts_with(';') {
@@ -53,7 +54,44 @@ pub fn lex(s: String) -> Vec<ParserToken> {
 }
 
 pub fn parse(tokens: Vec<ParserToken>) -> SgfResult<SgfTree> {
-    todo!()
+    let mut tree = SgfTree::default();
+    let mut iter = tokens.iter();
+    let mut stack = Vec::new();
+
+    // parse root node
+    if iter.next() != Some(&ParserToken::LParen) {
+        return Err(SgfError::MissingLParen);
+    }
+    if let Some(ParserToken::Node(s)) = iter.next() {
+        tree.set_root(s.clone());
+    }
+
+    for token in iter {
+        match token {
+            ParserToken::Node(s) => {
+                tree.handle_new_text(s.clone());
+
+                if let Some(n) = stack.last_mut() {
+                    *n += 1;
+                }
+            }
+
+            ParserToken::LParen => {
+                stack.push(0);
+            }
+
+            ParserToken::RParen => {
+                if let Some(n) = stack.pop() {
+                    for _ in 0..n {
+                        tree.select_parent()?;
+                    }
+                }
+            }
+        }
+    }
+
+    tree.select_root();
+    Ok(tree)
 }
 
 #[cfg(test)]
@@ -79,7 +117,7 @@ mod parse_tests {
             Node(String::from(";W[pq]")),
             Node(String::from(";B[qo]")),
             RParen,
-            RParen
+            RParen,
         ];
 
         assert_eq!(lex(s), l);

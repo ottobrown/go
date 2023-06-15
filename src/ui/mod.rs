@@ -23,7 +23,9 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
             state.game.tree.handle_new_text(a.to_sgf_text().unwrap());
         }
 
-        ui.code_editor(&mut format!("{:#?}", state.game.tree));
+        egui::ScrollArea::vertical().show(ui, |ui| {
+            ui.code_editor(&mut format!("{:#?}", state.game.tree));
+        });
 
         sgf::sgf_arrows(ui, &mut state.game);
     });
