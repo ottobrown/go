@@ -242,72 +242,53 @@ mod sgf_tests {
         ];
         let t = SgfTree {
             nodes: vec![
-                SgfNode { // 0
+                SgfNode {
+                    // 0
                     text: String::from(";FF[4]"),
-                    children: vec![
-                        1,
-                    ],
+                    children: vec![1],
                     parent: None,
                 },
-                SgfNode { // 1
+                SgfNode {
+                    // 1
                     text: String::from(";B[pd]"),
-                    children: vec![
-                        2,
-                    ],
-                    parent: Some(
-                        0,
-                    ),
+                    children: vec![2],
+                    parent: Some(0),
                 },
-                SgfNode { // 2
+                SgfNode {
+                    // 2
                     text: String::from(";W[dp]"),
-                    children: vec![
-                        3,
-                    ],
-                    parent: Some(
-                        1,
-                    ),
+                    children: vec![3],
+                    parent: Some(1),
                 },
-                SgfNode { // 3
+                SgfNode {
+                    // 3
                     text: String::from(";B[dd]"),
-                    children: vec![
-                        4,
-                        6,
-                    ],
-                    parent: Some(
-                        2,
-                    ),
+                    children: vec![4, 6],
+                    parent: Some(2),
                 },
-                SgfNode { // 4
+                SgfNode {
+                    // 4
                     text: String::from(";W[qp]"),
-                    children: vec![
-                        5,
-                    ],
-                    parent: Some(
-                        3,
-                    ),
+                    children: vec![5],
+                    parent: Some(3),
                 },
-                SgfNode { // 5
+                SgfNode {
+                    // 5
                     text: String::from(";B[oq]"),
                     children: vec![],
-                    parent: Some(
-                        4,
-                    ),
+                    parent: Some(4),
                 },
-                SgfNode { // 6
+                SgfNode {
+                    // 6
                     text: String::from(";W[pq]"),
-                    children: vec![
-                        7,
-                    ],
-                    parent: Some(
-                        3,
-                    ),
+                    children: vec![7],
+                    parent: Some(3),
                 },
-                SgfNode { // 7
+                SgfNode {
+                    // 7
                     text: String::from(";B[qo]"),
                     children: vec![],
-                    parent: Some(
-                        6,
-                    ),
+                    parent: Some(6),
                 },
             ],
             current: 0,

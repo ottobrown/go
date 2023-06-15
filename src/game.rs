@@ -43,3 +43,24 @@ impl Game {
         }
     }
 }
+
+pub struct GameBuilder {
+    pub size: (usize, usize),
+}
+impl GameBuilder {
+    pub fn build(&self) -> Game {
+        Game {
+            board: Board::new(self.size.0, self.size.1),
+            turn: Stone::Black,
+            tree: crate::SgfTree::default(),
+        }
+    }
+}
+
+impl Default for GameBuilder {
+    fn default() -> Self {
+        Self {
+            size: (19, 19),
+        }
+    }
+}

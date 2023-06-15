@@ -8,7 +8,7 @@ mod ui;
 mod util;
 
 pub use board::{Board, Stone};
-pub use game::Game;
+pub use game::{Game, GameBuilder};
 pub use sgf::{SgfNode, SgfTree};
 
 fn main() -> eframe::Result<()> {
@@ -22,21 +22,18 @@ fn main() -> eframe::Result<()> {
 }
 
 pub struct State {
-    game: Game,
+    /// Some => show board editor
+    /// None => show game builder ui
+    game: Option<Game>,
+    builder: GameBuilder,
     style: ui::BoardStyle,
 }
 
 impl State {
     fn new(_cc: &eframe::CreationContext<'_>) -> Self {
         Self {
-            game: Game {
-                board: Board::new(19, 19),
-                turn: Stone::Black,
-                tree: SgfTree::parse(
-                    "(;FF[4]  ;B[pd]   ;W[dp];B[dd](;W[qp];B[oq])(;W[pq];B[qo]))".to_string(),
-                )
-                .unwrap(),
-            },
+            game: None,
+            builder: GameBuilder::default(),
             style: ui::BoardStyle::default(),
         }
     }
