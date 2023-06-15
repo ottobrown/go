@@ -59,8 +59,6 @@ impl GameBuilder {
 
 impl Default for GameBuilder {
     fn default() -> Self {
-        Self {
-            size: (19, 19),
-        }
+        Self { size: (19, 19) }
     }
 }

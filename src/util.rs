@@ -49,5 +49,5 @@ pub fn star_points(w: usize, h: usize) -> Vec<(usize, usize)> {
     points.push((w - 4, 3));
     points.push((w - 4, h - 4));
 
-    return points;
+    points
 }

@@ -27,6 +27,7 @@ pub struct State {
     game: Option<Game>,
     builder: GameBuilder,
     style: ui::BoardStyle,
+    debug_window: bool,
 }
 
 impl State {
@@ -35,6 +36,7 @@ impl State {
             game: None,
             builder: GameBuilder::default(),
             style: ui::BoardStyle::default(),
+            debug_window: false,
         }
     }
 }
