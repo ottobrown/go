@@ -15,7 +15,7 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
     } else {
         let min_size = size.x.min(size.y);
 
-        let mut game_mut = state.game.as_mut().unwrap();
+        let game_mut = state.game.as_mut().unwrap();
 
         ui.horizontal(|ui| {
             let br = board::render_board(
