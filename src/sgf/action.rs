@@ -1,4 +1,5 @@
 use super::util::*;
+use super::SgfError;
 use super::SgfResult;
 
 /// An action done on the ui that can be converted to an sgf prop
@@ -7,6 +8,7 @@ pub enum Action {
     NoOp,
     PlayBlack(usize, usize),
     PlayWhite(usize, usize),
+    Size(usize, usize),
 }
 impl Action {
     pub fn to_sgf_text(self) -> SgfResult<String> {
@@ -16,6 +18,13 @@ impl Action {
             NoOp => String::new(),
             PlayBlack(x, y) => format!(";B[{}{}]", to_sgf_coord(x)?, to_sgf_coord(y)?),
             PlayWhite(x, y) => format!(";W[{}{}]", to_sgf_coord(x)?, to_sgf_coord(y)?),
+            Size(w, h) => {
+                if w == h {
+                    format!("SZ[{}]", w)
+                } else {
+                    format!("SZ[{}:{}]", w, h)
+                }
+            }
         };
 
         Ok(s)
@@ -33,6 +42,30 @@ impl Action {
                 let coords = string_coords(v)?;
 
                 Self::PlayWhite(coords.0, coords.1)
+            }
+            "SZ" => {
+                let mut s = [0, 0];
+                let mut i = 0;
+
+                for c in v.chars() {
+                    if c.is_ascii_digit() {
+                        s[i] *= 10;
+                        s[i] += (c as usize) - 0x30;
+                    }
+
+                    if c == ':' {
+                        if i == 1 {
+                            return Err(SgfError::SizeParse);
+                        }
+                        i += 1;
+                    }
+                }
+
+                if i == 0 {
+                    s[1] = s[0];
+                }
+
+                Self::Size(s[0], s[1])
             }
 
             _ => Self::NoOp,

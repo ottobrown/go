@@ -1,7 +1,9 @@
 use crate::sgf::to_actions;
-use crate::sgf::Action;
+use crate::sgf::{Action, SgfResult, SgfTree};
 use crate::Board;
 use crate::Stone;
+use std::fs::read_to_string;
+use std::path::PathBuf;
 
 /// Contains the Board and additional info about the game
 /// that can be manipulated by actions in the ui
@@ -46,9 +48,14 @@ impl Game {
 
 pub struct GameBuilder {
     pub size: (usize, usize),
+    pub path: Option<PathBuf>,
 }
 impl GameBuilder {
     pub fn build(&self) -> Game {
+        if let Some(p) = &self.path {
+            // TODO: handle this unwrap
+            return build_game_from_path(p.clone()).unwrap();
+        }
         Game {
             board: Board::new(self.size.0, self.size.1),
             turn: Stone::Black,
@@ -59,6 +66,29 @@ impl GameBuilder {
 
 impl Default for GameBuilder {
     fn default() -> Self {
-        Self { size: (19, 19) }
+        Self {
+            size: (19, 19),
+            path: None,
+        }
     }
+}
+
+fn build_game_from_path(p: PathBuf) -> SgfResult<Game> {
+    let s = read_to_string(&p)?;
+    let tree = SgfTree::parse(s)?;
+    let root_actions = to_actions(&tree.root().text)?;
+
+    let mut size = (19, 19);
+
+    for a in root_actions {
+        if let Action::Size(w, h) = a {
+            size = (w, h);
+        }
+    }
+
+    Ok(Game {
+        board: Board::new(size.0, size.1),
+        tree,
+        turn: Stone::Black,
+    })
 }

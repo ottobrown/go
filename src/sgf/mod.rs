@@ -19,6 +19,10 @@ impl SgfTree {
         &self.nodes[self.current]
     }
 
+    pub fn root(&self) -> &SgfNode {
+        &self.nodes[0]
+    }
+
     /// The number of children the current node has
     pub fn num_children(&self) -> usize {
         self.nodes[self.current].children.len()

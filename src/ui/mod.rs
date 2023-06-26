@@ -46,6 +46,17 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
 /// Edits details of the game such as the baord size, etc.
 /// returns true if ready to start playing
 fn game_creator(builder: &mut crate::GameBuilder, ui: &mut Ui) -> bool {
+    if ui.button("open file:").clicked() {
+        builder.path = rfd::FileDialog::new()
+            .add_filter("sgf", &["sgf"])
+            .pick_file();
+
+        if builder.path.is_some() {
+            return true;
+        }
+    }
+    ui.separator();
+
     ui.label("board width");
     ui.add(egui::Slider::new(&mut builder.size.0, 5..=50));
 

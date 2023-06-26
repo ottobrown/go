@@ -1,4 +1,4 @@
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Debug)]
 pub enum SgfError {
     /// Trying to select a child of a node which doesn't exist
     ChildDoesntExist,
@@ -10,6 +10,16 @@ pub enum SgfError {
     InvalidCoordChar,
     /// if there is no LParen at the start of an sgf file
     MissingLParen,
+    /// Error parsing SZ[] prop
+    SizeParse,
+
+    Io(std::io::Error),
+}
+
+impl From<std::io::Error> for SgfError {
+    fn from(e: std::io::Error) -> Self {
+        Self::Io(e)
+    }
 }
 
 pub type SgfResult<T> = Result<T, SgfError>;
