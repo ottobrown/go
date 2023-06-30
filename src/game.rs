@@ -17,11 +17,11 @@ impl Game {
     pub fn do_action(&mut self, a: Action) {
         match a {
             Action::PlayBlack(x, y) => {
-                self.board.attempt_set(x, y, Stone::Black);
+                if !self.board.attempt_set(x, y, Stone::Black) { self.board.set(x, y, Stone::Black); }
                 self.turn = Stone::White;
             }
             Action::PlayWhite(x, y) => {
-                self.board.attempt_set(x, y, Stone::White);
+                if !self.board.attempt_set(x, y, Stone::White) { self.board.set(x, y, Stone::White); }
                 self.turn = Stone::Black;
             }
 
