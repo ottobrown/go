@@ -50,18 +50,20 @@ impl SgfTree {
         Err(SgfError::ParentOfRoot)
     }
 
-    pub fn set_root(&mut self, s: String) {
-        self.nodes[0].text = s;
+    pub fn set_root(&mut self, s: String) -> SgfResult<()> {
+        self.nodes[0].actions = to_actions(&s)?;
+
+        Ok(())
     }
 
     pub fn select_root(&mut self) {
         self.current = 0;
     }
 
-    pub fn handle_new_text(&mut self, s: String) {
+    pub fn handle_new_text(&mut self, s: String) -> SgfResult<()> {
         if s.starts_with(';') {
             let n = SgfNode {
-                text: s,
+                actions: to_actions(&s)?,
                 parent: Some(self.current),
                 children: Vec::new(),
             };
@@ -71,18 +73,20 @@ impl SgfTree {
 
             self.current = l;
         } else {
-            self.nodes[self.current].text.push_str(&s);
+            self.nodes[self.current].actions.extend(to_actions(&s)?);
         }
+
+        Ok(())
     }
 
-    /// The text of the current node, followed by the text of the parent,
-    /// followed by the text of the parent's parent, all the way to the root node
-    pub fn get_all_parent_text(&self) -> Vec<String> {
+    /// The action of the current node, followed by the action of the parent,
+    /// followed by the action of the parent's parent, all the way to the root node
+    pub fn get_all_parent_action(&self) -> Vec<Vec<Action>> {
         let mut node = self.current_node();
         let mut all = Vec::new();
 
         while let Some(p) = node.parent {
-            all.push(node.text.clone());
+            all.push(node.actions.clone());
             node = &self.nodes[p];
         }
 
@@ -101,7 +105,7 @@ impl Default for SgfTree {
 
 #[derive(Default, Debug, PartialEq)]
 pub struct SgfNode {
-    pub text: String,
+    pub actions: Vec<Action>,
 
     /// Indices on the parent `SgfTree::sequences`
     children: Vec<usize>,
@@ -170,13 +174,13 @@ fn parse(tokens: Vec<ParserToken>) -> SgfResult<SgfTree> {
         return Err(SgfError::MissingLParen);
     }
     if let Some(ParserToken::Node(s)) = iter.next() {
-        tree.set_root(s.clone());
+        tree.set_root(s.clone())?;
     }
 
     for token in iter {
         match token {
             ParserToken::Node(s) => {
-                tree.handle_new_text(s.clone());
+                tree.handle_new_text(s.clone())?;
             }
 
             ParserToken::LParen => {

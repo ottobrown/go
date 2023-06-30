@@ -27,7 +27,8 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
             let a = board::handle_click(ui, &br, &mut game_mut.board, &mut game_mut.turn);
 
             if a != crate::sgf::Action::NoOp {
-                game_mut.tree.handle_new_text(a.to_sgf_text().unwrap());
+                // TODO: handle this result
+                let _ = game_mut.tree.handle_new_text(a.to_sgf_text().unwrap());
             }
             sgf::sgf_arrows(ui, game_mut);
             ui.checkbox(&mut state.debug_window, "show debug window");
@@ -58,10 +59,10 @@ fn game_creator(builder: &mut crate::GameBuilder, ui: &mut Ui) -> bool {
     ui.separator();
 
     ui.label("board width");
-    ui.add(egui::Slider::new(&mut builder.size.0, 5..=50));
+    ui.add(egui::Slider::new(&mut builder.size.0, 5..=52));
 
     ui.label("board height");
-    ui.add(egui::Slider::new(&mut builder.size.1, 5..=50));
+    ui.add(egui::Slider::new(&mut builder.size.1, 5..=52));
 
     if ui.button("finish").clicked() {
         return true;

@@ -3,14 +3,16 @@ use super::SgfError;
 use super::SgfResult;
 
 /// An action done on the ui that can be converted to an sgf prop
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, PartialEq, Eq, Debug)]
 pub enum Action {
     NoOp,
     PlayBlack(usize, usize),
     PlayWhite(usize, usize),
     Size(usize, usize),
+    Other(String, String),
 }
 impl Action {
+    #[allow(clippy::wrong_self_convention)]
     pub fn to_sgf_text(self) -> SgfResult<String> {
         use Action::*;
 
@@ -25,6 +27,7 @@ impl Action {
                     format!("SZ[{}:{}]", w, h)
                 }
             }
+            Other(k, v) => format!("{}[{}]", &k, &v),
         };
 
         Ok(s)
@@ -68,7 +71,7 @@ impl Action {
                 Self::Size(s[0], s[1])
             }
 
-            _ => Self::NoOp,
+            _ => Self::Other(String::from(k), String::from(v)),
         };
 
         Ok(action)

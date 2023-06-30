@@ -1,4 +1,3 @@
-use crate::sgf::to_actions;
 use crate::sgf::{Action, SgfResult, SgfTree};
 use crate::Board;
 use crate::Stone;
@@ -14,14 +13,18 @@ pub struct Game {
     pub tree: crate::SgfTree,
 }
 impl Game {
-    pub fn do_action(&mut self, a: Action) {
+    pub fn do_action(&mut self, a: &Action) {
         match a {
             Action::PlayBlack(x, y) => {
-                if !self.board.attempt_set(x, y, Stone::Black) { self.board.set(x, y, Stone::Black); }
+                if !self.board.attempt_set(*x, *y, Stone::Black) {
+                    self.board.set(*x, *y, Stone::Black);
+                }
                 self.turn = Stone::White;
             }
             Action::PlayWhite(x, y) => {
-                if !self.board.attempt_set(x, y, Stone::White) { self.board.set(x, y, Stone::White); }
+                if !self.board.attempt_set(*x, *y, Stone::White) {
+                    self.board.set(*x, *y, Stone::White);
+                }
                 self.turn = Stone::Black;
             }
 
@@ -35,11 +38,11 @@ impl Game {
         self.board = Board::new(w, h);
         self.turn = Stone::Black;
 
-        let all = self.tree.get_all_parent_text();
+        let all = self.tree.get_all_parent_action();
 
         for s in all.iter().rev() {
             // TODO: handle this error
-            for a in to_actions(s).unwrap() {
+            for a in s {
                 self.do_action(a);
             }
         }
@@ -76,13 +79,12 @@ impl Default for GameBuilder {
 fn build_game_from_path(p: PathBuf) -> SgfResult<Game> {
     let s = read_to_string(&p)?;
     let tree = SgfTree::parse(s)?;
-    let root_actions = to_actions(&tree.root().text)?;
 
     let mut size = (19, 19);
 
-    for a in root_actions {
+    for a in &tree.root().actions {
         if let Action::Size(w, h) = a {
-            size = (w, h);
+            size = (*w, *h);
         }
     }
 
