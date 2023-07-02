@@ -98,7 +98,7 @@ pub fn to_actions(s: &str) -> SgfResult<Vec<Action>> {
 #[test]
 fn to_actions_test() {
     assert_eq!(
-        to_actions(";B[aa]W[bb]"),
-        Ok(vec![Action::PlayBlack(0, 0), Action::PlayWhite(1, 1)])
+        to_actions(";B[aa]W[bb]").unwrap(),
+        vec![Action::PlayBlack(0, 0), Action::PlayWhite(1, 1)]
     );
 }

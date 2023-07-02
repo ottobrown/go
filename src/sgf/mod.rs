@@ -252,49 +252,49 @@ mod sgf_tests {
             nodes: vec![
                 SgfNode {
                     // 0
-                    text: String::from(";FF[4]"),
+                    actions: vec![Action::Other("FF".to_string(), "4".to_string())],
                     children: vec![1],
                     parent: None,
                 },
                 SgfNode {
                     // 1
-                    text: String::from(";B[pd]"),
+                    actions: vec![Action::PlayBlack(15, 3)],
                     children: vec![2],
                     parent: Some(0),
                 },
                 SgfNode {
                     // 2
-                    text: String::from(";W[dp]"),
+                    actions: vec![Action::PlayWhite(3, 15)],
                     children: vec![3],
                     parent: Some(1),
                 },
                 SgfNode {
                     // 3
-                    text: String::from(";B[dd]"),
+                    actions: vec![Action::PlayBlack(3, 3)],
                     children: vec![4, 6],
                     parent: Some(2),
                 },
                 SgfNode {
                     // 4
-                    text: String::from(";W[qp]"),
+                    actions: vec![Action::PlayWhite(16, 15)],
                     children: vec![5],
                     parent: Some(3),
                 },
                 SgfNode {
                     // 5
-                    text: String::from(";B[oq]"),
+                    actions: vec![Action::PlayBlack(14, 16)],
                     children: vec![],
                     parent: Some(4),
                 },
                 SgfNode {
                     // 6
-                    text: String::from(";W[pq]"),
+                    actions: vec![Action::PlayWhite(15, 16)],
                     children: vec![7],
                     parent: Some(3),
                 },
                 SgfNode {
                     // 7
-                    text: String::from(";B[qo]"),
+                    actions: vec![Action::PlayBlack(16, 14)],
                     children: vec![],
                     parent: Some(6),
                 },

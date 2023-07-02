@@ -39,18 +39,18 @@ pub fn string_coords(s: &str) -> SgfResult<(usize, usize)> {
 
 #[test]
 fn to_coord_test() {
-    assert_eq!(to_sgf_coord(0), Ok('a'));
-    assert_eq!(to_sgf_coord(25), Ok('z'));
-    assert_eq!(to_sgf_coord(26), Ok('A'));
-    assert_eq!(to_sgf_coord(51), Ok('Z'));
-    assert_eq!(to_sgf_coord(52), Err(SgfError::CoordTooBig));
+    assert_eq!(to_sgf_coord(0).unwrap(), 'a');
+    assert_eq!(to_sgf_coord(25).unwrap(), 'z');
+    assert_eq!(to_sgf_coord(26).unwrap(), 'A');
+    assert_eq!(to_sgf_coord(51).unwrap(), 'Z');
+    assert!(to_sgf_coord(52).is_err());
 }
 
 #[test]
 fn from_coord_test() {
-    assert_eq!(from_sgf_coord('a'), Ok(0));
-    assert_eq!(from_sgf_coord('z'), Ok(25));
-    assert_eq!(from_sgf_coord('A'), Ok(26));
-    assert_eq!(from_sgf_coord('Z'), Ok(51));
-    assert_eq!(from_sgf_coord('5'), Err(SgfError::InvalidCoordChar));
+    assert_eq!(from_sgf_coord('a').unwrap(), 0);
+    assert_eq!(from_sgf_coord('z').unwrap(), 25);
+    assert_eq!(from_sgf_coord('A').unwrap(), 26);
+    assert_eq!(from_sgf_coord('Z').unwrap(), 51);
+    assert!(from_sgf_coord('5').is_err());
 }
