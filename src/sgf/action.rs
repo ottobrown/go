@@ -76,9 +76,13 @@ impl Action {
 
         Ok(action)
     }
+
+    pub fn other(k: &str, v: &str) -> Self {
+        Self::Other(String::from(k), String::from(v))
+    }
 }
 
-pub fn to_actions(s: &str) -> SgfResult<Vec<Action>> {
+pub fn to_actions(s: &str) -> Vec<Action> {
     let mut actions = Vec::new();
 
     // split the sgf text at every opening and closing bracket.
@@ -89,10 +93,11 @@ pub fn to_actions(s: &str) -> SgfResult<Vec<Action>> {
         let k = l.trim().trim_matches(';');
         let v = r.trim().trim_matches(';');
 
-        actions.push(Action::from_pair(k, v)?);
+        // TODO: log if there's an error
+        actions.push(Action::from_pair(k, v).unwrap_or(Action::other(k, v)));
     }
 
-    Ok(actions)
+    actions
 }
 
 #[test]

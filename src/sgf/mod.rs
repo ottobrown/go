@@ -15,6 +15,12 @@ impl SgfTree {
         parse(lex(s))
     }
 
+    /*
+    pub fn to_string(&self) -> String {
+        to_string(&self)
+    }
+    */
+
     pub fn current_node(&self) -> &SgfNode {
         &self.nodes[self.current]
     }
@@ -51,7 +57,7 @@ impl SgfTree {
     }
 
     pub fn set_root(&mut self, s: String) -> SgfResult<()> {
-        self.nodes[0].actions = to_actions(&s)?;
+        self.nodes[0].actions = to_actions(&s);
 
         Ok(())
     }
@@ -63,17 +69,18 @@ impl SgfTree {
     pub fn handle_new_text(&mut self, s: String) -> SgfResult<()> {
         if s.starts_with(';') {
             let n = SgfNode {
-                actions: to_actions(&s)?,
+                actions: to_actions(&s),
                 parent: Some(self.current),
                 children: Vec::new(),
             };
+
             let l = self.nodes.len();
             self.nodes.push(n);
             self.nodes[self.current].children.push(l);
 
             self.current = l;
         } else {
-            self.nodes[self.current].actions.extend(to_actions(&s)?);
+            self.nodes[self.current].actions.extend(to_actions(&s));
         }
 
         Ok(())
@@ -198,6 +205,15 @@ fn parse(tokens: Vec<ParserToken>) -> SgfResult<SgfTree> {
     tree.select_root();
     Ok(tree)
 }
+
+/*
+fn to_string(tree: &SgfTree) -> String {
+    let mut node: &SgfNode = tree.root();
+    let mut s: String = String::new();
+
+
+}
+*/
 
 #[cfg(test)]
 mod sgf_tests {

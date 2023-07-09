@@ -12,6 +12,8 @@ pub enum SgfError {
     MissingLParen,
     /// Error parsing SZ[] prop
     SizeParse,
+    /// a coordinate should be 2 ASCII characters
+    InvalidLength,
 
     Io(std::io::Error),
 }

@@ -29,6 +29,10 @@ pub fn from_sgf_coord(c: char) -> SgfResult<usize> {
 
 /// Converts the first two characters of the string into coordinates
 pub fn string_coords(s: &str) -> SgfResult<(usize, usize)> {
+    if s.len() != 2 {
+        return Err(SgfError::InvalidLength);
+    }
+
     let mut ch = s.chars();
 
     Ok((
