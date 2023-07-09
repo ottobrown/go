@@ -93,8 +93,21 @@ pub fn to_actions(s: &str) -> Vec<Action> {
         let k = l.trim().trim_matches(';');
         let v = r.trim().trim_matches(';');
 
-        // TODO: log if there's an error
-        actions.push(Action::from_pair(k, v).unwrap_or(Action::other(k, v)));
+        match Action::from_pair(k, v) {
+            Ok(a) => actions.push(a),
+            Err(e) => {
+                crate::log(&format!(
+                    "[WARNING] Action::from_pair failed with {:?} on {}[{}] {} {}:{} ",
+                    e,
+                    k,
+                    v,
+                    file!(),
+                    line!(),
+                    column!()
+                ));
+                actions.push(Action::other(k, v))
+            }
+        };
     }
 
     actions

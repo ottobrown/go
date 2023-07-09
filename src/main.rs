@@ -1,3 +1,6 @@
+use std::ops::DerefMut;
+use std::sync::Mutex;
+
 use eframe::egui;
 
 mod board;
@@ -10,6 +13,17 @@ mod util;
 pub use board::{Board, Stone};
 pub use game::{Game, GameBuilder};
 pub use sgf::{SgfNode, SgfTree};
+
+// TODO: make debug logging only compile in debug mode?
+static DEBUG_LOG: Mutex<String> = Mutex::new(String::new());
+
+fn log(s: &str) {
+    DEBUG_LOG
+        .lock()
+        .unwrap()
+        .deref_mut()
+        .push_str(&format!("{} \n\n", s))
+}
 
 fn main() -> eframe::Result<()> {
     let native_options = eframe::NativeOptions::default();

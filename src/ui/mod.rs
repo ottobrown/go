@@ -1,3 +1,5 @@
+use std::ops::DerefMut;
+
 use eframe::egui;
 use egui::{vec2, Ui, Vec2};
 
@@ -36,8 +38,11 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
 
         if state.debug_window {
             egui::Window::new("debug").show(ui.ctx(), |ui| {
-                egui::ScrollArea::vertical().show(ui, |ui| {
-                    ui.code_editor(&mut format!("{:#?}", game_mut.tree));
+                egui::ScrollArea::both().show(ui, |ui| {
+                    egui::CollapsingHeader::new("Game Tree").show(ui, |ui| {
+                        ui.code_editor(&mut format!("{:#?}", game_mut.tree));
+                    });
+                    ui.code_editor(crate::DEBUG_LOG.lock().unwrap().deref_mut())
                 });
             });
         }
