@@ -72,10 +72,21 @@ impl GameBuilder {
             // TODO: handle this unwrap
             return build_game_from_path(p.clone()).unwrap();
         }
+
+        let mut tree = crate::SgfTree::default();
+        let root = format!(
+            "FF[4]CA[UTF-8]GM[1]{}",
+            Action::Size(self.size.0, self.size.1)
+        );
+
+        if let Err(e) = tree.set_root(root) {
+            crate::log(format!("FAILED TO SET ROOT WITH {:?}", e));
+        }
+
         Game {
             board: Board::new(self.size.0, self.size.1),
             turn: Stone::Black,
-            tree: crate::SgfTree::default(),
+            tree,
             path: self.path.clone(),
         }
     }

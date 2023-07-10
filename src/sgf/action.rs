@@ -84,6 +84,12 @@ impl Action {
     }
 }
 
+impl std::fmt::Display for Action {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.to_sgf_text().unwrap())
+    }
+}
+
 pub fn to_actions(s: &str) -> Vec<Action> {
     let mut actions = Vec::new();
 
