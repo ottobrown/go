@@ -15,11 +15,35 @@ impl SgfTree {
         parse(lex(s))
     }
 
-    /*
-    pub fn to_string(&self) -> String {
-        to_string(&self)
+    pub fn to_text(&self) -> String {
+        let mut s = String::from('(');
+        self.stringify_node(0, &mut s);
+        s.push(')');
+
+        s
     }
-    */
+
+    fn stringify_node(&self, node_i: usize, s: &mut String) {
+        let node = &self.nodes[node_i];
+        s.push(';');
+
+        for a in &node.actions {
+            // TODO: handle this error?
+            s.push_str(&a.to_sgf_text().unwrap());
+        }
+        match node.children.len() {
+            0 => {}
+            1 => self.stringify_node(node.children[0], s),
+
+            _ => {
+                for c in &node.children {
+                    s.push('(');
+                    self.stringify_node(*c, s);
+                    s.push(')');
+                }
+            }
+        };
+    }
 
     pub fn current_node(&self) -> &SgfNode {
         &self.nodes[self.current]
@@ -66,7 +90,7 @@ impl SgfTree {
         self.current = 0;
     }
 
-    pub fn handle_new_text(&mut self, s: String) -> SgfResult<()> {
+    pub fn handle_new_text(&mut self, s: String) {
         if s.starts_with(';') {
             let n = SgfNode {
                 actions: to_actions(&s),
@@ -82,8 +106,6 @@ impl SgfTree {
         } else {
             self.nodes[self.current].actions.extend(to_actions(&s));
         }
-
-        Ok(())
     }
 
     /// The action of the current node, followed by the action of the parent,
@@ -187,7 +209,7 @@ fn parse(tokens: Vec<ParserToken>) -> SgfResult<SgfTree> {
     for token in iter {
         match token {
             ParserToken::Node(s) => {
-                tree.handle_new_text(s.clone())?;
+                tree.handle_new_text(s.clone());
             }
 
             ParserToken::LParen => {
@@ -205,15 +227,6 @@ fn parse(tokens: Vec<ParserToken>) -> SgfResult<SgfTree> {
     tree.select_root();
     Ok(tree)
 }
-
-/*
-fn to_string(tree: &SgfTree) -> String {
-    let mut node: &SgfNode = tree.root();
-    let mut s: String = String::new();
-
-
-}
-*/
 
 #[cfg(test)]
 mod sgf_tests {
@@ -319,5 +332,12 @@ mod sgf_tests {
         };
 
         assert_eq!(parse(l).unwrap(), t);
+    }
+
+    #[test]
+    fn to_text_test() {
+        let s = "(;FF[4];B[pd];W[dp];B[dd](;W[qp];B[oq])(;W[pq];B[qo]))".to_string();
+
+        assert_eq!(s, SgfTree::parse(s.clone()).unwrap().to_text());
     }
 }

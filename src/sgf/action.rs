@@ -13,15 +13,17 @@ pub enum Action {
 }
 impl Action {
     #[allow(clippy::wrong_self_convention)]
-    pub fn to_sgf_text(self) -> SgfResult<String> {
+    pub fn to_sgf_text(&self) -> SgfResult<String> {
         use Action::*;
 
         let s = match self {
             NoOp => String::new(),
-            PlayBlack(x, y) => format!(";B[{}{}]", to_sgf_coord(x)?, to_sgf_coord(y)?),
-            PlayWhite(x, y) => format!(";W[{}{}]", to_sgf_coord(x)?, to_sgf_coord(y)?),
+            // Should never fail because it would have failed at the construction
+            // of the PlayBlack or PlayWhite
+            PlayBlack(x, y) => format!("B[{}{}]", to_sgf_coord(*x)?, to_sgf_coord(*y)?),
+            PlayWhite(x, y) => format!("W[{}{}]", to_sgf_coord(*x)?, to_sgf_coord(*y)?),
             Size(w, h) => {
-                if w == h {
+                if *w == *h {
                     format!("SZ[{}]", w)
                 } else {
                     format!("SZ[{}:{}]", w, h)
@@ -116,7 +118,7 @@ pub fn to_actions(s: &str) -> Vec<Action> {
 #[test]
 fn to_actions_test() {
     assert_eq!(
-        to_actions(";B[aa]W[bb]").unwrap(),
+        to_actions(";B[aa]W[bb]"),
         vec![Action::PlayBlack(0, 0), Action::PlayWhite(1, 1)]
     );
 }

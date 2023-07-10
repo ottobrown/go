@@ -17,12 +17,12 @@ pub use sgf::{SgfNode, SgfTree};
 // TODO: make debug logging only compile in debug mode?
 static DEBUG_LOG: Mutex<String> = Mutex::new(String::new());
 
-fn log(s: &str) {
+fn log(s: impl Into<String>) {
     DEBUG_LOG
         .lock()
         .unwrap()
         .deref_mut()
-        .push_str(&format!("{} \n\n", s))
+        .push_str(&format!("{} \n\n", s.into()))
 }
 
 fn main() -> eframe::Result<()> {

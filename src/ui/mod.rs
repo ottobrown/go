@@ -29,10 +29,21 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
             let a = board::handle_click(ui, &br, &mut game_mut.board, &mut game_mut.turn);
 
             if a != crate::sgf::Action::NoOp {
-                // TODO: handle this result
-                let _ = game_mut.tree.handle_new_text(a.to_sgf_text().unwrap());
+                let s = a.to_sgf_text();
+                match s {
+                    Ok(i) => game_mut.tree.handle_new_text(format!(";{}", i)),
+                    Err(e) => crate::log(format!("Action::to_sgf_text failed with {:?}", e)),
+                }
             }
             sgf::sgf_arrows(ui, game_mut);
+
+            if ui.button("save").clicked() {
+                if let Err(e) = game_mut.write_to_file() {
+                    ui.label("FAILED TO SAVE!!");
+                    crate::log(format!("Failed to save with {:?}", e));
+                }
+            }
+
             ui.checkbox(&mut state.debug_window, "show debug window");
         });
 
@@ -42,6 +53,7 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
                     egui::CollapsingHeader::new("Game Tree").show(ui, |ui| {
                         ui.code_editor(&mut format!("{:#?}", game_mut.tree));
                     });
+                    ui.code_editor(&mut game_mut.tree.to_text());
                     ui.code_editor(crate::DEBUG_LOG.lock().unwrap().deref_mut())
                 });
             });

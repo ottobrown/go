@@ -1,7 +1,7 @@
 use crate::sgf::{Action, SgfResult, SgfTree};
 use crate::Board;
 use crate::Stone;
-use std::fs::read_to_string;
+use std::fs;
 use std::path::PathBuf;
 
 /// Contains the Board and additional info about the game
@@ -11,6 +11,7 @@ pub struct Game {
     pub turn: Stone,
 
     pub tree: crate::SgfTree,
+    pub path: Option<PathBuf>,
 }
 impl Game {
     pub fn do_action(&mut self, a: &Action) {
@@ -41,11 +42,23 @@ impl Game {
         let all = self.tree.get_all_parent_action();
 
         for s in all.iter().rev() {
-            // TODO: handle this error
             for a in s {
                 self.do_action(a);
             }
         }
+    }
+
+    pub fn write_to_file(&mut self) -> SgfResult<()> {
+        if let Some(p) = &self.path {
+            fs::write(p, self.tree.to_text().as_bytes())?;
+        } else {
+            self.path = rfd::FileDialog::new()
+                .add_filter("sgf", &["sgf"])
+                .save_file();
+            self.write_to_file()?;
+        }
+
+        Ok(())
     }
 }
 
@@ -63,6 +76,7 @@ impl GameBuilder {
             board: Board::new(self.size.0, self.size.1),
             turn: Stone::Black,
             tree: crate::SgfTree::default(),
+            path: self.path.clone(),
         }
     }
 }
@@ -77,7 +91,7 @@ impl Default for GameBuilder {
 }
 
 fn build_game_from_path(p: PathBuf) -> SgfResult<Game> {
-    let s = read_to_string(&p)?;
+    let s = fs::read_to_string(&p)?;
     let tree = SgfTree::parse(s)?;
 
     let mut size = (19, 19);
@@ -92,5 +106,6 @@ fn build_game_from_path(p: PathBuf) -> SgfResult<Game> {
         board: Board::new(size.0, size.1),
         tree,
         turn: Stone::Black,
+        path: Some(p),
     })
 }
