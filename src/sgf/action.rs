@@ -8,6 +8,8 @@ pub enum Action {
     NoOp,
     PlayBlack(usize, usize),
     PlayWhite(usize, usize),
+    PassBlack,
+    PassWhite,
     Size(usize, usize),
     Other(String, String),
 }
@@ -22,6 +24,8 @@ impl Action {
             // of the PlayBlack or PlayWhite
             PlayBlack(x, y) => format!("B[{}{}]", to_sgf_coord(*x)?, to_sgf_coord(*y)?),
             PlayWhite(x, y) => format!("W[{}{}]", to_sgf_coord(*x)?, to_sgf_coord(*y)?),
+            PassBlack => String::from("B[]"),
+            PassWhite => String::from("W[]"),
             Size(w, h) => {
                 if *w == *h {
                     format!("SZ[{}]", w)
@@ -37,13 +41,19 @@ impl Action {
 
     pub fn from_pair(k: &str, v: &str) -> SgfResult<Action> {
         let upper = k.to_uppercase();
-        let action = match upper.as_str() {
+        Ok(match upper.as_str() {
             "B" => {
+                if v.is_empty() {
+                    return Ok(Action::PassBlack);
+                }
                 let coords = string_coords(v)?;
 
                 Self::PlayBlack(coords.0, coords.1)
             }
             "W" => {
+                if v.is_empty() {
+                    return Ok(Action::PassWhite);
+                }
                 let coords = string_coords(v)?;
 
                 Self::PlayWhite(coords.0, coords.1)
@@ -74,9 +84,7 @@ impl Action {
             }
 
             _ => Self::Other(String::from(k), String::from(v)),
-        };
-
-        Ok(action)
+        })
     }
 
     pub fn other(k: &str, v: &str) -> Self {

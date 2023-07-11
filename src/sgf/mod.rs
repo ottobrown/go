@@ -108,6 +108,24 @@ impl SgfTree {
         }
     }
 
+    pub fn handle_new_action(&mut self, a: Action, new_node: bool) {
+        if new_node {
+            let n = SgfNode {
+                actions: vec![a],
+                parent: Some(self.current),
+                children: Vec::new(),
+            };
+
+            let l = self.nodes.len();
+            self.nodes.push(n);
+            self.nodes[self.current].children.push(l);
+
+            self.current = l;
+        } else {
+            self.nodes[self.current].actions.push(a);
+        }
+    }
+
     /// The action of the current node, followed by the action of the parent,
     /// followed by the action of the parent's parent, all the way to the root node
     pub fn get_all_parent_action(&self) -> Vec<Vec<Action>> {

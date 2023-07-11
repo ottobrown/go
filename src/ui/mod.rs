@@ -29,15 +29,9 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
             let a = board::handle_click(ui, &br, &mut game_mut.board, &mut game_mut.turn);
 
             if a != crate::sgf::Action::NoOp {
-                let s = a.to_sgf_text();
-                match s {
-                    Ok(i) => game_mut.tree.handle_new_text(format!(";{}", i)),
-                    Err(e) => {
-                        #[cfg(debug_assertions)]
-                        crate::log(format!("Action::to_sgf_text failed with {:?}", e));
-                    }
-                }
+                game_mut.tree.handle_new_action(a, true);
             }
+
             sgf::sgf_arrows(ui, game_mut);
 
             if ui.button("save").clicked() {
