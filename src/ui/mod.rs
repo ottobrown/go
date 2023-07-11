@@ -3,7 +3,8 @@ use std::ops::DerefMut;
 use eframe::egui;
 use egui::{vec2, Ui, Vec2};
 
-use crate::State;
+use crate::sgf::Action;
+use crate::{State, Stone};
 
 mod board;
 mod sgf;
@@ -11,29 +12,26 @@ pub use board::BoardStyle;
 
 pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
     if state.game.is_none() {
-        if game_creator(&mut state.builder, ui) {
-            state.game = Some(state.builder.build());
-        }
+        ui.vertical(|ui| {
+            if game_creator(&mut state.builder, ui) {
+                state.game = Some(state.builder.build());
+            }
+        });
     } else {
         let min_size = size.x.min(size.y);
 
         let game_mut = state.game.as_mut().unwrap();
 
-        ui.horizontal(|ui| {
-            let br = board::render_board(
-                &mut game_mut.board,
-                ui,
-                vec2(min_size, min_size),
-                state.style,
-            );
-            let a = board::handle_click(ui, &br, &mut game_mut.board, &mut game_mut.turn);
+        let br = board::render_board(
+            &mut game_mut.board,
+            ui,
+            vec2(min_size, min_size),
+            state.style,
+        );
+        let mut a = board::handle_click(ui, &br, &mut game_mut.board, &mut game_mut.turn);
 
-            if a != crate::sgf::Action::NoOp {
-                game_mut.tree.handle_new_action(a, true);
-            }
-
-            sgf::sgf_arrows(ui, game_mut);
-
+        // TODO: put these in the center of the screen vertically
+        ui.vertical(|ui| {
             if ui.button("save").clicked() {
                 if let Err(e) = game_mut.write_to_file() {
                     ui.label("FAILED TO SAVE!!");
@@ -42,9 +40,23 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
                     crate::log(format!("Failed to save with {:?}", e));
                 }
             }
+
+            if ui.button("pass").clicked() {
+                if game_mut.turn == Stone::Black {
+                    a = Action::PassBlack;
+                }
+                if game_mut.turn == Stone::White {
+                    a = Action::PassWhite;
+                }
+
+                game_mut.turn = !game_mut.turn;
+            }
+
             if cfg!(debug_assertions) {
                 ui.checkbox(&mut state.debug_window, "show debug window");
             }
+
+            sgf::sgf_arrows(ui, game_mut);
         });
 
         #[cfg(debug_assertions)]
@@ -58,6 +70,10 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
                     ui.code_editor(crate::DEBUG_LOG.lock().unwrap().deref_mut())
                 });
             });
+        }
+
+        if a != crate::sgf::Action::NoOp {
+            game_mut.tree.handle_new_action(a, true);
         }
     }
 }

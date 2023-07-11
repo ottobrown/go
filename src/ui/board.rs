@@ -162,16 +162,5 @@ pub(super) fn handle_click(
             }
         }
     }
-
-    if ui.button("pass").clicked() {
-        *turn = !*turn;
-        if !*turn == Stone::Black {
-            return Action::PassBlack;
-        }
-        if !*turn == Stone::White {
-            return Action::PassWhite;
-        }
-    }
-
     Action::NoOp
 }

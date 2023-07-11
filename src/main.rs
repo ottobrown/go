@@ -66,7 +66,9 @@ impl eframe::App for State {
                 egui::Frame::default().inner_margin(0.0).outer_margin(0.0),
             )
             .show(ctx, |ui| {
-                ui::render(self, ui, frame.info().window_info.size);
+                ui.horizontal(|ui| {
+                    ui::render(self, ui, frame.info().window_info.size);
+                });
             });
     }
 }
