@@ -1,3 +1,5 @@
+#![cfg_attr(not(debug_assertions), allow(unused))]
+
 use std::ops::DerefMut;
 use std::sync::Mutex;
 
@@ -14,9 +16,10 @@ pub use board::{Board, Stone};
 pub use game::{Game, GameBuilder};
 pub use sgf::{SgfNode, SgfTree};
 
-// TODO: make debug logging only compile in debug mode?
+#[cfg(debug_assertions)]
 static DEBUG_LOG: Mutex<String> = Mutex::new(String::new());
 
+#[cfg(debug_assertions)]
 fn log(s: impl Into<String>) {
     DEBUG_LOG
         .lock()

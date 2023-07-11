@@ -32,7 +32,10 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
                 let s = a.to_sgf_text();
                 match s {
                     Ok(i) => game_mut.tree.handle_new_text(format!(";{}", i)),
-                    Err(e) => crate::log(format!("Action::to_sgf_text failed with {:?}", e)),
+                    Err(e) => {
+                        #[cfg(debug_assertions)]
+                        crate::log(format!("Action::to_sgf_text failed with {:?}", e));
+                    }
                 }
             }
             sgf::sgf_arrows(ui, game_mut);
@@ -40,13 +43,17 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
             if ui.button("save").clicked() {
                 if let Err(e) = game_mut.write_to_file() {
                     ui.label("FAILED TO SAVE!!");
+
+                    #[cfg(debug_assertions)]
                     crate::log(format!("Failed to save with {:?}", e));
                 }
             }
-
-            ui.checkbox(&mut state.debug_window, "show debug window");
+            if cfg!(debug_assertions) {
+                ui.checkbox(&mut state.debug_window, "show debug window");
+            }
         });
 
+        #[cfg(debug_assertions)]
         if state.debug_window {
             egui::Window::new("debug").show(ui.ctx(), |ui| {
                 egui::ScrollArea::both().show(ui, |ui| {

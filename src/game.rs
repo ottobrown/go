@@ -80,6 +80,7 @@ impl GameBuilder {
         );
 
         if let Err(e) = tree.set_root(root) {
+            #[cfg(debug_assertions)]
             crate::log(format!("FAILED TO SET ROOT WITH {:?}", e));
         }
 

@@ -104,6 +104,7 @@ pub fn to_actions(s: &str) -> Vec<Action> {
         match Action::from_pair(k, v) {
             Ok(a) => actions.push(a),
             Err(e) => {
+                #[cfg(debug_assertions)]
                 crate::log(&format!(
                     "[WARNING] Action::from_pair failed with {:?} on {}[{}] {} {}:{} ",
                     e,
