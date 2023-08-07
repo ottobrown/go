@@ -1,5 +1,8 @@
+use super::shapes;
+use crate::board::Markup;
 use crate::sgf::Action;
 use crate::Stone;
+use crate::UiTool;
 
 use eframe::egui;
 use egui::{pos2, vec2, Color32, Ui};
@@ -105,7 +108,7 @@ pub(super) fn render_board(
 
     let stone_radius = f32::min(spacing.x, spacing.y) * style.stone_radius;
 
-    // draw stones
+    // draw stones and markup
     for x in 0..w {
         for y in 0..h {
             let center = egui::Pos2 {
@@ -119,6 +122,21 @@ pub(super) fn render_board(
 
             if board.get(x, y) == crate::Stone::White {
                 painter.circle_filled(center, stone_radius, Color32::WHITE);
+            }
+
+            match board.get_markup(x, y) {
+                Markup::Empty => {}
+                Markup::Circle => {
+                    shapes::circle(&painter, center, stone_radius);
+                }
+                Markup::Cross => {
+                    shapes::cross(&painter, center, stone_radius);
+                }
+                Markup::Square => {
+                    shapes::square(&painter, center, stone_radius);
+                }
+
+                _ => todo!(),
             }
         }
     }
@@ -140,27 +158,48 @@ pub(super) fn handle_click(
     ui: &mut Ui,
     br: &BoardResponse,
     board: &mut crate::Board,
+    tool: crate::UiTool,
     turn: &mut Stone,
 ) -> Action {
+    if !br.response.clicked() {
+        return Action::NoOp;
+    }
+
     let (w, h) = board.size();
-    if br.response.clicked() {
-        if let Some(p) = ui.input(|i| i.pointer.interact_pos()) {
-            let (x, y) = (
-                (((p.x - br.inner_rect.min.x) / br.spacing.x).round() as usize).min(w - 1),
-                (((p.y - br.inner_rect.min.y) / br.spacing.y).round() as usize).min(h - 1),
-            );
 
-            if board.attempt_set(x, y, *turn) {
-                *turn = !*turn;
+    if let Some(p) = ui.input(|i| i.pointer.interact_pos()) {
+        let (x, y) = (
+            (((p.x - br.inner_rect.min.x) / br.spacing.x).round() as usize).min(w - 1),
+            (((p.y - br.inner_rect.min.y) / br.spacing.y).round() as usize).min(h - 1),
+        );
 
-                if !*turn == Stone::Black {
-                    return Action::PlayBlack(x, y);
-                }
-                if !*turn == Stone::White {
-                    return Action::PlayWhite(x, y);
+        match tool {
+            UiTool::Play => {
+                if board.attempt_set(x, y, *turn) {
+                    *turn = !*turn;
+
+                    if !*turn == Stone::Black {
+                        return Action::PlayBlack(x, y);
+                    }
+                    if !*turn == Stone::White {
+                        return Action::PlayWhite(x, y);
+                    }
                 }
             }
+
+            UiTool::Circle => {
+                board.set_markup(x, y, Markup::Circle);
+            }
+            UiTool::Cross => {
+                board.set_markup(x, y, Markup::Cross);
+            }
+            UiTool::Square => {
+                board.set_markup(x, y, Markup::Square);
+            }
+
+            _ => {}
         }
     }
+
     Action::NoOp
 }

@@ -52,6 +52,7 @@ impl Game {
         if let Some(p) = &self.path {
             fs::write(p, self.tree.to_text().as_bytes())?;
         } else {
+            // TODO: you can't cancel saving the file
             self.path = rfd::FileDialog::new()
                 .add_filter("sgf", &["sgf"])
                 .save_file();

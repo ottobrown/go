@@ -6,11 +6,35 @@ use super::SgfResult;
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub enum Action {
     NoOp,
+    /// B[xy]
     PlayBlack(usize, usize),
+    /// W[xy]
     PlayWhite(usize, usize),
+    /// B[]
     PassBlack,
+    /// W[]
     PassWhite,
+    /// SZ[wh]
     Size(usize, usize),
+
+    /// CR[xy][xy] ...
+    Circle(Vec<(usize, usize)>),
+    /// MA[xy][xy] ...
+    Cross(Vec<(usize, usize)>),
+    /// SQ[xy][xy] ...
+    Square(Vec<(usize, usize)>),
+    /// TR[xy][xy] ...
+    Triangle(Vec<(usize, usize)>),
+    /// DD[xy][xy] ...
+    Dim(Vec<(usize, usize)>),
+    // LB[xy:text]
+    Label(Vec<(usize, usize, String)>),
+
+    /// AR[xy:xy][xy:xy] ...
+    Arrow(Vec<[(usize, usize); 2]>),
+    /// LN[xy:xy][xy:xy] ...
+    Line(Vec<[(usize, usize); 2]>),
+
     Other(String, String),
     OtherMany(String, Vec<String>),
 }
@@ -34,6 +58,58 @@ impl Action {
                     format!("SZ[{}:{}]", w, h)
                 }
             }
+            Circle(v) => coord_list("CR", v)?,
+            Cross(v) => coord_list("MA", v)?,
+            Square(v) => coord_list("SQ", v)?,
+            Triangle(v) => coord_list("TR", v)?,
+            Dim(v) => coord_list("DD", v)?,
+            Label(v) => {
+                let mut string = String::from("LB");
+                for (x, y, l) in v {
+                    string.push_str(&format!(
+                        "[{}{}:{}]",
+                        to_sgf_coord(*x)?,
+                        to_sgf_coord(*y)?,
+                        l
+                    ));
+                }
+
+                string
+            }
+
+            Arrow(v) => {
+                let mut string = String::from("AR");
+                for p in v {
+                    let (x1, y1) = p[0];
+                    let (x2, y2) = p[1];
+                    string.push_str(&format!(
+                        "[{}{}:{}{}]",
+                        to_sgf_coord(x1)?,
+                        to_sgf_coord(y1)?,
+                        to_sgf_coord(x2)?,
+                        to_sgf_coord(y2)?
+                    ));
+                }
+
+                string
+            }
+            Line(v) => {
+                let mut string = String::from("LN");
+                for p in v {
+                    let (x1, y1) = p[0];
+                    let (x2, y2) = p[1];
+                    string.push_str(&format!(
+                        "[{}{}:{}{}]",
+                        to_sgf_coord(x1)?,
+                        to_sgf_coord(y1)?,
+                        to_sgf_coord(x2)?,
+                        to_sgf_coord(y2)?
+                    ));
+                }
+
+                string
+            }
+
             Other(k, v) => format!("{}[{}]", &k, &v),
             OtherMany(k, v) => {
                 let mut string = k.to_string();

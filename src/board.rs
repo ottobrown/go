@@ -22,9 +22,24 @@ impl std::ops::Not for Stone {
     }
 }
 
+#[derive(Clone, PartialEq, Eq, Debug)]
+pub enum Markup {
+    Empty,
+    Circle,
+    Cross,
+    Square,
+    Triangle,
+    Dim,
+    Label(String),
+    /// Coorinate represents end of arrow
+    Arrow(usize, usize),
+    Line(usize, usize),
+}
+
 /// The state of a go board at a point in time
 pub struct Board {
     stones: Vec<Stone>,
+    markup: Vec<Markup>,
     size: (usize, usize),
 
     hashes: HashSet<u64>,
@@ -33,6 +48,7 @@ impl Board {
     pub fn new(w: usize, h: usize) -> Self {
         Self {
             stones: vec![Stone::Empty; w * h],
+            markup: vec![Markup::Empty; w * h],
             size: (w, h),
             hashes: HashSet::new(),
         }
@@ -72,6 +88,33 @@ impl Board {
         self.stones[i] = s;
     }
 
+    /// Returns the markup at (`x`, `y`), where (0, 0) is the top left.
+    pub fn get_markup(&self, x: usize, y: usize) -> Markup {
+        let i = self.index(x, y);
+
+        self.markup[i].clone()
+    }
+
+    /// Places the markup `m` at (`x`, `y`), where (0, 0) is the top left,
+    /// unless there is already something there
+    pub fn set_markup(&mut self, x: usize, y: usize, m: Markup) -> bool {
+        let i = self.index(x, y);
+
+        if self.markup[i] != Markup::Empty {
+            return false;
+        }
+
+        self.markup[i] = m;
+        true
+    }
+
+    /// Remove the markup at (`x`, `y`)
+    pub fn remove_markup(&mut self, x: usize, y: usize) {
+        let i = self.index(x, y);
+
+        self.markup[i] = Markup::Empty;
+    }
+
     /// Places the stone if it is a legal move
     pub fn attempt_set(&mut self, x: usize, y: usize, s: Stone) -> bool {
         // prevent playing in a place that is already filled
@@ -94,7 +137,6 @@ impl Board {
         if !self.hashes.insert(calculate_hash(&self.stones)) {
             // undo everything that happened
             self.set(x, y, Stone::Empty);
-
             for k in killed {
                 self.set(k.0, k.1, !s);
             }

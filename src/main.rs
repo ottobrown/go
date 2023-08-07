@@ -45,6 +45,7 @@ pub struct State {
     builder: GameBuilder,
     style: ui::BoardStyle,
     debug_window: bool,
+    tool: UiTool,
 }
 
 impl State {
@@ -54,6 +55,7 @@ impl State {
             builder: GameBuilder::default(),
             style: ui::BoardStyle::default(),
             debug_window: false,
+            tool: UiTool::Play,
         }
     }
 }
@@ -71,4 +73,18 @@ impl eframe::App for State {
                 });
             });
     }
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum UiTool {
+    /// Place alternating black and white stones
+    Play,
+    Circle,
+    Cross,
+    Square,
+    Triangle,
+    Dim,
+    Label,
+    Arrow,
+    Line,
 }

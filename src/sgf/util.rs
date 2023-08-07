@@ -41,6 +41,15 @@ pub fn string_coords(s: &str) -> SgfResult<(usize, usize)> {
     ))
 }
 
+pub fn coord_list(prop_name: &str, v: &Vec<(usize, usize)>) -> SgfResult<String> {
+    let mut s = String::from(prop_name);
+    for (x, y) in v {
+        s.push_str(&format!("[{}{}]", to_sgf_coord(*x)?, to_sgf_coord(*y)?));
+    }
+
+    Ok(s)
+}
+
 #[test]
 fn to_coord_test() {
     assert_eq!(to_sgf_coord(0).unwrap(), 'a');

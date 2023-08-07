@@ -4,10 +4,12 @@ use eframe::egui;
 use egui::{vec2, Ui, Vec2};
 
 use crate::sgf::Action;
+use crate::UiTool;
 use crate::{State, Stone};
 
 mod board;
 mod sgf;
+mod shapes;
 pub use board::BoardStyle;
 
 pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
@@ -28,7 +30,8 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
             vec2(min_size, min_size),
             state.style,
         );
-        let mut a = board::handle_click(ui, &br, &mut game_mut.board, &mut game_mut.turn);
+        let mut a =
+            board::handle_click(ui, &br, &mut game_mut.board, state.tool, &mut game_mut.turn);
 
         // TODO: put these in the center of the screen vertically
         ui.vertical(|ui| {
@@ -51,6 +54,20 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
 
                 game_mut.turn = !game_mut.turn;
             }
+
+            egui::ComboBox::from_label("Tool")
+                .selected_text(format!("{:?}", state.tool))
+                .show_ui(ui, |ui| {
+                    ui.selectable_value(&mut state.tool, UiTool::Play, "Play");
+                    ui.selectable_value(&mut state.tool, UiTool::Circle, "Circle");
+                    ui.selectable_value(&mut state.tool, UiTool::Cross, "Cross");
+                    ui.selectable_value(&mut state.tool, UiTool::Square, "Square");
+                    ui.selectable_value(&mut state.tool, UiTool::Triangle, "Triangle");
+                    ui.selectable_value(&mut state.tool, UiTool::Dim, "Dim");
+                    ui.selectable_value(&mut state.tool, UiTool::Label, "Label");
+                    ui.selectable_value(&mut state.tool, UiTool::Arrow, "Arrow");
+                    ui.selectable_value(&mut state.tool, UiTool::Line, "Line");
+                });
 
             if cfg!(debug_assertions) {
                 ui.checkbox(&mut state.debug_window, "show debug window");
