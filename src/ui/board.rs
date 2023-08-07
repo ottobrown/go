@@ -135,8 +135,29 @@ pub(super) fn render_board(
                 Markup::Square => {
                     shapes::square(&painter, center, stone_radius);
                 }
-
-                _ => todo!(),
+                Markup::Triangle => {
+                    shapes::triangle(&painter, center, stone_radius);
+                }
+                Markup::Dim => {
+                    shapes::dim(&painter, center, spacing);
+                }
+                Markup::Arrow(end_x, end_y) => {
+                    let end = egui::Pos2 {
+                        x: inner_rect.min.x + spacing.x * (end_x as f32),
+                        y: inner_rect.min.y + spacing.y * (end_y as f32),
+                    };
+                    shapes::arrow(&painter, center, end);
+                }
+                Markup::Line(end_x, end_y) => {
+                    let end = egui::Pos2 {
+                        x: inner_rect.min.x + spacing.x * (end_x as f32),
+                        y: inner_rect.min.y + spacing.y * (end_y as f32),
+                    };
+                    shapes::line(&painter, center, end);
+                }
+                Markup::Label(s) => {
+                    shapes::label(&painter, &s, center, stone_radius);
+                }
             }
         }
     }
@@ -158,7 +179,7 @@ pub(super) fn handle_click(
     ui: &mut Ui,
     br: &BoardResponse,
     board: &mut crate::Board,
-    tool: crate::UiTool,
+    tool: &mut crate::UiTool,
     turn: &mut Stone,
 ) -> Action {
     if !br.response.clicked() {
@@ -187,6 +208,7 @@ pub(super) fn handle_click(
                 }
             }
 
+            /// TODO: return markup `Action`s from this function
             UiTool::Circle => {
                 board.set_markup(x, y, Markup::Circle);
             }
@@ -196,8 +218,31 @@ pub(super) fn handle_click(
             UiTool::Square => {
                 board.set_markup(x, y, Markup::Square);
             }
-
-            _ => {}
+            UiTool::Triangle => {
+                board.set_markup(x, y, Markup::Triangle);
+            }
+            UiTool::Dim => {
+                board.set_markup(x, y, Markup::Dim);
+            }
+            UiTool::Arrow(o) => {
+                if let Some((start_x, start_y)) = o {
+                    board.set_markup(*start_x, *start_y, Markup::Arrow(x, y));
+                    *tool = UiTool::Arrow(None);
+                } else {
+                    *tool = UiTool::Arrow(Some((x, y)));
+                }
+            }
+            UiTool::Line(o) => {
+                if let Some((start_x, start_y)) = o {
+                    board.set_markup(*start_x, *start_y, Markup::Line(x, y));
+                    *tool = UiTool::Line(None);
+                } else {
+                    *tool = UiTool::Line(Some((x, y)));
+                }
+            }
+            UiTool::Label => {
+                board.set_markup(x, y, Markup::Label(String::from("A")));
+            }
         }
     }
 

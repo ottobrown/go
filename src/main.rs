@@ -85,6 +85,7 @@ pub enum UiTool {
     Triangle,
     Dim,
     Label,
-    Arrow,
-    Line,
+    /// Contains the base of the line
+    Arrow(Option<(usize, usize)>),
+    Line(Option<(usize, usize)>),
 }
