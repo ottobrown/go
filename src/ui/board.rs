@@ -208,40 +208,60 @@ pub(super) fn handle_click(
                 }
             }
 
-            /// TODO: return markup `Action`s from this function
             UiTool::Circle => {
-                board.set_markup(x, y, Markup::Circle);
+                if board.set_markup(x, y, Markup::Circle) {
+                    return Action::Circle(vec![(x, y)]);
+                }
             }
             UiTool::Cross => {
-                board.set_markup(x, y, Markup::Cross);
+                if board.set_markup(x, y, Markup::Cross) {
+                    return Action::Cross(vec![(x, y)]);
+                }
             }
             UiTool::Square => {
-                board.set_markup(x, y, Markup::Square);
+                if board.set_markup(x, y, Markup::Square) {
+                    return Action::Square(vec![(x, y)]);
+                }
             }
             UiTool::Triangle => {
-                board.set_markup(x, y, Markup::Triangle);
+                if board.set_markup(x, y, Markup::Triangle) {
+                    return Action::Triangle(vec![(x, y)]);
+                }
             }
             UiTool::Dim => {
-                board.set_markup(x, y, Markup::Dim);
+                if board.set_markup(x, y, Markup::Dim) {
+                    return Action::Dim(vec![(x, y)]);
+                }
             }
             UiTool::Arrow(o) => {
                 if let Some((start_x, start_y)) = o {
-                    board.set_markup(*start_x, *start_y, Markup::Arrow(x, y));
+                    let (sx, sy) = (*start_x, *start_y);
                     *tool = UiTool::Arrow(None);
+
+                    if board.set_markup(sx, sy, Markup::Arrow(x, y)) {
+                        return Action::Arrow(vec![[(sx, sy), (x, y)]]);
+                    }
                 } else {
                     *tool = UiTool::Arrow(Some((x, y)));
                 }
             }
             UiTool::Line(o) => {
                 if let Some((start_x, start_y)) = o {
-                    board.set_markup(*start_x, *start_y, Markup::Line(x, y));
+                    let (sx, sy) = (*start_x, *start_y);
                     *tool = UiTool::Line(None);
+
+                    if board.set_markup(sx, sy, Markup::Line(x, y)) {
+                        return Action::Line(vec![[(sx, sy), (x, y)]]);
+                    }
                 } else {
                     *tool = UiTool::Line(Some((x, y)));
                 }
             }
             UiTool::Label => {
-                board.set_markup(x, y, Markup::Label(String::from("A")));
+                let text = String::from("A");
+                if board.set_markup(x, y, Markup::Label(text.clone())) {
+                    return Action::Label(vec![(x, y, text)])
+                }
             }
         }
     }

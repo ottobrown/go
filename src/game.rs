@@ -1,6 +1,7 @@
 use crate::sgf::{Action, SgfResult, SgfTree};
 use crate::Board;
 use crate::Stone;
+use crate::board::Markup;
 use std::fs;
 use std::path::PathBuf;
 
@@ -16,6 +17,8 @@ pub struct Game {
 impl Game {
     pub fn do_action(&mut self, a: &Action) {
         match a {
+            Action::NoOp => {}
+
             Action::PlayBlack(x, y) => {
                 if !self.board.attempt_set(*x, *y, Stone::Black) {
                     self.board.set(*x, *y, Stone::Black);
@@ -29,7 +32,55 @@ impl Game {
                 self.turn = Stone::Black;
             }
 
-            _ => {}
+            Action::PassBlack => {}
+            Action::PassWhite => {}
+            Action::Size(_, _) => {}
+
+            Action::Circle(v) => {
+                for (x, y) in v {
+                    self.board.set_markup(*x, *y, Markup::Circle);
+                }
+            }
+            Action::Cross(v) => {
+                for (x, y) in v {
+                    self.board.set_markup(*x, *y, Markup::Cross);
+                }
+            }
+            Action::Square(v) => {
+                for (x, y) in v {
+                    self.board.set_markup(*x, *y, Markup::Square);
+                }
+            }
+            Action::Triangle(v) => {
+                for (x, y) in v {
+                    self.board.set_markup(*x, *y, Markup::Triangle);
+                }
+            }
+            Action::Dim(v) => {
+                for (x, y) in v {
+                    self.board.set_markup(*x, *y, Markup::Dim);
+                }
+            }
+            Action::Label(v) => {
+                for (x, y, s) in v {
+                    self.board.set_markup(*x, *y, Markup::Label(s.to_owned()));
+                }
+            }
+
+            Action::Arrow(v) => {
+                for [(sx, sy), (ex, ey)] in v {
+                    self.board.set_markup(*sx, *sy, Markup::Arrow(*ex, *ey));
+                }
+            }
+
+            Action::Line(v) => {
+                for [(sx, sy), (ex, ey)] in v {
+                    self.board.set_markup(*sx, *sy, Markup::Line(*ex, *ey));
+                }
+            }
+
+            Action::Other(_, _) => {}
+            Action::OtherMany(_, _) => {}
         }
     }
 
