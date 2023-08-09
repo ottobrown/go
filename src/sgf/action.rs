@@ -190,7 +190,7 @@ impl Action {
                         split.next().ok_or(SgfError::InvalidComposedLength)?,
                     ];
 
-                    if let Some(_) = split.next() {
+                    if split.next().is_some() {
                         return Err(SgfError::InvalidComposedLength);
                     }
 

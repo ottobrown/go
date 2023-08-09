@@ -95,7 +95,8 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
         }
 
         if a != crate::sgf::Action::NoOp {
-            game_mut.tree.handle_new_action(a, true);
+            let n = crate::util::new_node(&a);
+            game_mut.tree.handle_new_action(a, n);
         }
     }
 }

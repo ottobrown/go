@@ -1,6 +1,8 @@
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
+use crate::sgf::Action;
+
 pub fn calculate_hash<T: Hash>(t: &T) -> u64 {
     let mut s = DefaultHasher::new();
     t.hash(&mut s);
@@ -50,4 +52,12 @@ pub fn star_points(w: usize, h: usize) -> Vec<(usize, usize)> {
     points.push((w - 4, h - 4));
 
     points
+}
+
+/// Determines if an action should be the start of a new node
+pub fn new_node(a: &Action) -> bool {
+    matches!(
+        a,
+        Action::PlayWhite(_, _) | Action::PlayBlack(_, _) | Action::PassWhite | Action::PassBlack
+    )
 }
