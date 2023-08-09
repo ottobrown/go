@@ -93,6 +93,7 @@ impl Game {
         let all = self.tree.get_all_parent_action();
 
         for s in all.iter().rev() {
+            self.board.clear_markup();
             for a in s {
                 self.do_action(a);
             }

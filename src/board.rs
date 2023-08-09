@@ -115,6 +115,10 @@ impl Board {
         self.markup[i] = Markup::Empty;
     }
 
+    pub fn clear_markup(&mut self) {
+        self.markup = vec![Markup::Empty; self.size.0 * self.size.1];
+    }
+
     /// Places the stone if it is a legal move
     pub fn attempt_set(&mut self, x: usize, y: usize, s: Stone) -> bool {
         // prevent playing in a place that is already filled
