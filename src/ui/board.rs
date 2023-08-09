@@ -260,7 +260,7 @@ pub(super) fn handle_click(
             UiTool::Label => {
                 let text = String::from("A");
                 if board.set_markup(x, y, Markup::Label(text.clone())) {
-                    return Action::Label(vec![(x, y, text)])
+                    return Action::Label(vec![(x, y, text)]);
                 }
             }
         }

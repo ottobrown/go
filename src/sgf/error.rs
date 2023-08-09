@@ -14,6 +14,9 @@ pub enum SgfError {
     SizeParse,
     /// a coordinate should be 2 ASCII characters
     InvalidLength,
+    /// The wrong number of items in a composed value
+    /// ex: `LN` prop takes 2 composed coords: `LN[aa:bb]`. `LN[aa:bb:cc]` would be invalid.
+    InvalidComposedLength,
 
     Io(std::io::Error),
 }

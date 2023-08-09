@@ -1,7 +1,7 @@
+use crate::board::Markup;
 use crate::sgf::{Action, SgfResult, SgfTree};
 use crate::Board;
 use crate::Stone;
-use crate::board::Markup;
 use std::fs;
 use std::path::PathBuf;
 

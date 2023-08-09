@@ -50,6 +50,37 @@ pub fn coord_list(prop_name: &str, v: &Vec<(usize, usize)>) -> SgfResult<String>
     Ok(s)
 }
 
+pub fn points_list(v: &Vec<String>) -> SgfResult<Vec<(usize, usize)>> {
+    let mut points = Vec::with_capacity(v.len());
+    for i in v {
+        points.push(string_coords(&i)?);
+    }
+
+    return Ok(points);
+}
+
+pub fn points_pair_list(v: &Vec<String>) -> SgfResult<Vec<[(usize, usize); 2]>> {
+    let mut points = Vec::with_capacity(v.len());
+    for i in v {
+        let mut split = i.split(':');
+        let a: [&str; 2] = [
+            split.next().ok_or(SgfError::InvalidComposedLength)?,
+            split.next().ok_or(SgfError::InvalidComposedLength)?,
+        ];
+
+        if let Some(_) = split.next() {
+            return Err(SgfError::InvalidComposedLength);
+        }
+
+        let start = string_coords(a[0])?;
+        let end = string_coords(a[1])?;
+
+        points.push([start, end])
+    }
+
+    Ok(points)
+}
+
 #[test]
 fn to_coord_test() {
     assert_eq!(to_sgf_coord(0).unwrap(), 'a');

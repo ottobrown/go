@@ -175,7 +175,40 @@ impl Action {
     // clippy wants `v` to be &[String] instead of &Vec<String>
     #[allow(clippy::ptr_arg)]
     pub fn from_many(k: &str, v: &Vec<String>) -> SgfResult<Self> {
-        Ok(Action::OtherMany(k.to_string(), v.clone()))
+        let a = match k {
+            "CR" => Action::Circle(points_list(v)?),
+            "MA" => Action::Cross(points_list(v)?),
+            "SQ" => Action::Square(points_list(v)?),
+            "TR" => Action::Triangle(points_list(v)?),
+            "DD" => Action::Dim(points_list(v)?),
+            "LB" => {
+                let mut points = Vec::with_capacity(v.len());
+                for i in v {
+                    let mut split = i.split(':');
+                    let a: [&str; 2] = [
+                        split.next().ok_or(SgfError::InvalidComposedLength)?,
+                        split.next().ok_or(SgfError::InvalidComposedLength)?,
+                    ];
+
+                    if let Some(_) = split.next() {
+                        return Err(SgfError::InvalidComposedLength);
+                    }
+
+                    let (x, y) = string_coords(a[0])?;
+                    let s = a[1].to_string();
+
+                    points.push((x, y, s));
+                }
+
+                Action::Label(points)
+            }
+            "AR" => Action::Arrow(points_pair_list(v)?),
+            "LN" => Action::Line(points_pair_list(v)?),
+
+            _ => Action::OtherMany(k.to_string(), v.clone()),
+        };
+
+        Ok(a)
     }
 
     pub fn other(k: &str, v: &str) -> Self {
@@ -301,6 +334,14 @@ fn to_actions_test() {
         vec![
             Action::OtherMany("AB".to_string(), vec!["aa".to_string(), "bb".to_string()]),
             Action::PlayWhite(2, 2)
+        ]
+    );
+
+    assert_eq!(
+        to_actions(";SQ[aa][bb]AR[ac:ca][ad:da]"),
+        vec![
+            Action::Square(vec![(0, 0), (1, 1)]),
+            Action::Arrow(vec![[(0, 2), (2, 0)], [(0, 3), (3, 0)]]),
         ]
     );
 }
