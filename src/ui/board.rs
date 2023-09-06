@@ -5,7 +5,7 @@ use crate::Stone;
 use crate::UiTool;
 
 use eframe::egui;
-use egui::{pos2, vec2, Color32, Ui};
+use egui::{pos2, vec2, Color32, Pos2, Ui};
 
 #[derive(Clone, Copy)]
 pub struct BoardStyle {
@@ -67,6 +67,12 @@ pub(super) fn render_board(
         inner_rect.height() / (h - 1) as f32,
     );
 
+    let r = BoardResponse {
+        response,
+        inner_rect,
+        spacing,
+    };
+
     // draw outermost lines
     painter.rect_stroke(
         inner_rect,
@@ -124,48 +130,54 @@ pub(super) fn render_board(
                 painter.circle_filled(center, stone_radius, Color32::WHITE);
             }
 
-            match board.get_markup(x, y) {
-                Markup::Empty => {}
-                Markup::Circle => {
-                    shapes::circle(&painter, center, stone_radius);
-                }
-                Markup::Cross => {
-                    shapes::cross(&painter, center, stone_radius);
-                }
-                Markup::Square => {
-                    shapes::square(&painter, center, stone_radius);
-                }
-                Markup::Triangle => {
-                    shapes::triangle(&painter, center, stone_radius);
-                }
-                Markup::Dim => {
-                    shapes::dim(&painter, center, spacing);
-                }
-                Markup::Arrow(end_x, end_y) => {
-                    let end = egui::Pos2 {
-                        x: inner_rect.min.x + spacing.x * (end_x as f32),
-                        y: inner_rect.min.y + spacing.y * (end_y as f32),
-                    };
-                    shapes::arrow(&painter, center, end);
-                }
-                Markup::Line(end_x, end_y) => {
-                    let end = egui::Pos2 {
-                        x: inner_rect.min.x + spacing.x * (end_x as f32),
-                        y: inner_rect.min.y + spacing.y * (end_y as f32),
-                    };
-                    shapes::line(&painter, center, end);
-                }
-                Markup::Label(s) => {
-                    shapes::label(&painter, &s, center, stone_radius);
-                }
-            }
+            draw_markup(board.get_markup(x, y), &painter, center, stone_radius, &r);
         }
     }
 
-    BoardResponse {
-        response,
-        inner_rect,
-        spacing,
+    r
+}
+
+fn draw_markup(
+    markup: Markup,
+    painter: &egui::Painter,
+    center: Pos2,
+    stone_radius: f32,
+    r: &BoardResponse,
+) {
+    match markup {
+        Markup::Empty => {}
+        Markup::Circle => {
+            shapes::circle(painter, center, stone_radius);
+        }
+        Markup::Cross => {
+            shapes::cross(painter, center, stone_radius);
+        }
+        Markup::Square => {
+            shapes::square(painter, center, stone_radius);
+        }
+        Markup::Triangle => {
+            shapes::triangle(painter, center, stone_radius);
+        }
+        Markup::Dim => {
+            shapes::dim(painter, center, r.spacing);
+        }
+        Markup::Arrow(end_x, end_y) => {
+            let end = egui::Pos2 {
+                x: r.inner_rect.min.x + r.spacing.x * (end_x as f32),
+                y: r.inner_rect.min.y + r.spacing.y * (end_y as f32),
+            };
+            shapes::arrow(painter, center, end);
+        }
+        Markup::Line(end_x, end_y) => {
+            let end = egui::Pos2 {
+                x: r.inner_rect.min.x + r.spacing.x * (end_x as f32),
+                y: r.inner_rect.min.y + r.spacing.y * (end_y as f32),
+            };
+            shapes::line(painter, center, end);
+        }
+        Markup::Label(s) => {
+            shapes::label(painter, &s, center, stone_radius);
+        }
     }
 }
 
