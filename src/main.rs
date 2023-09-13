@@ -45,7 +45,7 @@ pub struct State {
     builder: GameBuilder,
     style: ui::BoardStyle,
     debug_window: bool,
-    tool: UiTool,
+    tool: ui::UiTool,
 }
 
 impl State {
@@ -55,7 +55,10 @@ impl State {
             builder: GameBuilder::default(),
             style: ui::BoardStyle::default(),
             debug_window: false,
-            tool: UiTool::Play,
+            tool: ui::UiTool {
+                tool: ui::ToolType::Play,
+                base: None,
+            },
         }
     }
 }
@@ -73,19 +76,4 @@ impl eframe::App for State {
                 });
             });
     }
-}
-
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum UiTool {
-    /// Place alternating black and white stones
-    Play,
-    Circle,
-    Cross,
-    Square,
-    Triangle,
-    Dim,
-    Label,
-    /// Contains the base of the line
-    Arrow(Option<(usize, usize)>),
-    Line(Option<(usize, usize)>),
 }

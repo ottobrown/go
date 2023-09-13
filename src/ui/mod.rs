@@ -4,13 +4,15 @@ use eframe::egui;
 use egui::{vec2, Ui, Vec2};
 
 use crate::sgf::Action;
-use crate::UiTool;
 use crate::{State, Stone};
 
 mod board;
 mod sgf;
 mod shapes;
+mod tool;
+
 pub use board::BoardStyle;
+pub use tool::*;
 
 pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
     if state.game.is_none() {
@@ -83,17 +85,17 @@ fn render_game(state: &mut State, ui: &mut Ui, size: Vec2) -> Action {
         }
 
         egui::ComboBox::from_label("Tool")
-            .selected_text(format!("{:?}", state.tool))
+            .selected_text(format!("{:?}", state.tool.tool))
             .show_ui(ui, |ui| {
-                ui.selectable_value(&mut state.tool, UiTool::Play, "Play");
-                ui.selectable_value(&mut state.tool, UiTool::Circle, "Circle");
-                ui.selectable_value(&mut state.tool, UiTool::Cross, "Cross");
-                ui.selectable_value(&mut state.tool, UiTool::Square, "Square");
-                ui.selectable_value(&mut state.tool, UiTool::Triangle, "Triangle");
-                ui.selectable_value(&mut state.tool, UiTool::Dim, "Dim");
-                ui.selectable_value(&mut state.tool, UiTool::Label, "Label");
-                ui.selectable_value(&mut state.tool, UiTool::Arrow(None), "Arrow");
-                ui.selectable_value(&mut state.tool, UiTool::Line(None), "Line");
+                ui.selectable_value(&mut state.tool.tool, ToolType::Play, "Play");
+                ui.selectable_value(&mut state.tool.tool, ToolType::Circle, "Circle");
+                ui.selectable_value(&mut state.tool.tool, ToolType::Cross, "Cross");
+                ui.selectable_value(&mut state.tool.tool, ToolType::Square, "Square");
+                ui.selectable_value(&mut state.tool.tool, ToolType::Triangle, "Triangle");
+                ui.selectable_value(&mut state.tool.tool, ToolType::Dim, "Dim");
+                ui.selectable_value(&mut state.tool.tool, ToolType::Label, "Label");
+                ui.selectable_value(&mut state.tool.tool, ToolType::Arrow, "Arrow");
+                ui.selectable_value(&mut state.tool.tool, ToolType::Line, "Line");
             });
 
         if cfg!(debug_assertions) {

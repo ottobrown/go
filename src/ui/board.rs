@@ -1,9 +1,10 @@
 use super::shapes;
+use super::ToolType;
+use super::UiTool;
 use crate::board::Markup;
 use crate::sgf::Action;
 use crate::Board;
 use crate::Stone;
-use crate::UiTool;
 
 use eframe::egui;
 use egui::{pos2, vec2, Color32, Pos2, Ui};
@@ -215,8 +216,8 @@ impl BoardRenderer {
             (((p.y - self.inner_rect.min.y) / self.spacing.y).round() as usize).min(h - 1),
         );
 
-        match tool {
-            UiTool::Play => {
+        match tool.tool {
+            ToolType::Play => {
                 if board.attempt_set(x, y, *turn) {
                     *turn = !*turn;
 
@@ -229,56 +230,54 @@ impl BoardRenderer {
                 }
             }
 
-            UiTool::Circle => {
+            ToolType::Circle => {
                 if board.set_markup(x, y, Markup::Circle) {
                     return Action::Circle(vec![(x, y)]);
                 }
             }
-            UiTool::Cross => {
+            ToolType::Cross => {
                 if board.set_markup(x, y, Markup::Cross) {
                     return Action::Cross(vec![(x, y)]);
                 }
             }
-            UiTool::Square => {
+            ToolType::Square => {
                 if board.set_markup(x, y, Markup::Square) {
                     return Action::Square(vec![(x, y)]);
                 }
             }
-            UiTool::Triangle => {
+            ToolType::Triangle => {
                 if board.set_markup(x, y, Markup::Triangle) {
                     return Action::Triangle(vec![(x, y)]);
                 }
             }
-            UiTool::Dim => {
+            ToolType::Dim => {
                 if board.set_markup(x, y, Markup::Dim) {
                     return Action::Dim(vec![(x, y)]);
                 }
             }
-            UiTool::Arrow(o) => {
-                if let Some((start_x, start_y)) = o {
-                    let (sx, sy) = (*start_x, *start_y);
-                    *tool = UiTool::Arrow(None);
+            ToolType::Arrow => {
+                if let Some((sx, sy)) = tool.base {
+                    tool.base = None;
 
                     if board.set_markup(sx, sy, Markup::Arrow(x, y)) {
                         return Action::Arrow(vec![[(sx, sy), (x, y)]]);
                     }
                 } else {
-                    *tool = UiTool::Arrow(Some((x, y)));
+                    tool.base = Some((x, y));
                 }
             }
-            UiTool::Line(o) => {
-                if let Some((start_x, start_y)) = o {
-                    let (sx, sy) = (*start_x, *start_y);
-                    *tool = UiTool::Line(None);
+            ToolType::Line => {
+                if let Some((sx, sy)) = tool.base {
+                    tool.base = None;
 
                     if board.set_markup(sx, sy, Markup::Line(x, y)) {
                         return Action::Line(vec![[(sx, sy), (x, y)]]);
                     }
                 } else {
-                    *tool = UiTool::Line(Some((x, y)));
+                    tool.base = Some((x, y));
                 }
             }
-            UiTool::Label => {
+            ToolType::Label => {
                 let text = String::from("A");
                 if board.set_markup(x, y, Markup::Label(text.clone())) {
                     return Action::Label(vec![(x, y, text)]);
