@@ -24,20 +24,10 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
     } else {
         let a = render_game(state, ui, size);
 
-        let game_mut = state.game.as_mut().unwrap();
-
         #[cfg(debug_assertions)]
-        if state.debug_window {
-            egui::Window::new("debug").show(ui.ctx(), |ui| {
-                egui::ScrollArea::both().show(ui, |ui| {
-                    egui::CollapsingHeader::new("Game Tree").show(ui, |ui| {
-                        ui.code_editor(&mut format!("{:#?}", game_mut.tree));
-                    });
-                    ui.code_editor(&mut game_mut.tree.to_text());
-                    ui.code_editor(crate::DEBUG_LOG.lock().unwrap().deref_mut())
-                });
-            });
-        }
+        debug_window(ui, state);
+
+        let game_mut = state.game.as_mut().unwrap();
 
         if a != crate::sgf::Action::NoOp {
             let n = crate::util::new_node(&a);
@@ -65,49 +55,55 @@ fn render_game(state: &mut State, ui: &mut Ui, size: Vec2) -> Action {
 
     // TODO: put these in the center of the screen vertically
     ui.vertical(|ui| {
-        if ui.button("save").clicked() {
-            if let Err(e) = game_mut.write_to_file() {
-                ui.label("FAILED TO SAVE!!");
-
-                #[cfg(debug_assertions)]
-                crate::log(format!("Failed to save with {:?}", e));
-            }
-        }
-
-        if ui.button("pass").clicked() {
-            if game_mut.turn == Stone::Black {
-                a = Action::PassBlack;
-            }
-            if game_mut.turn == Stone::White {
-                a = Action::PassWhite;
-            }
-
-            game_mut.turn = !game_mut.turn;
-        }
-
-        egui::ComboBox::from_label("Tool")
-            .selected_text(format!("{:?}", state.tool.tool))
-            .show_ui(ui, |ui| {
-                ui.selectable_value(&mut state.tool.tool, ToolType::Play, "Play");
-                ui.selectable_value(&mut state.tool.tool, ToolType::Circle, "Circle");
-                ui.selectable_value(&mut state.tool.tool, ToolType::Cross, "Cross");
-                ui.selectable_value(&mut state.tool.tool, ToolType::Square, "Square");
-                ui.selectable_value(&mut state.tool.tool, ToolType::Triangle, "Triangle");
-                ui.selectable_value(&mut state.tool.tool, ToolType::Dim, "Dim");
-                ui.selectable_value(&mut state.tool.tool, ToolType::Arrow, "Arrow");
-                ui.selectable_value(&mut state.tool.tool, ToolType::Line, "Line");
-                ui.selectable_value(&mut state.tool.tool, ToolType::Number, "Number");
-                ui.selectable_value(&mut state.tool.tool, ToolType::Letter, "Letter");
-            });
-
-        if cfg!(debug_assertions) {
-            ui.checkbox(&mut state.debug_window, "show debug window");
-        }
-
-        sgf::sgf_arrows(ui, game_mut);
+        sidebar(ui, state, &mut a);
     });
 
     a
+}
+
+fn sidebar(ui: &mut Ui, state: &mut State, a: &mut Action) {
+    let game_mut = state.game.as_mut().unwrap();
+
+    if ui.button("save").clicked() {
+        if let Err(e) = game_mut.write_to_file() {
+            ui.label("FAILED TO SAVE!!");
+
+            #[cfg(debug_assertions)]
+            crate::log(format!("Failed to save with {:?}", e));
+        }
+    }
+
+    if ui.button("pass").clicked() {
+        if game_mut.turn == Stone::Black {
+            *a = Action::PassBlack;
+        }
+        if game_mut.turn == Stone::White {
+            *a = Action::PassWhite;
+        }
+
+        game_mut.turn = !game_mut.turn;
+    }
+
+    egui::ComboBox::from_label("Tool")
+        .selected_text(format!("{:?}", state.tool.tool))
+        .show_ui(ui, |ui| {
+            ui.selectable_value(&mut state.tool.tool, ToolType::Play, "Play");
+            ui.selectable_value(&mut state.tool.tool, ToolType::Circle, "Circle");
+            ui.selectable_value(&mut state.tool.tool, ToolType::Cross, "Cross");
+            ui.selectable_value(&mut state.tool.tool, ToolType::Square, "Square");
+            ui.selectable_value(&mut state.tool.tool, ToolType::Triangle, "Triangle");
+            ui.selectable_value(&mut state.tool.tool, ToolType::Dim, "Dim");
+            ui.selectable_value(&mut state.tool.tool, ToolType::Arrow, "Arrow");
+            ui.selectable_value(&mut state.tool.tool, ToolType::Line, "Line");
+            ui.selectable_value(&mut state.tool.tool, ToolType::Number, "Number");
+            ui.selectable_value(&mut state.tool.tool, ToolType::Letter, "Letter");
+        });
+
+    if cfg!(debug_assertions) {
+        ui.checkbox(&mut state.debug_window, "show debug window");
+    }
+
+    if sgf::sgf_arrows(ui, game_mut) { state.tool.clear(); }
 }
 
 /// Edits details of the game such as the baord size, etc.
@@ -135,4 +131,20 @@ fn game_creator(builder: &mut crate::GameBuilder, ui: &mut Ui) -> bool {
     }
 
     false
+}
+
+fn debug_window(ui: &mut Ui, state: &State) {
+    let game = state.game.as_ref().unwrap();
+
+    if state.debug_window {
+        egui::Window::new("debug").show(ui.ctx(), |ui| {
+            egui::ScrollArea::both().show(ui, |ui| {
+                egui::CollapsingHeader::new("Game Tree").show(ui, |ui| {
+                    ui.code_editor(&mut format!("{:#?}", game.tree));
+                });
+                ui.code_editor(&mut game.tree.to_text());
+                ui.code_editor(crate::DEBUG_LOG.lock().unwrap().deref_mut())
+            });
+        });
+    }
 }
