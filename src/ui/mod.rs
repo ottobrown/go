@@ -43,6 +43,7 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
             let n = crate::util::new_node(&a);
             if n {
                 game_mut.board.clear_markup();
+                state.tool.clear();
             }
             game_mut.tree.handle_new_action(a, n);
         }
@@ -93,9 +94,10 @@ fn render_game(state: &mut State, ui: &mut Ui, size: Vec2) -> Action {
                 ui.selectable_value(&mut state.tool.tool, ToolType::Square, "Square");
                 ui.selectable_value(&mut state.tool.tool, ToolType::Triangle, "Triangle");
                 ui.selectable_value(&mut state.tool.tool, ToolType::Dim, "Dim");
-                ui.selectable_value(&mut state.tool.tool, ToolType::Label, "Label");
                 ui.selectable_value(&mut state.tool.tool, ToolType::Arrow, "Arrow");
                 ui.selectable_value(&mut state.tool.tool, ToolType::Line, "Line");
+                ui.selectable_value(&mut state.tool.tool, ToolType::Number, "Number");
+                ui.selectable_value(&mut state.tool.tool, ToolType::Letter, "Letter");
             });
 
         if cfg!(debug_assertions) {

@@ -277,9 +277,17 @@ impl BoardRenderer {
                     tool.base = Some((x, y));
                 }
             }
-            ToolType::Label => {
-                let text = String::from("A");
+            ToolType::Number => {
+                let text = format!("{}", tool.number);
                 if board.set_markup(x, y, Markup::Label(text.clone())) {
+                    tool.number += 1;
+                    return Action::Label(vec![(x, y, text)]);
+                }
+            }
+            ToolType::Letter => {
+                let text = format!("{}", tool.letter);
+                if board.set_markup(x, y, Markup::Label(text.clone())) {
+                    tool.letter = crate::util::next_letter(tool.letter);
                     return Action::Label(vec![(x, y, text)]);
                 }
             }

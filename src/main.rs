@@ -58,6 +58,8 @@ impl State {
             tool: ui::UiTool {
                 tool: ui::ToolType::Play,
                 base: None,
+                letter: 'A',
+                number: 1,
             },
         }
     }

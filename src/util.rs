@@ -61,3 +61,15 @@ pub fn new_node(a: &Action) -> bool {
         Action::PlayWhite(_, _) | Action::PlayBlack(_, _) | Action::PassWhite | Action::PassBlack
     )
 }
+
+/// Expects an uppercase letter.
+/// Returns the next uppercase letter or loops back to A if out of range.
+pub fn next_letter(c: char) -> char {
+    let i = 1 + (c as u8);
+
+    if i > b'Z' {
+        return 'A';
+    }
+
+    i as char
+}
