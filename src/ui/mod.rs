@@ -50,22 +50,15 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
 /// Assumes `state.game` is `Some(...)`
 fn render_game(state: &mut State, ui: &mut Ui, size: Vec2) -> Action {
     let min_size = size.x.min(size.y);
+    let size = vec2(min_size, min_size);
 
     let game_mut = state.game.as_mut().unwrap();
 
-    let br = board::render_board(
-        &mut game_mut.board,
-        ui,
-        vec2(min_size, min_size),
-        state.style,
-    );
-    let mut a = board::handle_click(
-        ui,
-        &br,
-        &mut game_mut.board,
-        &mut state.tool,
-        &mut game_mut.turn,
-    );
+    let board_render = board::BoardRenderer::build(ui, &game_mut.board, size, &state.style);
+    board_render.render_board(&game_mut.board, &state.style);
+
+    let mut a =
+        board_render.handle_click(ui, &mut game_mut.board, &mut state.tool, &mut game_mut.turn);
 
     // TODO: put these in the center of the screen vertically
     ui.vertical(|ui| {
