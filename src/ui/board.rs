@@ -127,7 +127,7 @@ impl BoardRenderer {
                 .circle_filled(pos, style.star_point_radius, Color32::BLACK);
         }
 
-        // draw stones and markup
+        // draw stones
         for x in 0..w {
             for y in 0..h {
                 let center = egui::Pos2 {
@@ -144,6 +144,16 @@ impl BoardRenderer {
                     self.painter
                         .circle_filled(center, self.stone_radius, Color32::WHITE);
                 }
+            }
+        }
+
+        // draw markup above stones
+        for x in 0..w {
+            for y in 0..h {
+                let center = egui::Pos2 {
+                    x: self.inner_rect.min.x + self.spacing.x * (x as f32),
+                    y: self.inner_rect.min.y + self.spacing.y * (y as f32),
+                };
 
                 self.draw_markup(board.get_markup(x, y), center);
             }
