@@ -79,6 +79,8 @@ impl Game {
                 }
             }
 
+            Action::Comment(_) => {}
+
             Action::Other(_, _) => {}
             Action::OtherMany(_, _) => {}
         }

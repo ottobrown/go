@@ -35,6 +35,8 @@ pub enum Action {
     /// LN[xy:xy][xy:xy] ...
     Line(Vec<[(usize, usize); 2]>),
 
+    Comment(String),
+
     Other(String, String),
     OtherMany(String, Vec<String>),
 }
@@ -110,6 +112,8 @@ impl Action {
                 string
             }
 
+            Comment(s) => format!("C[{}]", s),
+
             Other(k, v) => format!("{}[{}]", &k, &v),
             OtherMany(k, v) => {
                 let mut string = k.to_string();
@@ -167,6 +171,8 @@ impl Action {
 
                 Self::Size(s[0], s[1])
             }
+
+            "C" => Self::Comment(String::from(v)),
 
             _ => Self::Other(String::from(k), String::from(v)),
         })
@@ -338,10 +344,11 @@ fn to_actions_test() {
     );
 
     assert_eq!(
-        to_actions(";SQ[aa][bb]AR[ac:ca][ad:da]"),
+        to_actions(";SQ[aa][bb]AR[ac:ca][ad:da]C[text text text]"),
         vec![
             Action::Square(vec![(0, 0), (1, 1)]),
             Action::Arrow(vec![[(0, 2), (2, 0)], [(0, 3), (3, 0)]]),
+            Action::Comment("text text text".to_string()),
         ]
     );
 }

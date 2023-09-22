@@ -103,7 +103,9 @@ fn sidebar(ui: &mut Ui, state: &mut State, a: &mut Action) {
         ui.checkbox(&mut state.debug_window, "show debug window");
     }
 
-    if sgf::sgf_arrows(ui, game_mut) { state.tool.clear(); }
+    if sgf::sgf_arrows(ui, game_mut) {
+        state.tool.clear();
+    }
 }
 
 /// Edits details of the game such as the baord size, etc.
