@@ -43,9 +43,7 @@ pub struct State {
     /// None => show game builder ui
     game: Option<Game>,
     builder: GameBuilder,
-    style: ui::BoardStyle,
-    debug_window: bool,
-    tool: ui::UiTool,
+    ui_state: ui::UiState,
 }
 
 impl State {
@@ -53,14 +51,7 @@ impl State {
         Self {
             game: None,
             builder: GameBuilder::default(),
-            style: ui::BoardStyle::default(),
-            debug_window: false,
-            tool: ui::UiTool {
-                tool: ui::ToolType::Play,
-                base: None,
-                letter: 'A',
-                number: 1,
-            },
+            ui_state: ui::UiState::default(),
         }
     }
 }

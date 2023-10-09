@@ -4,7 +4,7 @@ use eframe::egui;
 use egui::{vec2, Ui, Vec2};
 
 use crate::sgf::Action;
-use crate::{State, Stone};
+use crate::{State, Stone, Game};
 
 mod board;
 mod sgf;
@@ -14,6 +14,26 @@ mod tool;
 pub use board::BoardStyle;
 pub use tool::*;
 
+pub struct UiState {
+    style: BoardStyle,
+    debug_window: bool,
+    tool: UiTool,
+}
+impl Default for UiState {
+    fn default() -> Self {
+        Self {
+            style: BoardStyle::default(),
+            debug_window: false,
+            tool: UiTool {
+                tool: ToolType::Play,
+                base: None,
+                letter: 'A',
+                number: 1,
+            },
+        }
+    }
+}
+
 pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
     if state.game.is_none() {
         ui.vertical(|ui| {
@@ -22,30 +42,26 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
             }
         });
     } else {
-        let a = render_game(state, ui, size);
-
-        #[cfg(debug_assertions)]
-        debug_window(ui, state);
-
         let game_mut = state.game.as_mut().unwrap();
+        let a = render_game(&mut state.ui_state, game_mut, ui, size);
 
         if a != crate::sgf::Action::NoOp {
             let n = crate::util::new_node(&a);
             if n {
                 game_mut.board.clear_markup();
-                state.tool.clear();
+                state.ui_state.tool.clear();
             }
             game_mut.tree.handle_new_action(a, n);
         }
+
+        #[cfg(debug_assertions)]
+        debug_window(ui, state);
     }
 }
 
-/// Assumes `state.game` is `Some(...)`
-fn render_game(state: &mut State, ui: &mut Ui, size: Vec2) -> Action {
+fn render_game(state: &mut UiState, game_mut: &mut Game, ui: &mut Ui, size: Vec2) -> Action {
     let min_size = size.x.min(size.y);
     let size = vec2(min_size, min_size);
-
-    let game_mut = state.game.as_mut().unwrap();
 
     let board_render = board::BoardRenderer::build(ui, &game_mut.board, size, &state.style);
     board_render.render_board(&game_mut.board, &state.style);
@@ -55,15 +71,13 @@ fn render_game(state: &mut State, ui: &mut Ui, size: Vec2) -> Action {
 
     // TODO: put these in the center of the screen vertically
     ui.vertical(|ui| {
-        sidebar(ui, state, &mut a);
+        sidebar(ui, state, game_mut, &mut a);
     });
 
     a
 }
 
-fn sidebar(ui: &mut Ui, state: &mut State, a: &mut Action) {
-    let game_mut = state.game.as_mut().unwrap();
-
+fn sidebar(ui: &mut Ui, state: &mut UiState, game_mut: &mut Game, a: &mut Action) {
     if ui.button("save").clicked() {
         if let Err(e) = game_mut.write_to_file() {
             ui.label("FAILED TO SAVE!!");
@@ -138,7 +152,7 @@ fn game_creator(builder: &mut crate::GameBuilder, ui: &mut Ui) -> bool {
 fn debug_window(ui: &mut Ui, state: &State) {
     let game = state.game.as_ref().unwrap();
 
-    if state.debug_window {
+    if state.ui_state.debug_window {
         egui::Window::new("debug").show(ui.ctx(), |ui| {
             egui::ScrollArea::both().show(ui, |ui| {
                 egui::CollapsingHeader::new("Game Tree").show(ui, |ui| {

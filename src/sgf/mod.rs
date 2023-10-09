@@ -49,6 +49,10 @@ impl SgfTree {
         &self.nodes[self.current]
     }
 
+    pub fn current_node_mut(&mut self) -> &mut SgfNode {
+        &mut self.nodes[self.current]
+    }
+
     pub fn root(&self) -> &SgfNode {
         &self.nodes[0]
     }
