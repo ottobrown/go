@@ -4,7 +4,7 @@ use eframe::egui;
 use egui::{vec2, Ui, Vec2};
 
 use crate::sgf::Action;
-use crate::{State, Stone, Game};
+use crate::{Game, State, Stone};
 
 mod board;
 mod sgf;
@@ -18,6 +18,8 @@ pub struct UiState {
     style: BoardStyle,
     debug_window: bool,
     tool: UiTool,
+    /// Index on the current node
+    comment: Option<usize>,
 }
 impl Default for UiState {
     fn default() -> Self {
@@ -30,7 +32,13 @@ impl Default for UiState {
                 letter: 'A',
                 number: 1,
             },
+            comment: None,
         }
+    }
+}
+impl UiState {
+    fn clear_comment(&mut self) {
+        self.comment = None;
     }
 }
 
@@ -50,6 +58,7 @@ pub fn render(state: &mut State, ui: &mut Ui, size: Vec2) {
             if n {
                 game_mut.board.clear_markup();
                 state.ui_state.tool.clear();
+                state.ui_state.clear_comment();
             }
             game_mut.tree.handle_new_action(a, n);
         }
@@ -72,6 +81,7 @@ fn render_game(state: &mut UiState, game_mut: &mut Game, ui: &mut Ui, size: Vec2
     // TODO: put these in the center of the screen vertically
     ui.vertical(|ui| {
         sidebar(ui, state, game_mut, &mut a);
+        sgf::edit_comment(ui, &mut game_mut.tree.current_node_mut().actions, state);
     });
 
     a
@@ -119,6 +129,7 @@ fn sidebar(ui: &mut Ui, state: &mut UiState, game_mut: &mut Game, a: &mut Action
 
     if sgf::sgf_arrows(ui, game_mut) {
         state.tool.clear();
+        state.clear_comment();
     }
 }
 

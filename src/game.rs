@@ -79,7 +79,6 @@ impl Game {
                 }
             }
 
-
             Action::Comment(_) => {}
 
             Action::Other(_, _) => {}
