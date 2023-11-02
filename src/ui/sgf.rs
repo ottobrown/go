@@ -34,6 +34,7 @@ pub fn edit_comment(ui: &mut Ui, actions: &mut Vec<Action>, state: &mut UiState)
     if let Some(i) = state.comment {
         if let Action::Comment(ref mut s) = &mut actions[i] {
             ui.text_edit_multiline(s);
+            // TODO: add the ability to edit multiple comments
         } else {
             #[cfg(debug_assertions)]
             crate::log(format!("UiState::comment is not valid!"));

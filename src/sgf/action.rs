@@ -220,6 +220,22 @@ impl Action {
     pub fn other(k: &str, v: &str) -> Self {
         Self::Other(String::from(k), String::from(v))
     }
+
+    pub fn is_markup(&self) -> bool {
+        match self {
+            Self::Circle(_)
+            | Self::Cross(_)
+            | Self::Square(_)
+            | Self::Triangle(_)
+            | Self::Dim(_)
+            | Self::Label(_)
+            | Self::Arrow(_)
+            | Self::Line(_)
+            | Self::Comment(_) => true,
+
+            _ => false,
+        }
+    }
 }
 
 impl std::fmt::Display for Action {

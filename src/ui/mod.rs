@@ -10,6 +10,7 @@ mod board;
 mod sgf;
 mod shapes;
 mod tool;
+mod markup;
 
 pub use board::BoardStyle;
 pub use tool::*;
