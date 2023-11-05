@@ -10,6 +10,10 @@ pub enum Action {
     PlayBlack(usize, usize),
     /// W[xy]
     PlayWhite(usize, usize),
+    /// AB[xy][xy]...
+    AddBlack(Vec<(usize, usize)>),
+    /// AW[xy][xy]...
+    AddWhite(Vec<(usize, usize)>),
     /// B[]
     PassBlack,
     /// W[]
@@ -51,6 +55,8 @@ impl Action {
             // of the PlayBlack or PlayWhite
             PlayBlack(x, y) => format!("B[{}{}]", to_sgf_coord(*x)?, to_sgf_coord(*y)?),
             PlayWhite(x, y) => format!("W[{}{}]", to_sgf_coord(*x)?, to_sgf_coord(*y)?),
+            AddBlack(v) => coord_list("AB", v)?,
+            AddWhite(v) => coord_list("AW", v)?,
             PassBlack => String::from("B[]"),
             PassWhite => String::from("W[]"),
             Size(w, h) => {
@@ -118,7 +124,7 @@ impl Action {
             OtherMany(k, v) => {
                 let mut string = k.to_string();
                 for i in v {
-                    string.push_str(i);
+                    string.push_str(&format!("[{}]", i));
                 }
 
                 string
@@ -182,6 +188,8 @@ impl Action {
     #[allow(clippy::ptr_arg)]
     pub fn from_many(k: &str, v: &Vec<String>) -> SgfResult<Self> {
         let a = match k {
+            "AB" => Action::AddBlack(points_list(v)?),
+            "AW" => Action::AddWhite(points_list(v)?),
             "CR" => Action::Circle(points_list(v)?),
             "MA" => Action::Cross(points_list(v)?),
             "SQ" => Action::Square(points_list(v)?),
@@ -273,14 +281,17 @@ pub fn to_actions(s: &str) -> Vec<Action> {
     for fragment in fragments {
         match fragment {
             PropFragment::Name(n) => {
-                if props.len() == 1 {
+                if props.len() == 0 {
+                    name = n;
+                    continue;
+                }
+                if !is_list(&name) {
                     let a = Action::from_pair(&name, &props[0]);
                     match a {
                         Ok(i) => actions.push(i),
                         Err(_e) => crate::log("[WARNING] Action::from_pair failed"),
                     };
-                }
-                if props.len() > 1 {
+                } else {
                     let a = Action::from_many(&name, &props);
                     match a {
                         Ok(i) => actions.push(i),
@@ -295,15 +306,13 @@ pub fn to_actions(s: &str) -> Vec<Action> {
         };
     }
 
-    // TODO: try to avoid ugly repetition
-    if props.len() == 1 {
+    if !is_list(&name) && props.len() != 0 {
         let a = Action::from_pair(&name, &props[0]);
         match a {
             Ok(i) => actions.push(i),
             Err(_e) => crate::log("[WARNING] Action::from_pair failed"),
         };
-    }
-    if props.len() > 1 {
+    } else {
         let a = Action::from_many(&name, &props);
         match a {
             Ok(i) => actions.push(i),
@@ -338,7 +347,7 @@ fn to_actions_test() {
     assert_eq!(
         to_actions(";AB[aa][bb]W[cc]"),
         vec![
-            Action::OtherMany("AB".to_string(), vec!["aa".to_string(), "bb".to_string()]),
+            Action::AddBlack(vec![(0, 0), (1, 1)]),
             Action::PlayWhite(2, 2)
         ]
     );

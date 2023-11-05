@@ -32,6 +32,17 @@ impl Game {
                 self.turn = Stone::Black;
             }
 
+            Action::AddBlack(v) => {
+                for (x, y) in v {
+                    self.board.set(*x, *y, Stone::Black);
+                }
+            }
+            Action::AddWhite(v) => {
+                for (x, y) in v {
+                    self.board.set(*x, *y, Stone::White);
+                }
+            }
+
             Action::PassBlack => {}
             Action::PassWhite => {}
             Action::Size(_, _) => {}

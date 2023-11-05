@@ -112,6 +112,8 @@ fn sidebar(ui: &mut Ui, state: &mut UiState, game_mut: &mut Game, a: &mut Action
         .selected_text(format!("{:?}", state.tool.tool))
         .show_ui(ui, |ui| {
             ui.selectable_value(&mut state.tool.tool, ToolType::Play, "Play");
+            ui.selectable_value(&mut state.tool.tool, ToolType::AddBlack, "Add Black");
+            ui.selectable_value(&mut state.tool.tool, ToolType::AddWhite, "Add White");
             ui.selectable_value(&mut state.tool.tool, ToolType::Circle, "Circle");
             ui.selectable_value(&mut state.tool.tool, ToolType::Cross, "Cross");
             ui.selectable_value(&mut state.tool.tool, ToolType::Square, "Square");
@@ -169,6 +171,7 @@ fn debug_window(ui: &mut Ui, state: &State) {
                 egui::CollapsingHeader::new("Game Tree").show(ui, |ui| {
                     ui.code_editor(&mut format!("{:#?}", game.tree));
                 });
+                ui.code_editor(&mut format!("{:?}", game.tree.current_node()));
                 ui.code_editor(&mut game.tree.to_text());
                 ui.code_editor(crate::DEBUG_LOG.lock().unwrap().deref_mut())
             });

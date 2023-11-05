@@ -2,6 +2,9 @@
 pub enum ToolType {
     /// Place alternating black and white stones
     Play,
+    AddBlack,
+    AddWhite,
+
     Circle,
     Cross,
     Square,

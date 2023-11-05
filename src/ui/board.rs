@@ -240,6 +240,15 @@ impl BoardRenderer {
                 }
             }
 
+            ToolType::AddBlack => {
+                board.set(x, y, Stone::Black);
+                return Action::AddBlack(vec![(x, y)]);
+            }
+            ToolType::AddWhite => {
+                board.set(x, y, Stone::White);
+                return Action::AddWhite(vec![(x, y)]);
+            }
+
             ToolType::Circle => {
                 if board.set_markup(x, y, Markup::Circle) {
                     return Action::Circle(vec![(x, y)]);

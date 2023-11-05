@@ -81,6 +81,14 @@ pub fn points_pair_list(v: &Vec<String>) -> SgfResult<Vec<[(usize, usize); 2]>> 
     Ok(points)
 }
 
+/// Determines if a property accepts a list as its value
+pub fn is_list(name: &str) -> bool {
+    match name {
+        "B" | "W" | "SZ" | "C" | "FF" | "CA" | "GM" => false,
+        _ => true,
+    }
+}
+
 #[test]
 fn to_coord_test() {
     assert_eq!(to_sgf_coord(0).unwrap(), 'a');
